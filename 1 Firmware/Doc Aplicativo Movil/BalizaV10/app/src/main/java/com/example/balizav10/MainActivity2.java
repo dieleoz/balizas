@@ -388,13 +388,17 @@ public class MainActivity2 extends AppCompatActivity {
                         {
                             device = blueDev[item];
                             String dName = blueDev[item].getName() != null ? blueDev[item].getName() : blueDev[item].getAddress();
-                            btnDevice.setText(dName);
+                            btnDevice.setText("✓ " + dName);
 
                             // habilitar botones de acción
                             btnRead.setEnabled(true);
                             btConf.setEnabled(true);
 
-                            Toast.makeText(MainActivity2.this, "Seleccionado: " + dName, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity2.this, "Conectando a " + dName + "...", Toast.LENGTH_SHORT).show();
+
+                            // AUTO-LEER INMEDIATAMENTE AL SELECCIONAR
+                            bReadConf = false;
+                            startClient();
                         }
                     }
                 });
@@ -495,6 +499,13 @@ public class MainActivity2 extends AppCompatActivity {
 
             mkmsg("✓ Sesion activa con la baliza\n");
 
+            // Purgar bytes residuales antes de transmitir
+            byte[] buffer = new byte[1024];
+            while (inStream.available() > 0)
+            {
+                inStream.read(buffer);
+            }
+
             if (bReadConf)
             {
                 // Enviar sincronización de reloj
@@ -523,30 +534,64 @@ public class MainActivity2 extends AppCompatActivity {
                 outStream.flush();
             }
 
-            // Lectura directa de la respuesta del PIC
-            byte[] buffer = new byte[1024];
+            // Lectura con doble seguridad (espera reactiva)
             StringBuilder sb = new StringBuilder();
+            long startTime = System.currentTimeMillis();
 
-            // inStream.read() bloquea en segundo plano hasta que llega la respuesta del micro
-            int read = inStream.read(buffer);
-            if (read > 0)
+            while (System.currentTimeMillis() - startTime < 3000)
             {
-                sb.append(new String(buffer, 0, read, "ISO-8859-1"));
-                // Dar 600 ms para acumular las líneas restantes del volcado
-                long readEnd = System.currentTimeMillis() + 600;
-                while (System.currentTimeMillis() < readEnd)
+                if (inStream.available() > 0)
                 {
-                    if (inStream.available() > 0)
+                    int read = inStream.read(buffer);
+                    if (read > 0)
                     {
-                        int extra = inStream.read(buffer);
-                        if (extra > 0)
+                        sb.append(new String(buffer, 0, read, "ISO-8859-1"));
+                        long readEnd = System.currentTimeMillis() + 800;
+                        while (System.currentTimeMillis() < readEnd)
                         {
-                            sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
-                            readEnd = System.currentTimeMillis() + 300;
+                            if (inStream.available() > 0)
+                            {
+                                int extra = inStream.read(buffer);
+                                if (extra > 0)
+                                {
+                                    sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
+                                    readEnd = System.currentTimeMillis() + 300;
+                                }
+                            }
+                            try { Thread.sleep(25); } catch (Exception ignored) {}
+                        }
+                        break;
+                    }
+                }
+                try { Thread.sleep(30); } catch (Exception ignored) {}
+            }
+
+            if (sb.length() == 0)
+            {
+                // Fallback de lectura bloqueante si available() reportó 0
+                try
+                {
+                    int read = inStream.read(buffer);
+                    if (read > 0)
+                    {
+                        sb.append(new String(buffer, 0, read, "ISO-8859-1"));
+                        long readEnd = System.currentTimeMillis() + 600;
+                        while (System.currentTimeMillis() < readEnd)
+                        {
+                            if (inStream.available() > 0)
+                            {
+                                int extra = inStream.read(buffer);
+                                if (extra > 0)
+                                {
+                                    sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
+                                    readEnd = System.currentTimeMillis() + 300;
+                                }
+                            }
+                            try { Thread.sleep(25); } catch (Exception ignored) {}
                         }
                     }
-                    try { Thread.sleep(20); } catch (Exception ignored) {}
                 }
+                catch (Exception ignored) {}
             }
 
             if (sb.length() > 0)
