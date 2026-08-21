@@ -83,10 +83,13 @@ public class MainActivity2 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
-        // poner incono  al lado del acction bar ***
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setIcon(R.mipmap.ic_launcher);
-        //******************************************
+        // Configurar icono IT Vial y título en Action Bar
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setIcon(R.drawable.logo_it_vial_icon);
+            getSupportActionBar().setTitle(" IT Vial — Baliza 30");
+        }
 
         scrollViewOut = (ScrollView)findViewById(R.id.idScrollViewOut);
         txtVoutput = (TextView)findViewById(R.id.idTxtViewOut);

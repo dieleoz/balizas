@@ -29,10 +29,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // poner incono  al lado del acction bar ***
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setIcon(R.mipmap.ic_launcher);
-        //******************************************
+        // Configurar icono IT Vial y título en Action Bar
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setIcon(R.drawable.logo_it_vial_icon);
+            getSupportActionBar().setTitle(" IT Vial");
+        }
 
         btnEntrar = (Button)findViewById(R.id.idBtEntrar);
         edTxtName = (EditText)findViewById(R.id. idEditTxName);

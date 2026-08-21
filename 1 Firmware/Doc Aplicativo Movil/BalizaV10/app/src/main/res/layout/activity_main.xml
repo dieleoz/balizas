@@ -1,114 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="20dp"
+    android:fillViewport="true"
     android:background="#ECEFF1"
     tools:context=".MainActivity">
 
-    <androidx.cardview.widget.CardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp">
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="20dp">
 
-        <LinearLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:background="#FFFFFF">
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
 
-            <!-- LOGO / CABECERA -->
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="BALIZA VIAL 30"
-                android:textColor="#D32F2F"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:gravity="center" />
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:background="#FFFFFF">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Versión v2.8 · Control y Diagnóstico"
-                android:textColor="#546E7A"
-                android:textSize="13sp"
-                android:gravity="center"
-                android:layout_marginBottom="20dp" />
+                <!-- BANNER LOGO IT VIAL -->
+                <ImageView
+                    android:id="@+id/idImgLogoBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="75dp"
+                    android:layout_marginBottom="14dp"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/logo_it_vial_banner" />
 
-            <!-- CAMPO USUARIO -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Usuario:"
-                android:textColor="#37474F"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="6dp" />
+                <!-- TITULO Y VERSION -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="BALIZA VIAL 30"
+                    android:textColor="#D32F2F"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
 
-            <EditText
-                android:id="@+id/idEditTxName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_bg"
-                android:hint="Ingrese usuario (admin)"
-                android:textColor="#212121"
-                android:textColorHint="#90A4AE"
-                android:inputType="textPersonName"
-                android:text="admin"
-                android:textSize="15sp"
-                android:layout_marginBottom="16dp" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Versión v2.9 · Control y Diagnóstico"
+                    android:textColor="#546E7A"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:layout_marginBottom="18dp" />
 
-            <!-- CAMPO CONTRASEÑA -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Contraseña:"
-                android:textColor="#37474F"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="6dp" />
+                <!-- CAMPO USUARIO -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Usuario:"
+                    android:textColor="#37474F"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
 
-            <EditText
-                android:id="@+id/idEditTxtPass"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_bg"
-                android:hint="Ingrese contraseña (admin)"
-                android:textColor="#212121"
-                android:textColorHint="#90A4AE"
-                android:inputType="textPassword"
-                android:text="admin"
-                android:textSize="15sp"
-                android:layout_marginBottom="22dp" />
+                <EditText
+                    android:id="@+id/idEditTxName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edit_text_bg"
+                    android:hint="Ingrese usuario (admin)"
+                    android:textColor="#212121"
+                    android:textColorHint="#90A4AE"
+                    android:inputType="textPersonName"
+                    android:text="admin"
+                    android:textSize="15sp"
+                    android:layout_marginBottom="14dp" />
 
-            <!-- BOTÓN ENTRAR -->
-            <Button
-                android:id="@+id/idBtEntrar"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:text="ENTRAR AL SISTEMA"
-                android:textStyle="bold"
-                app:backgroundTint="#D32F2F"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp" />
+                <!-- CAMPO CONTRASEÑA -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Contraseña:"
+                    android:textColor="#37474F"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Credenciales de técnico: admin / admin"
-                android:textColor="#78909C"
-                android:textSize="11sp"
-                android:gravity="center"
-                android:layout_marginTop="12dp" />
+                <EditText
+                    android:id="@+id/idEditTxtPass"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edit_text_bg"
+                    android:hint="Ingrese contraseña (admin)"
+                    android:textColor="#212121"
+                    android:textColorHint="#90A4AE"
+                    android:inputType="textPassword"
+                    android:text="admin"
+                    android:textSize="15sp"
+                    android:layout_marginBottom="20dp" />
 
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+                <!-- BOTÓN ENTRAR (RESPONSIVE SIN TEXTO CORTADO) -->
+                <Button
+                    android:id="@+id/idBtEntrar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="54dp"
+                    android:text="ENTRAR AL SISTEMA"
+                    android:textStyle="bold"
+                    app:backgroundTint="#D32F2F"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp" />
 
-</LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Credenciales de técnico: admin / admin"
+                    android:textColor="#78909C"
+                    android:textSize="11sp"
+                    android:gravity="center"
+                    android:layout_marginTop="12dp" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</ScrollView>
