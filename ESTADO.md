@@ -23,7 +23,7 @@ del instrumento.
 
 | # | escenario | qué demuestra |
 |---|---|---|
-| C | cadencia de la luz | mide **50 ms encendida / 50 ms apagada**; lo definido son **2 s / 2 s** |
+| C | cadencia de la luz | mide **50 ms encendida / 50 ms apagada**. Ni es lo de la reunión (2 s / 2 s) ni lo que pide la norma citada (500/500) |
 | D1 | arranque dentro de la franja | a las 07:00 con franja 06:00–09:00 la luz **no enciende** |
 | D2 | días personalizados | una alarma pedida para un día concreto **no se graba** y no se avisa |
 | D3 | días personalizados | la tarea de alarma se queda **clavada en `ST_CHECK_ALARM1`** para siempre |
@@ -121,7 +121,7 @@ validación módulo a módulo: [`MANUAL_FUNCIONAL_BLUETOOTH.md`](MANUAL_FUNCIONA
 
 | decisión | propuesta | estado |
 |---|---|---|
-| Cadencia del parpadeo | 2 s encendida / 2 s apagada | de una reunión, **sin documento**. Y 2 s es lento para una baliza de tráfico: merece confirmarse antes de programarlo |
+| Cadencia del parpadeo | **500 ms ON / 500 ms OFF** (≈1 Hz, 60 destellos/min) | la reunión dijo 2 s / 2 s; un informe del 21-ago cita el Manual de Señalización de Colombia, el MUTCD y el ITE pidiendo **50–60 destellos/min**. **Sin verificar contra el texto de la norma.** Las tres cadencias en juego difieren entre sí |
 | Nombre de los módulos | `BAL-NNN-D`, 9 caracteres (p. ej. `BAL-014-N`) | **propuesta**. Prefijo para agrupar en la lista del móvil, correlativo de instalación, y letra de sentido para dos señales enfrentadas |
 | PIN de emparejamiento | `2130` | **propuesta** |
 | Versión de XC8 | v2.46 para reproducir producción | **sin decidir**. Hoy hay v2.36 |

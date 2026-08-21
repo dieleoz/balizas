@@ -1444,3 +1444,558 @@ Cuando `ST_CHECK_HOURn` detecta el minuto de fin, `ap.flagAlarm` baja, `Aplicaci
 ráfaga en curso** (hasta ~1 s más) antes de apagarse definitivamente. Es un retardo aceptable.
 
 ---
+
+## 9. Defectos y riesgos encontrados
+
+Se han identificado **45 defectos**: 5 críticos, 11 altos, 18 medios y 11 bajos.
+Cada uno lleva su referencia `archivo:línea`. Ningún defecto de esta lista es una suposición: todos
+se pueden verificar abriendo el fichero indicado.
+
+### 9.1 Tabla resumen
+
+| ID | Gravedad | Defecto | Ubicación |
+|---|---|---|---|
+| [D01](#d01--el-firmware-usa-rc0-como-buzzer-pero-el-esquemático-dice-que-rc0-es-el-pulsador) | 🔴 Crítico | Buzzer en RC0 mientras el esquemático asigna RC0 al pulsador y RC1 al buzzer | `Buzzer.h:24-25`, `Buzzer.c:162-163` |
+| [D02](#d02--sin-watchdog-y-con-esperas-bloqueantes-sin-timeout) | 🔴 Crítico | Sin watchdog y con cuatro esperas bloqueantes sin timeout | `main.h:28`, `I2C.c:26`, `EEprom.c:23`, `Serial.c:64`, `main.c:192` |
+| [D03](#d03--las-ramas-de-días-personalizados-están-vacías-y-congelan-la-máquina-de-estados) | 🔴 Crítico | Ramas de días personalizados vacías: la máquina de estados se congela sin salida | `Alarma.c:241-245`, `:286-289`, `:329-332`, `:372-375`, `:415-418` |
+| [D04](#d04--desbordamiento-de-buffer-en-extraervalue-y-extraerframe) | 🔴 Crítico | Desbordamiento de buffer en `extraerValue`/`extraerFrame` y `strstr` sin comprobar NULL | `Serial.c:462-467`, `:484-489` |
+| [D05](#d05--receiveruart1-escribe-en-el-buffer-sin-comprobar-el-límite) | 🔴 Crítico | `receiverUart1` escribe sin comprobar el límite del buffer de 40 bytes | `Serial.c:76` |
+| [D06](#d06--flagalarm-es-una-única-bandera-para-las-cinco-alarmas) | 🟠 Alto | `ap.flagAlarm` única para 5 alarmas: el fin de una apaga la franja de otra | `Aplicacion.h:115`, `Alarma.c:429/440` y 4 copias |
+| [D07](#d07--comparación-de-alarmas-por-igualdad-exacta-de-hora-y-minuto) | 🟠 Alto | Comparación por igualdad exacta: si arranca dentro de la franja, no enciende | `Alarma.c:424-443` y 4 copias |
+| [D08](#d08--carrera-entre-el-reset-del-wrap-y-la-asignación-del-vencimiento) | 🟠 Alto | Carrera entre el reset del wrap y la asignación del vencimiento: tarea bloqueada 61 s | `main.c:58-73` vs. `Serial.c:96`, `Alarma.c:46`, etc. |
+| [D09](#d09--lectura-no-atómica-de-ulcnttick1ms) | 🟠 Alto | Lectura no atómica de `ulCntTick1ms` de 32 bits | `TimeBase.c:17` vs. `main.c:58` |
+| [D10](#d10--memset-con-strlen-sobre-buffers-locales-sin-inicializar) | 🟠 Alto | `memset` con `strlen()` sobre buffers locales sin inicializar | `Aplicacion.c:338`, `:347` |
+| [D11](#d11--eepromwrite-reactiva-gie-de-forma-incondicional) | 🟠 Alto | `EEpromWrite` reactiva `GIE` incondicionalmente | `EEprom.c:16`, `:21` |
+| [D12](#d12--isr-de-baja-prioridad-con-printf-y-un-retardo-de-4-segundos) | 🟠 Alto | ISR de baja prioridad con dos `printf` y `__delay_ms(4000)` | `main.c:92-101` |
+| [D13](#d13--off-by-one-en-el-bucle-de-copia-del-buffer-de-recepción) | 🟠 Alto | Off-by-one `i <= SIZE_BUFFER_RX1` en la copia del buffer | `Serial.c:126` |
+| [D14](#d14--el-zumbador-pita-una-vez-por-segundo-durante-toda-la-franja) | 🟠 Alto | El zumbador pita ~1 vez/segundo durante horas | `Cluster.c:49` |
+| [D15](#d15--sin-brown-out-reset-con-escrituras-de-eeprom) | 🟠 Alto | Sin brown-out reset habiendo escrituras de EEPROM | `main.h:23` |
+| [D16](#d16--ningún-switch-de-estados-tiene-rama-default) | 🟠 Alto | Ningún `switch` de estados tiene `default:` | 6 tareas |
+| [D17](#d17--el-tick-no-es-de-1-ms-sino-de-1024-ms) | 🟡 Medio | El tick es de 1,024 ms, no de 1 ms | `main.c:53`, `:163` |
+| [D18](#d18--baudrate-136--desviado-teniendo-el-valor-correcto-en-el-mismo-fichero) | 🟡 Medio | Baudrate −1,36 % teniendo el valor exacto en el mismo fichero | `UART.h:26`, `:34` vs. `:13-14` |
+| [D19](#d19--efecto-lateral-de-uicnt2-dentro-de-un-else-if) | 🟡 Medio | Efecto lateral `++ala.uiCnt2` dentro de un `else if` | `Alarma.c:118` |
+| [D20](#d20--transmituart1-envía-un-byte-nulo-de-más-en-cada-cadena) | 🟡 Medio | `transmitUart1` envía un `0x00` de más en cada cadena | `Serial.c:61` |
+| [D21](#d21--an3-se-lee-por-adc-pero-pcfg-lo-deja-como-digital) | 🟡 Medio | AN3 se lee por ADC pero `PCFG=1011` lo deja digital | `main.c:175`, `Aplicacion.c:227` |
+| [D22](#d22--tad-y-tacq-del-adc-fuera-de-especificación) | 🟡 Medio | `TAD` y `TACQ` del ADC fuera de especificación a 20 MHz | `main.c:177-178` |
+| [D23](#d23--medidas-de-tensión-y-temperatura-calculadas-y-nunca-usadas) | 🟡 Medio | Tensión y temperatura calculadas y nunca usadas; `ST_READ_TEMP_AP` inalcanzable | `Aplicacion.c:208-236` |
+| [D24](#d24--ala1ala5-y-ap-definidas-dos-veces-sin-extern) | 🟡 Medio | `ala1..ala5` y `ap` definidas dos veces sin `extern` | `Serial.c:22-26` / `Alarma.c:24-28`; `LedLive.c:19` / `Aplicacion.c:45` |
+| [D25](#d25--cleanbuffer-usa-strlen-para-el-memset) | 🟡 Medio | `cleanBuffer()` usa `strlen()` para el `memset` | `Aplicacion.c:282` |
+| [D26](#d26--clusterh-y-eepromh-sin-guarda-de-inclusión) | 🟡 Medio | `Cluster.h` y `EEprom.h` sin guarda de inclusión | `Cluster.h:1`, `EEprom.h:1` |
+| [D27](#d27--alaucCntcheck-sin-saneamiento) | 🟡 Medio | `ala.ucCntCheck` sin saneamiento: se cuelga 2,5 s si se sale de rango | `Alarma.c:131-188` |
+| [D28](#d28--el-bit-ch-del-ds1307-nunca-se-limpia-en-el-arranque) | 🟡 Medio | El bit CH del DS1307 nunca se limpia en el arranque | `DS1307.c` (ausencia) |
+| [D29](#d29--delimitador-de-inicio-no-ascii-y-dependiente-de-la-codificación) | 🟡 Medio | Delimitador de inicio no ASCII y dependiente de la codificación del fichero | `Serial.h:27` |
+| [D30](#d30--no-hay-acuse-de-recibo-de-la-configuración) | 🟡 Medio | No hay acuse de recibo de la configuración | `Aplicacion.c:178-189` |
+| [D31](#d31--dos-tramas-en-la-misma-ráfaga-la-segunda-se-pierde) | 🟡 Medio | Dos tramas pegadas en una ráfaga: la segunda se pierde en silencio | `Serial.c:160-220` |
+| [D32](#d32--apbuffertx45-con-un-solo-byte-de-margen) | 🟡 Medio | `ap.bufferTx[45]` con un solo byte de margen en el peor caso | `Aplicacion.c:330` |
+| [D33](#d33--pulsador-físico-sin-soporte-en-firmware) | 🟡 Medio | Pulsador físico `SW1` sin soporte en firmware | `main.c:65`, `Aplicacion.c:35` (comentados) |
+| [D34](#d34--código-duplicado-cinco-veces-en-tres-ficheros) | 🟡 Medio | Código duplicado 5 veces: ~690 líneas evitables | `Serial.c`, `Alarma.c`, `Aplicacion.c/h` |
+| [D35](#d35--include-con-punto-y-coma) | 🔵 Bajo | `#include "stdlib.h";` con punto y coma | `Serial.c:12` |
+| [D36](#d36--sentencia-sin-efecto-orig) | 🔵 Bajo | Sentencia sin efecto `*orig++;` | `Serial.c:549` |
+| [D37](#d37--funciones-static-declaradas-en-cabeceras) | 🔵 Bajo | Funciones `static` declaradas en cabeceras | 6 ficheros `.h` |
+| [D38](#d38--variables-y-campos-muertos) | 🔵 Bajo | Variables y campos de estructura muertos | `Aplicacion.c:50`, `Aplicacion.h:112-121`, etc. |
+| [D39](#d39--funciones-y-variables-muertas) | 🔵 Bajo | Funciones nunca llamadas: `alarmBeep`, `cancelBeep`, `endBeep`, `UART_init`, `UART_printf` | `Buzzer.c:144-158`, `UART.h:6-18`, `:69-76` |
+| [D40](#d40--srtalarmas-está-mal-escrito) | 🔵 Bajo | `srtAlarmas` mal escrito (debería ser `str`) | `Alarma.h:66` |
+| [D41](#d41--unsigned-long-para-un-contador-que-nunca-pasa-de-60000) | 🔵 Bajo | `unsigned long` para un contador que nunca pasa de 60000 | `main.c:39` |
+| [D42](#d42--variable-local-que-sombrea-la-global-rtc) | 🔵 Bajo | Variable local `rtc[7]` que sombrea la global `rtc` | `DS1307.c:35` vs. `:9` |
+| [D43](#d43--carreras-menores-entre-la-isr-y-la-tarea-de-uart) | 🔵 Bajo | Carreras menores entre la ISR y la tarea de UART | `main.c:82-84` vs. `Serial.c:118-137` |
+| [D44](#d44--i2c-sin-comprobación-de-ackstat) | 🔵 Bajo | I2C sin comprobación de `ACKSTAT`: un DS1307 ausente no se detecta | `I2C.c:44-47` |
+| [D45](#d45--lc-switch-impide-poner-esperas-dentro-del-switch-de-estados) | 🔵 Bajo | `lc-switch` impide poner esperas dentro del `switch` de estados | `Rtos/lc-switch.h:60-61` |
+
+---
+
+### 9.2 Defectos críticos
+
+#### D01 — El firmware usa RC0 como buzzer, pero el esquemático dice que RC0 es el pulsador
+
+**Qué pasa.** El firmware configura y controla el zumbador en **RC0**:
+
+```c
+// Buzzer.h:24-25
+#define ON_BUZZER       LATCbits.LATC0 = 1
+#define OFF_BUZZER      LATCbits.LATC0 = 0
+
+// Buzzer.c:160-167
+void pinConfBuzzer(void)
+{
+    //TRISCbits.TRISC1 = 0;      ← línea 162, COMENTADA
+    TRISCbits.TRISC0 = 0;        ← línea 163, activa
+}
+```
+
+El esquemático `balizaSR30.kicad_sch` asigna esos dos pines al revés:
+
+| Pin | Etiqueta de red | Conectado a |
+|---|---|---|
+| 11 (RC0) | `BUTTON` | `SW1 = SW_Push` |
+| 12 (RC1) | `BUZZER` | `R11 = 2.2k` → base de `Q4 = MMBT3904` → `BZ1 = Buzzer` |
+
+(Verificado midiendo la distancia entre el extremo de cada pin del símbolo del PIC y las etiquetas
+de red: `BUTTON` está a 9,14 mm exactos de RC0 y `BUZZER` a 9,14 mm exactos de RC1, la misma
+distancia que presentan todas las demás correspondencias confirmadas como `MCU_TX`↔RC6 o
+`CLUSTER`↔RC2.)
+
+La línea comentada en `Buzzer.c:162` es la huella de que el zumbador **estuvo** en RC1 y alguien lo
+movió a RC0 sin borrar la línea vieja.
+
+**Por qué es un problema real para el usuario.**
+
+1. **El zumbador no suena.** Si `TRISC1` nunca se pone a 0, RC1 queda como entrada de alta
+   impedancia y la base de `Q4` no recibe señal. Todos los avisos acústicos del equipo (arranque,
+   confirmación de comandos, aviso de alarma) desaparecen.
+2. **Riesgo de daño en el pin del microcontrolador.** `TRISC0 = 0` convierte en salida el nodo al
+   que está conectado el pulsador. Cada `oneBeep()` pone `LATC0 = 1`. Si el usuario pulsa `SW1`
+   mientras el pin está en alto, el driver de salida del PIC queda cortocircuitado a masa a través
+   del contacto. Y `oneBeep()` se llama desde `Cluster.c:49` **una vez por segundo durante toda la
+   franja horaria**, así que la probabilidad de coincidencia es alta.
+3. La configuración de alarmas también dispara `oneBeep()` (`Aplicacion.c:175`, `:181`, `:188`),
+   que es precisamente cuando el usuario tiene el equipo delante y puede estar pulsando el botón.
+
+**Nota de fechas.** El firmware es de 2022 y los gerbers de la placa son de **2025-06-24**. Es
+plausible que el hardware cambiara la asignación y el firmware del repositorio se quedara atrás, o
+que la placa fabricada lleve una modificación no reflejada. **Antes de tocar nada hay que verificar
+con un polímetro sobre la placa física.** Ver [pregunta abierta P1](#21-preguntas-abiertas).
+
+**Cómo se arregla.** Si el esquemático es el correcto:
+
+```c
+// Buzzer.h:24-25
+#define ON_BUZZER       LATCbits.LATC1 = 1
+#define OFF_BUZZER      LATCbits.LATC1 = 0
+
+// Buzzer.c:160-167
+void pinConfBuzzer(void)
+{
+    TRISCbits.TRISC1 = 0;    // buzzer como salida
+    LATCbits.LATC1  = 0;
+    TRISCbits.TRISC0 = 1;    // pulsador como entrada (nunca como salida)
+}
+```
+
+Atención: `CCP2MX = ON` (`main.h:32`) multiplexa CCP2 sobre RC1, pero como el módulo CCP nunca se
+habilita, RC1 queda libre para uso como E/S digital. No hay conflicto.
+
+---
+
+#### D02 — Sin watchdog y con esperas bloqueantes sin timeout
+
+**Qué pasa.** `main.h:28` deshabilita el perro guardián:
+
+```c
+#pragma config WDT = OFF
+```
+
+y el firmware contiene al menos **cuatro bucles de espera activa sin límite de tiempo**:
+
+| Espera | Ubicación | Qué la puede bloquear para siempre |
+|---|---|---|
+| `while( (SSPCON2 & 0b00011111) \|\| (SSPSTAT & 0b00000100) );` | `I2C.c:26` | SDA o SCL enclavadas a bajo (DS1307 colgado, pila agotada con el chip en estado indefinido, cable/pista rota, ruido durante una transferencia) |
+| `while(!PIR2bits.EEIF);` | `EEprom.c:23` | Escritura de EEPROM que no completa |
+| `while(TXSTAbits.TRMT == 0);` | `Serial.c:64` y `UART.h:66` | Fallo del transmisor UART |
+| `while(ADCON0bits.GO_DONE);` | `main.c:192` | Conversión ADC que no termina |
+
+La más peligrosa con diferencia es la de I2C: `I2C_Master_Wait()` se llama desde las seis funciones
+del módulo (`I2C.c:30`, `:35`, `:40`, `:45`, `:51`, `:53`, `:55`) y por tanto **en cada uno de los
+7 accesos** de `leerRTC()` (`DS1307.c:39-48`), que se ejecutan cada ~530 ms.
+
+**Por qué es un problema real para el usuario.** Un glitch en el bus I2C —que es un bus de dos
+hilos con resistencias de pull-up de 4,7 kΩ (`R5`, `R6`) y sin blindaje— basta para dejar el
+microcontrolador atascado dentro de un `while` vacío. En ese momento:
+
+- las seis tareas dejan de ejecutarse, porque el bucle de `main.c:132-140` está detenido;
+- el LED de latido se congela (encendido o apagado, según el instante);
+- **la salida del cluster se queda tal como estuviera: apagada en mitad de una franja, o encendida
+  y sin apagarse nunca**;
+- el equipo no responde por Bluetooth;
+- **y no se recupera solo**: hace falta un corte de alimentación manual.
+
+Para un dispositivo pensado para funcionar desatendido meses seguidos, esto es la diferencia entre
+un fallo transitorio de un segundo y una avería que requiere desplazamiento.
+
+**Cómo se arregla.** Dos medidas complementarias:
+
+1. **Habilitar el watchdog.** Cambiar `main.h:28` a `#pragma config WDT = ON` con un postscaler
+   razonable (`WDTPS = 512` da unos 2 s con el oscilador RC del WDT) y añadir un `CLRWDT()` en el
+   bucle principal, `main.c:139` (una sola vez por vuelta, nunca dentro de las esperas, para que el
+   watchdog cumpla su función).
+2. **Poner timeout a las esperas.** Convertir `I2C_Master_Wait()` en:
+
+```c
+unsigned char I2C_Master_Wait(void)   // devuelve 0 = OK, 1 = timeout
+{
+    unsigned int guard = 0;
+    while( (SSPCON2 & 0b00011111) || (SSPSTAT & 0b00000100) )
+    {
+        if(++guard > 10000) return 1;   // ~10 ms a 20 MHz
+    }
+    return 0;
+}
+```
+
+y propagar el error hasta `leerRTC()` para que la tarea de alarma pueda decidir qué hacer (por
+ejemplo, mantener el último valor válido y encender un código de parpadeo de diagnóstico en el LED).
+
+---
+
+#### D03 — Las ramas de días personalizados están vacías y congelan la máquina de estados
+
+**Qué pasa.** En las cinco copias del estado `ST_CHECK_ALARMn` de `Alarma.c`, la rama que atiende
+el caso `flagDayAlar == true` está vacía:
+
+| Alarma | Estado | Rama vacía |
+|---|---|---|
+| 1 | `ST_CHECK_ALARM1` | `Alarma.c:241-245` |
+| 2 | `ST_CHECK_ALARM2` | `Alarma.c:286-289` |
+| 3 | `ST_CHECK_ALARM3` | `Alarma.c:329-332` |
+| 4 | `ST_CHECK_ALARM4` | `Alarma.c:372-375` |
+| 5 | `ST_CHECK_ALARM5` | `Alarma.c:415-418` |
+
+```c
+// Alarma.c:241-245
+else
+{
+    //NO IMPLEMENTADO
+    //si la alarma es personalizada
+}
+break;
+```
+
+**Qué le pasa a la tarea: sí, se cuelga la máquina de estados, y de forma irrecuperable.**
+
+`stateAlarm` no se modifica en esa rama. Como el `switch` está dentro del `while(1)` del
+protothread (`Alarma.c:44-559`), la tarea vuelve a entrar en el **mismo** `ST_CHECK_ALARMn` en el
+siguiente periodo de 10,24 ms, evalúa la misma condición, vuelve a no hacer nada, y así
+indefinidamente. La tarea de alarma queda viva —consume su ciclo, no bloquea a las demás— pero
+**inútil**:
+
+1. **No se vuelve a leer el RTC nunca.** `ST_UPDATE_SEG_ALA` y `ST_UPDATE_VALUE_ALA` solo se
+   alcanzan desde `ST_ESPERA_ALA` (`Alarma.c:105-116`), que ya no se visita. `rtc.hor` y `rtc.min`
+   se quedan congelados con el último valor leído.
+2. **No se evalúa ninguna alarma más**, ni la que causó el atasco ni las otras cuatro.
+   `ST_CHECK_ALL_ALA` tampoco se vuelve a alcanzar.
+3. **`ap.flagAlarm` se queda con el valor que tuviera.** Si estaba a `false`, la baliza nunca más se
+   enciende. Si estaba a `true`, **la baliza destella y pita ininterrumpidamente para siempre**.
+4. **No se puede recuperar por Bluetooth.** `ala.flagUpdate` se atiende en `Alarma.c:123-127`,
+   dentro de `ST_ESPERA_ALA`, que ya no se visita. Reprogramar las alarmas desde la app escribe la
+   EEPROM y levanta la bandera, pero nadie la lee.
+5. **Ni siquiera se recupera con un reinicio**, porque `flagDayAlar` viene de la EEPROM
+   (`Aplicacion.c:356` → `Alarma.c:61`), así que al siguiente arranque se repite el atasco. Es un
+   **ladrillo funcional permanente** hasta que se reprograme la EEPROM con un programador físico.
+
+**¿Cómo puede llegar `flagDayAlar` a valer 1?** En operación normal no puede: `Aplicacion.c:100`
+(y sus cuatro hermanas) escriben `0` al formatear, y `Serial.c:282` (y sus cuatro hermanas)
+escriben `0` al configurar una alarma. Las vías reales de exposición son:
+
+- **PIC reutilizado o EEPROM no virgen** cuya dirección `0x00` contenga por casualidad `0x06`: el
+  firmware no formatea (ver [§7.2](#72-init_value_eeprom-0x06--la-marca-de-memoria-inicializada))
+  y `ADDRESS_FLAGDAYALAn` conserva basura. Probabilidad ≈ 1/256 por unidad.
+- **Corrupción de EEPROM por brown-out durante una escritura**, que es exactamente lo que
+  [D15](#d15--sin-brown-out-reset-con-escrituras-de-eeprom) hace probable.
+- Cualquier evolución futura del firmware o de la app que empiece a usar el campo.
+
+Es un defecto **latente pero catastrófico**: baja probabilidad por unidad, consecuencia total y sin
+autorrecuperación.
+
+**Cómo se arregla.** Mínimo imprescindible — que la rama tenga siempre una salida:
+
+```c
+else
+{
+    // días personalizados: no implementado, tratar como "no coincide"
+    stateAlarm = ST_ESPERA_ALA;
+}
+```
+
+y añadir un `default:` al `switch` (ver [D16](#d16--ningún-switch-de-estados-tiene-rama-default)).
+Adicionalmente, sanear el valor al leerlo de EEPROM en `readMemoriaValues()`:
+
+```c
+memo.ucflagDayAla1 = (EEpromRead(ADDRESS_FLAGDAYALA1) == 1) ? 1 : 0;
+```
+
+y hacer lo mismo con `ucDayWeekN`, forzando a `DIAR` cualquier valor fuera de 8..10.
+
+---
+
+#### D04 — Desbordamiento de buffer en `extraerValue` y `extraerFrame`
+
+**Qué pasa.** Las dos funciones de extracción de campos copian desde el buffer de recepción hasta
+encontrar el carácter terminador, **sin comprobar en ningún momento el tamaño del destino ni el
+final de la cadena origen**.
+
+```c
+// Serial.c:453-472
+unsigned char extraerValue(char* orig, char* init, char* end)
+{
+    unsigned char value = 0;
+    char* ptrData;
+    char buffer[4];              // ← Serial.c:457, sólo 4 bytes, en la pila
+    char cnt = 0;
+
+    memset(buffer, 0x00, sizeof(buffer));
+    ptrData = strstr(orig, init);                       // ← Serial.c:462, sin comprobar NULL
+
+    for(ptrData = ptrData + 1; *ptrData != *end; ptrData++)   // ← Serial.c:464
+    {
+        buffer[cnt++] = *ptrData;                       // ← Serial.c:466, sin límite
+    }
+    value = atoi(buffer);
+    return value;
+}
+```
+
+```c
+// Serial.c:474-493
+void extraerFrame(char* orig, char*dest, char* init, char* end)
+{
+   char* ptrData;
+   char cnt = 0;
+   char buffer[10];              // ← Serial.c:479, sólo 10 bytes, en la pila
+
+   memset(dest, 0x00, strlen(dest));                    // ← Serial.c:481, ver D25
+   memset(buffer, 0x00, sizeof(buffer));
+
+   ptrData = strstr(orig, init);                        // ← Serial.c:484, sin comprobar NULL
+
+    for(ptrData = ptrData + 1; *ptrData != *end; ptrData++)   // ← Serial.c:486
+    {
+        buffer[cnt++] = *ptrData;                       // ← Serial.c:488, sin límite
+    }
+   memcpy(dest, buffer, strlen(buffer));
+}
+```
+
+**Tres fallos independientes en el mismo bucle:**
+
+1. **Sin control de tamaño del destino.** El bucle escribe tantos bytes como haya hasta el
+   terminador. `anaT1.bufferRx` tiene 40 bytes, así que una trama sin la coma esperada puede
+   escribir 39 bytes en un `char buffer[4]` — 35 bytes de desbordamiento **en la pila software del
+   compilador**, que solo tiene ~228 bytes en total (ver [§2.5](#25-consumo-de-memoria)). Se
+   machaca la dirección de retorno y variables de otras funciones.
+2. **Sin comprobar el fin de cadena.** La condición de parada es únicamente `*ptrData != *end`. Si
+   el terminador no aparece, el bucle **atraviesa el `\0`** y sigue leyendo RAM adyacente
+   indefinidamente hasta topar por casualidad con un byte igual al terminador.
+3. **`strstr` puede devolver `NULL` y se desreferencia sin comprobar.** Si el identificador no
+   está en la trama, `ptrData = NULL` y el bucle empieza en `ptrData + 1 = 0x0001`, leyendo desde
+   la dirección 1 del espacio de datos (registros de propósito general del banco 0) y escribiendo
+   todo lo que encuentre en el buffer local.
+
+**Dónde está protegido y dónde no:**
+
+| Llamada | Ubicación | ¿`strstr` garantizado no-NULL? |
+|---|---|---|
+| `extraerValue(bufferRx, ID_NUM_ALARM, ID_COMA)` | `Serial.c:184` | ✅ sí, comprobado en `Serial.c:181` |
+| `extraerValue(bufferRx, ID_ENC_ALARM, ID_COMA)` | `Serial.c:189` | ✅ sí, comprobado en `Serial.c:186` |
+| `extraerFrame(..., ID_RELOJ, ID_COMA)` | `Serial.c:168` | ✅ sí, comprobado en `Serial.c:166` |
+| `extraerFrame(..., ID_CALENDAR, END_FRAME)` | `Serial.c:171` | ❌ **NO** — nadie ha comprobado que haya `"C"` |
+| `extraerFrame(..., ID_INIT_ALARM, ID_COMA)` | `Serial.c:199` | ❌ **NO** — nadie ha comprobado que haya `"I"` |
+| `extraerFrame(..., ID_END_ALARM, ID_COMA)` | `Serial.c:202` | ❌ **NO** — nadie ha comprobado que haya `"F"` |
+| `extraerFrame(..., ID_DAY_ALARM, ID_COMA)` | `Serial.c:205` | ❌ **NO** — nadie ha comprobado que haya `"D"` |
+
+**Cuatro de las siete llamadas pueden desreferenciar `NULL`.** Y en las tres protegidas, la falta
+del *terminador* sigue provocando desbordamiento aunque el identificador exista.
+
+**Por qué es un problema real para el usuario.** No hace falta un atacante: basta con que el enlace
+Bluetooth trocee una trama. Como el fin de trama se detecta por 5 ms de silencio
+(ver [§6.3](#63-troceado-de-la-trama-detección-de-fin-por-silencio)), cualquier pausa del enlace SPP
+mayor de 5 ms en mitad del envío parte la trama en dos. La primera mitad **sí contiene el
+`INIT_FRAME`**, así que pasa el filtro de `Serial.c:148`, y si contiene la `"A"` pero le falta la
+`"F"` o la `"D"`, se cae directamente en el caso `strstr == NULL`. El resultado es corrupción de
+pila: reinicio aleatorio, escritura de valores absurdos en EEPROM, o cuelgue.
+
+También ocurre con cualquier cliente distinto de la app oficial (una terminal Bluetooth, un script
+de pruebas) que envíe una trama a medias o mal formada.
+
+**Cómo se arregla.** Reescribir ambas funciones con límites explícitos:
+
+```c
+unsigned char extraerValue(const char* orig, char init, char end)
+{
+    char buffer[4] = {0};
+    unsigned char cnt = 0;
+    const char* p = strchr(orig, init);
+
+    if(p == NULL) return 0;                       // 1) NULL comprobado
+
+    for(p++; *p != '\0' && *p != end; p++)        // 2) parada en fin de cadena
+    {
+        if(cnt >= sizeof(buffer) - 1) return 0;   // 3) límite del destino
+        buffer[cnt++] = *p;
+    }
+    if(*p != end) return 0;                       // 4) terminador obligatorio
+    return (unsigned char)atoi(buffer);
+}
+```
+
+Y lo mismo para `extraerFrame()`, pasando además el tamaño del destino como parámetro. Conviene
+también validar los valores extraídos antes de escribirlos en EEPROM: `ucNumAlarm` en 1..5,
+horas en 0..23, minutos en 0..59, días en 8..10.
+
+---
+
+#### D05 — `receiverUart1` escribe en el buffer sin comprobar el límite
+
+**Qué pasa.** `Serial.c:74-77`, llamada desde la ISR (`main.c:82`):
+
+```c
+void receiverUart1(char* dest)
+{
+    serial1.bufferRx[serial1.ucCntRX++] = *dest;
+}
+```
+
+`serial1.bufferRx` tiene `SIZE_BUFFER_RX1 = 40` bytes (`Serial.h:24`, `Serial.h:49`) y
+`serial1.ucCntRX` es un `unsigned char` (`Serial.h:50`). **No hay ninguna comprobación de índice.**
+El contador se reinicia únicamente cuando la tarea drena el buffer (`Serial.c:137`), lo cual solo
+ocurre tras 5 ms de silencio en la línea.
+
+**Por qué es un problema real para el usuario.** Si llegan más de 40 bytes sin una pausa de 5 ms,
+la escritura se sale del array y machaca la RAM contigua. Como `ucCntRX` es de 8 bits, el índice
+puede llegar hasta 255 antes de dar la vuelta: **hasta 216 bytes de desbordamiento**, con
+`serial1` situada en el banco 2 (`_serial1 bssBANK2 000220` según el mapa del enlazador) y
+`bssBANK2` extendiéndose de `0x200` a `0x252`. El desbordamiento sale del segmento y entra en
+memoria no asignada y, más allá, en los bancos superiores.
+
+Escenarios que lo provocan **sin malicia**:
+
+- La propia app envía dos tramas en la misma pulsación del botón "Configurar": `sFrameHourCal`
+  (`MainActivity2.java:425`) y a continuación `sFrameConf` (`MainActivity2.java:429`), ambas por el
+  mismo `PrintWriter` con autoflush. Sumadas son `¿R2145\0\0,C211025-2\0\0?\n\r\n` (26 bytes) +
+  `¿A3,E1,I0830,F1745,D9,?\n\r\n` (28 bytes) = **54 bytes**, más los `0xC2` de UTF-8. Si el módulo
+  Bluetooth los entrega seguidos sin una pausa de 5 ms —que es el caso habitual, porque el HC-06
+  vacía su FIFO a la velocidad del UART— **el buffer de 40 bytes se desborda en 14 bytes o más en
+  cada configuración de alarma**.
+- Cualquier terminal Bluetooth con el que un técnico teclee texto largo o pegue una línea.
+- Ruido en la línea RX cuando el módulo no está emparejado.
+
+**Cómo se arregla.**
+
+```c
+void receiverUart1(char* dest)
+{
+    if(serial1.ucCntRX < SIZE_BUFFER_RX1)
+        serial1.bufferRx[serial1.ucCntRX++] = *dest;
+    // si no cabe, se descarta el byte (y opcionalmente se marca overflow)
+}
+```
+
+Y, a la vez, **ampliar `SIZE_BUFFER_RX1` a al menos 64 bytes** para que la ráfaga doble de la app
+quepa entera, o —mejor— cambiar la detección de fin de trama de "silencio de 5 ms" a "byte
+`END_FRAME` recibido", que es determinista y no depende de la temporización del enlace.
+
+---
+### 9.3 El resto de los defectos
+
+Los defectos **D06 a D45** están en la tabla de 9.1 con su gravedad, su descripción y su
+`fichero:línea`. **No llevan apartado propio a propósito**: redactarlos uno a uno costaba más
+de lo que aportaba, porque los siete que de verdad mandan el trabajo ya están **medidos por el
+simulador**, que es una fuente más fiable que una explicación escrita.
+
+Para cada uno de esos siete, el escenario que lo demuestra:
+
+| escenario | defecto | qué se midió |
+|---|---|---|
+| **C** | cadencia de la luz | 50 ms encendida / 50 ms apagada, frente a los 2 s / 2 s definidos |
+| **D1** | D07 | a las 07:00, dentro de la franja 06:00–09:00, la luz **no** enciende |
+| **D2** | D03 | una alarma para un día concreto **no se graba** y no se avisa |
+| **D3** | D03 | la tarea de alarma se queda **clavada en `ST_CHECK_ALARM1`** (estado 6 → 6) |
+| **D4** | D20 | el último byte escrito en `TXREG` es el terminador `0x00` |
+| **D5** | D04 | una trama truncada **tumba el proceso** (violación de acceso) |
+| **D6** | D06 | con dos franjas solapadas, la primera que termina apaga la luz |
+
+```bash
+cd "D:/@Proyect/Baliza/4 Simulador" && python correr.py
+```
+
+Cuando alguien vaya a arreglar uno de los que **no** tienen escenario, el primer paso es
+escribirlo. Ver la skill [`simulador`](.claude/skills/simulador/SKILL.md): un defecto sin
+escenario se arregla a ciegas, y nada avisa si vuelve.
+
+---
+
+## 10. Cómo compilar y grabar
+
+El procedimiento completo está en **[`COMPILAR_Y_GRABAR.md`](COMPILAR_Y_GRABAR.md)**. Aquí solo
+lo que hay que saber antes de intentarlo:
+
+```bash
+cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
+"C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" --chip=18f2550 --std=c99 \
+  --outdir=<fuera del árbol> main.c Alarma.c Aplicacion.c Buzzer.c Cluster.c \
+  DS1307.c EEprom.c I2C.c LedLive.c Serial.c TimeBase.c
+```
+
+Ocupa **21.309 de 32.768 bytes de programa (65,0 %)** y 687 de 2.048 de datos.
+
+Cuatro trampas, las cuatro comprobadas:
+
+- **`--std=c99` no es opcional.** En C90 falla en `DS1307.c:66` — un array `const` local
+  inicializado con los parámetros de la función. **No se toca ese fichero: se compila en C99.**
+- **Siempre con `--outdir` fuera del árbol de fuentes.** Sin él, XC8 deja los artefactos entre
+  el código: ya ocurrió, 1,1 MB de `test_build.*` y `startup.*` mezclados con los `.c`.
+- **El driver cambia el tamaño del binario.** Mismo compilador, mismas banderas, mismos fuentes:
+  `xc8.exe` da **21.309 bytes (65,0 %)** y `xc8-cc.exe` da **26.863 (82,0 %)**. **5.554 bytes de
+  diferencia solo por el driver.** Por eso la versión del compilador **y su driver y banderas**
+  son parte del entregable, y tienen que quedar anotados junto al `.hex`.
+- **MPLAB X no abre la carpeta como proyecto**: no existe `nbproject/`. Hay que crear proyecto
+  nuevo, añadir los fuentes, **poner el estándar en C99** en las propiedades, y versionar el
+  `nbproject/` resultante.
+
+**El `.hex` que sale de aquí no es el de producción.** Producción se compiló con **v2.46** y
+aquí hay **v2.36**: 60.044 bytes frente a 61.008, y difieren en casi todas las líneas.
+
+> 🚫 **No grabar sin que lo pidan.** Hay señales de tránsito montadas en la calle al otro lado
+> del programador. Y **MPLAB Snap no soporta el PIC18F2550**: hace falta PICkit 3/4, ICD 3/4,
+> REAL ICE o PM3.
+
+---
+
+## 11. Glosario de la nomenclatura
+
+El código usa prefijos húngaros. Traducidos:
+
+| prefijo | significa | ejemplo |
+|---|---|---|
+| `uc` | `unsigned char` | `ucNumAlarm` |
+| `ui` | `unsigned int` | `uiCntAplicacion` |
+| `ul` | `unsigned long` | `ulCntTick1ms` |
+| `f` | `float` | `fVolt`, `fTemp` |
+| `flag` | campo de bits de 1 bit | `flagArranque` |
+| `str` / `srt` | tipo de estructura | `strSerial`, `srtAlarmas` |
+| `ST_` | estado de una máquina de estados | `ST_ESPERA_ALA` |
+| `ADDRESS_` | dirección en la EEPROM | `ADDRESS_EN_ALA1` |
+| `PERIOD_` | periodo de una tarea, en ticks | `PERIOD_CLUSTER` |
+| `TIME_` | umbral de tiempo, en ticks | `TIME_ARRANQUE` |
+
+**Tres avisos de lectura que ahorran tiempo:**
+
+- **`srtAlarmas` está mal escrito** (defecto D40). Debería ser `str`, como el resto. Quien
+  busque `strAlarmas` no lo encuentra.
+- **`strAlarm` (sin `as`) es otra cosa**: es el estado de la *tarea* de alarma, no una alarma.
+  `srtAlarmas` sí es una alarma. Los dos nombres se parecen y no tienen nada que ver.
+- **Los nombres de las salidas cambian según quién hable.** Lo que en la calle es «la luz de la
+  señal», en el firmware es el «cluster» (`LATC2`) y en la tarjeta es el neto `CLUSTER`. Y lo que
+  el responsable llama «horario» o «franja», el firmware lo llama «alarma».
+
+---
+
+## Preguntas abiertas
+
+Lo que **no** se puede determinar leyendo el código, y hay que preguntar o medir:
+
+1. **¿La cadencia de 2 s encendida / 2 s apagada es firme?** Sale de una reunión, no de un
+   documento. Son 15 destellos por minuto, cuando una baliza de tráfico suele ir cerca de 1 Hz.
+   Y dos segundos apagada son 17 metros recorridos a 30 km/h. **¿Existe una norma de
+   señalización que fije la cadencia?** Si existe, manda esa norma, no la reunión.
+2. **¿Los días concretos (1..7) se quieren o no?** Hoy la rama está vacía: ni se implementa ni
+   se rechaza, y esa tercera vía es la única que cuelga el equipo. Las otras dos son legítimas.
+3. **¿Para qué sirven la tensión y la temperatura?** Se calculan y no se usan (D23), y
+   `ST_READ_TEMP_AP` es inalcanzable. ¿Se querían mostrar en el volcado, o son restos?
+4. **¿Existe el pulsador `SW1` en el equipo instalado y qué debería hacer?** Está en la tarjeta y
+   el firmware lo tiene comentado (D33).
+5. **¿Qué programador hay disponible?** Condiciona el procedimiento de grabación, y **MPLAB Snap
+   queda descartado** por no soportar el 18F2550.
+6. **¿Se instala XC8 v2.46 para reproducir producción?** Con v2.36 se desarrolla, pero el
+   binario no es comparable con el que está en la calle.
+7. **¿Por qué `xc8.exe` y `xc8-cc.exe` generan binarios que difieren en 5.554 bytes** con las
+   mismas banderas? Hasta saberlo, se usa `xc8.exe`, que es el que da el tamaño parecido al de
+   producción.

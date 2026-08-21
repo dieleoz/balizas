@@ -54,7 +54,7 @@ rojo**, todas por defectos reales y localizados. Las tres que más pesan:
 
 | | qué pasa | dónde |
 |---|---|---|
-| 🔴 | **La luz no parpadea como se pidió.** Lo definido son 2 s encendida y 2 s apagada. Lo que hace son ráfagas de 5 destellos de 50 ms con medio segundo de pausa | `Cluster.c` |
+| 🔴 | **La luz no parpadea a la cadencia que debe.** Hace ráfagas de 5 destellos de 50 ms. La norma vial citada pide **500 ms encendida / 500 ms apagada** (≈1 Hz); la reunión había dicho 2 s / 2 s. Las tres cifras difieren y la decisión está **pendiente** | `Cluster.c` |
 | 🔴 | **Si el equipo arranca dentro de una franja, la luz no enciende.** Un corte de luz a las 06:30 deja la señal apagada hasta el día siguiente, con el colegio abierto | `Alarma.c` |
 | 🔴 | **El buzzer está en el pin equivocado.** La tarjeta lo tiene en `RC1`; el firmware ataca `RC0`, que en la placa es el pulsador | `Buzzer.h:24` vs [`HARDWARE.md`](HARDWARE.md) |
 

@@ -101,10 +101,15 @@ Quedan dos cabos, y los dos son baratos:
 
 - [ ] **Crear el `nbproject/` que falta** y versionarlo. Hoy MPLAB X no puede abrir la carpeta
       como proyecto, y quien lo intente pensará que tiene el IDE roto.
-- [ ] **Fijar un juego único de banderas y anotarlo junto al `.hex`.** En una misma sesión, dos
-      invocaciones distintas dieron **65 %** y **82 %** de flash. Mientras la cifra dependa de
-      quién compile, no significa nada. **La versión del compilador y sus banderas son parte
-      del entregable**: hoy solo se saben leyendo por casualidad un fichero de mapa.
+- [ ] **Fijar el driver del compilador y anotarlo junto al `.hex`.** Ya está identificado el
+      misterio del 65 % contra el 82 %: **no eran las banderas, era el driver**. Mismo
+      compilador, mismo `--std=c99`, mismos once fuentes — `xc8.exe` da **21.309 bytes (65,0 %)**
+      y `xc8-cc.exe` da **26.863 (82,0 %)**. **5.554 bytes de diferencia solo por cómo se
+      invoca.** Se usa `xc8.exe`, que además es el que se acerca al tamaño de producción.
+      **La versión del compilador, su driver y sus banderas son parte del entregable**: hoy solo
+      se saben leyendo por casualidad un fichero de mapa.
+- [ ] **Decidir si se instala XC8 v2.46.** Con v2.36 se desarrolla, pero el binario **no es
+      comparable** con el que está en la calle. Para grabar en campo conviene la v2.46.
 
 ---
 
@@ -143,17 +148,35 @@ escribir dos veces la misma lógica.
 ### 1.3 · El parpadeo no es el que se definió
 `Cluster.c` · escenario **C** · 🔴
 
-Definido en reunión: **2 s encendida, 2 s apagada**. Medido: **ráfagas de 5 destellos de 50 ms
-con medio segundo de pausa**. No se parece.
+**Hay tres cadencias distintas sobre la mesa, y ninguna coincide con otra:**
+
+| | cadencia | ciclo | destellos/min | origen |
+|---|---|---|---|---|
+| Lo que hace hoy | ráfagas de 5 × 50 ms + pausa de ~500 ms | ~1 s | ~300 en ráfagas | el código, medido |
+| Lo que se dijo en reunión | 2 s ON / 2 s OFF | 4 s | 15 | una reunión, sin documento |
+| Lo que dice la norma citada | **500 ms ON / 500 ms OFF** | 1 s | **60** | 21-ago-2026, ver abajo |
+
+> **La tercera es la que tiene respaldo, y deja sin valor a las otras dos.** Se citan el Manual
+> de Señalización Vial de Colombia (Mintransporte, Res. 1885), el MUTCD y el ITE para balizas de
+> zona escolar: **50 a 60 destellos por minuto**, con el tiempo encendido entre el **50 % y el
+> 60 %** del ciclo. O sea **≈1 Hz**, no 0,25 Hz.
+>
+> El argumento físico que lo sostiene: a 30 km/h, **2 segundos apagada son 16,7 metros** en los
+> que un conductor que mire ve una señal apagada y deduce que no hay horario escolar. Con 500 ms
+> son 4,1 metros, y siempre ve al menos dos destellos al aproximarse.
+
+⚠️ **Pendiente de confirmar antes de programar nada.** El dato viene de un informe, y **no está
+verificado contra el texto de la norma** — nadie de este proyecto ha abierto la Res. 1885 ni la
+sección del MUTCD. Si la cifra es correcta, hay que programar 500/500 y **no** 2 s / 2 s.
+
+- [ ] **Confirmar la cadencia**, y a ser posible con la norma delante, no con una reunión.
+- [ ] Cambiar `Cluster.c` a la cadencia confirmada.
+- [ ] **Ajustar el escenario C**, que hoy exige 2 s ± 10 %. Si la respuesta es 500/500, ese
+      escenario está midiendo contra el número equivocado y hay que corregirlo **antes** de tocar
+      el firmware — si no, el arnés daría verde a una señal que incumple.
 
 Es la única parte del equipo que ve el conductor, y va detrás de 1.1 solo porque una luz con
 mala cadencia sigue avisando, y una luz apagada no avisa de nada.
-
-- [ ] Cambiar la cadencia a 2 s / 2 s.
-- [ ] Ajustar el escenario C, que hoy ya exige 2 s ± 10 %.
-- [ ] **Confirmar la definición antes de tocar nada.** Está tomada de una reunión, no de un
-      documento firmado. Y 2 s / 2 s es lento para una baliza de tráfico: merece una pregunta
-      antes de programarlo, no después.
 
 ---
 

@@ -134,10 +134,13 @@ real, ni el I²C, ni el ADC, ni el Bluetooth. La lista completa de lo que no ve 
   que MPLAB X no la reconoce como proyecto. Hay que crear uno nuevo y añadir los fuentes
   existentes — y **versionar el `nbproject/` resultante**, que es justo lo que faltó.
 
-Y un tercero que aún está abierto: **el tamaño del binario depende de las banderas**. En una
-misma sesión salieron 65 % y 82 % de flash compilando lo mismo. **La versión del compilador y
-sus banderas son parte del entregable** y tienen que quedar anotadas junto al `.hex`. Hoy solo
-se saben leyendo por casualidad un fichero de mapa.
+- **Siempre con `--outdir` fuera del árbol de fuentes.** Sin él, XC8 deja los artefactos entre
+  el código. Ya pasó: 1,1 MB de `test_build.*` y `startup.*` mezclados con los `.c`.
+- **El driver cambia el binario.** Mismo compilador, mismas banderas, mismos fuentes:
+  `xc8.exe` da **21.309 bytes (65,0 %)** y `xc8-cc.exe` da **26.863 (82,0 %)**. Se usa
+  `xc8.exe`. **La versión del compilador, su driver y sus banderas son parte del entregable** y
+  tienen que quedar anotadas junto al `.hex`; hoy solo se saben leyendo por casualidad un
+  fichero de mapa.
 
 Detalle completo en [`COMPILAR_Y_GRABAR.md`](COMPILAR_Y_GRABAR.md).
 

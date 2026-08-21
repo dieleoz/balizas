@@ -2,15 +2,18 @@
 
 **Responde a:** *«¿cómo se compilaría lo que modifiquemos?»*
 
-**Fecha de comprobación:** 21 de agosto de 2026. Todo lo que dice este documento sobre *esta* máquina se comprobó en disco ese día. Lo que no se pudo comprobar está al final, en **§10 Preguntas abiertas**, y está marcado como pregunta, no como hecho.
+**Fecha de comprobación:** 21 de agosto de 2026. Todo lo que dice este documento sobre *esta* máquina se comprobó ejecutándolo ese día. Lo que no se pudo comprobar está al final, en **§14 Preguntas abiertas**, y está marcado como pregunta, no como hecho.
 
-**Respuesta corta, actualizada el 21-ago-2026 a las 15:28:** **el firmware YA COMPILA en esta máquina.** XC8 v2.36 se instaló mientras se redactaba este documento, y la compilación se ha ejecutado y verificado con éxito. El comando exacto está en **§2.3**.
+---
 
-Queda **un** asunto abierto, y no impide compilar: **no existe el proyecto de MPLAB X** (`nbproject\`), así que hoy se compila **por línea de comandos**. Para trabajar desde el IDE hay que recrear el proyecto (§1 y §3).
+## Respuesta corta
 
-> **Dos avisos que hay que leer antes de compilar:**
-> 1. **`--std=c99` es obligatorio.** Sin esa bandera el firmware **no compila**. Ver **§2.4**, que es el hallazgo principal de este documento.
-> 2. **Lo instalado es la v2.36; producción se hizo con la v2.46.** El `.hex` que salga **no es comparable byte a byte** con el de producción. Ver **§2.5**.
+**Sí se puede compilar hoy, ahora mismo, desde la línea de comandos.** El compilador está instalado y el firmware compila. El comando está en **§1**, con dos banderas que **no son opcionales** (**§2** y **§3**).
+
+Lo que **no** se puede hacer hoy:
+
+- **Abrir el firmware como proyecto en MPLAB X**, porque falta la carpeta `nbproject\` (**§5**). Hay que recrear el proyecto una vez.
+- **Comparar el binario byte a byte con el de producción**, porque lo instalado es XC8 **v2.36** y producción se hizo con **v2.46** (**§6**).
 
 ---
 
@@ -18,110 +21,28 @@ Queda **un** asunto abierto, y no impide compilar: **no existe el proyecto de MP
 
 | Cosa | Estado | Cómo se comprobó |
 |---|---|---|
-| MPLAB X IDE v5.45 | ✅ **Instalado** | `C:\Program Files\Microchip\MPLABX\v5.45\` existe, con `mplab_platform\bin\mplab_ide64.exe` |
+| MPLAB X IDE v5.45 | ✅ **Instalado** | `C:\Program Files\Microchip\MPLABX\v5.45\`, con `mplab_platform\bin\mplab_ide64.exe` |
 | Instalador de MPLAB X 5.45 guardado | ✅ Sí | `D:\@Proyect\Baliza\6 Sw pic\MPLABX-v5.45-windows-installer.exe` |
-| Compilador XC8 | ✅ **INSTALADO — v2.36** | `C:\Program Files\Microchip\xc8\v2.36\`. `pic\bin\picc18.exe --ver` → «Microchip MPLAB XC8 C Compiler **V2.36**, Build date: Jan 27 2022, Part Support Version: 2.36». Ejecutables en `v2.36\bin\`: `xc8.exe`, `xc8-cc.exe`, `xc8-ar.exe`, `xclm.exe`, `verifyinst.exe` |
-| Instalador de XC8 v2.36 guardado | ✅ Sí | `D:\@Proyect\Baliza\6 Sw pic\xc8-v2.36-full-install-windows-x64-installer.exe` (71 559 672 bytes ≈ 68,2 MiB) |
-| **Compilación del firmware** | ✅ **FUNCIONA** | Ejecutada el 21-ago-2026: **código de salida 0**, genera `main.hex` (60 044 bytes). Comando y salida en §2.3 |
-| Soporte del PIC18F2550 en XC8 v2.36 | ✅ Presente | Existen `pic\dat\cfgdata\18f2550.cfgdata`, `pic\dat\ini\18f2550.ini` y `pic\include\proc\pic18f2550.h` |
-| Proyecto de MPLAB X del firmware | ❌ **NO existe** | `find D:\@Proyect\Baliza -iname nbproject` no devuelve nada. **Es el único bloqueo que queda**, y sólo afecta a trabajar desde el IDE. Ver §1 |
-| Paquete de dispositivo PIC18F2550 | ✅ Instalado | `...\v5.45\packs\Microchip\PIC18Fxxxx_DFP\1.2.26\edc\PIC18F2550.PIC` |
-| `.hex` de producción ya compilado | ✅ Existe | `D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza__V1.X.production.hex` (61 008 bytes, 1360 líneas, fecha 16-oct-2025) |
-| Simulador de PC | ✅ Funciona | `D:\@Proyect\Baliza\4 Simulador\correr.py`, ejecutado el 21-ago-2026: código de salida **1**, 33 comprobaciones, 24 ok, 9 FALLA |
+| **Compilador XC8 v2.36** | ✅ **Instalado** | `C:\Program Files\Microchip\xc8\v2.36\`. `pic\bin\picc18.exe --ver` contesta `Microchip MPLAB XC8 C Compiler V2.36` / `Build date: Jan 27 2022` / `Part Support Version: 2.36` |
+| Drivers de XC8 | ✅ `xc8.exe`, `xc8-cc.exe`, `xc8-ar.exe` | `dir "C:\Program Files\Microchip\xc8\v2.36\bin"` |
+| Soporte del PIC18F2550 en XC8 | ✅ Sí | `pic\dat\cfgdata\18f2550.cfgdata`, `pic\dat\ini\18f2550.ini`, `pic\include\proc\pic18f2550.h` |
+| **¿Compila el firmware?** | ✅ **SÍ** | Ejecutado hoy: `Program space used 533Dh (21309) of 8000h (65.0%)`, `Data space used 2AFh (687) of 800h (33.5%)`, código de salida **0**, genera `main.hex` de 60 044 bytes |
+| **Proyecto de MPLAB X del firmware** | ❌ **NO existe** | Búsqueda de `nbproject` / `configurations.xml` / `project.xml` en todo `D:\@Proyect\Baliza`: **cero resultados**. Ver §5 |
+| Versión de producción | ⚠ **v2.46**, distinta de la instalada | `dist\default\debug\...debug.lst`: `MPLAB XC8 C Compiler v2.46 (Free license) build 20240104201356 Og1`. Ver §6 |
+| Paquete de dispositivo PIC18F2550 en MPLAB X | ✅ Instalado | `...\v5.45\packs\Microchip\PIC18Fxxxx_DFP\1.2.26\edc\PIC18F2550.PIC` |
+| `.hex` de producción ya compilado | ✅ Existe | `D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza__V1.X.production.hex` (61 008 bytes, 1360 líneas, 16-oct-2025) |
+| Simulador de PC | ✅ Funciona | `D:\@Proyect\Baliza\4 Simulador\correr.py`, ejecutado hoy: salida **1**, 33 comprobaciones, 24 ok, 9 FALLA |
 | gcc para el simulador | ✅ Existe | `D:\toolchain\mingw64\bin\gcc.exe` (ruta fija en `correr.py`) |
 | Python | ✅ 3.12.10 | `python --version` |
+| **Basura de compilación en la carpeta de fuentes** | ⚠ **Sí, hay que limpiarla** | `startup.lst`, `startup.o`, `startup.rlf`, `startup.s`, `test_build.cmf`, `test_build.elf`, `test_build.hxl`, `test_build.o`, `test_build.s`, `test_build.sdb`, `test_build.sym`. Ver §3 |
 
-**Sobre la versión de MPLAB X: no la actualices.** El usuario ya dijo que las versiones nuevas no le funcionan con sus programadores, y hay una razón técnica que apoya eso: la tabla de soporte que trae esta instalación (`C:\Program Files\Microchip\MPLABX\v5.45\docs\Device Support.htm`, fila `PIC18F2550`) marca en **verde** PICkit 3, ICD 3, REAL ICE, PICkit 4, ICD 4 y PM3. Esos tres primeros son herramientas que Microchip retiró de las versiones posteriores del IDE. Ver §10.
-
----
-
-## 1. ⚠ BLOQUEO PRINCIPAL: no hay proyecto de MPLAB X
-
-La carpeta del firmware es:
-
-```
-D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X\
-```
-
-(ojo: hay un **espacio** entre `18f2550_baliza_` y `V1.X`.)
-
-Dentro hay **el código** y **los restos de una compilación antigua**, pero **no hay `nbproject\`**:
-
-```
-Alarma.c/.h   Aplicacion.c/.h   Buzzer.c/.h   Cluster.c/.h   DS1307.c/.h
-EEprom.c/.h   I2C.c/.h          LedLive.c/.h  Serial.c/.h    TimeBase.c/.h
-UART.h        main.c/.h         Rtos\  (5 cabeceras: pt.h, pt-sem.h, lc.h,
-                                        lc-switch.h, lc-addrlabels.h)
-build\        dist\             defmplabxtrace.log
-```
-
-Un proyecto de MPLAB X **es** la carpeta `nbproject\`: ahí viven `configurations.xml` (dispositivo, compilador, herramienta de programación, lista de ficheros) y `project.xml`. **Sin esa carpeta, MPLAB X no reconoce `18f2550_baliza_ V1.X` como proyecto y no la puede abrir.** `File → Open Project` simplemente no la ofrecerá.
-
-Comprobado: la búsqueda `nbproject` / `configurations.xml` / `project.xml` sobre **todo** `D:\@Proyect\Baliza` no encuentra ni un fichero.
-
-> **Consecuencia:** el paso 1 del procedimiento no es «abrir el proyecto». Es **crear el proyecto** (§3). Es media hora de trabajo, y hay que hacerla una sola vez si después se guarda `nbproject\` junto al código.
-
-### 1.1 Lo que sí sobrevivió: la prueba de con qué se compiló
-
-`build\` y `dist\` son los artefactos de la última compilación real, del **17 de septiembre de 2025 a las 18:36:11**. Ahí está la información que permite reconstruir el proyecto sin adivinar:
-
-| Dato | Valor | Fichero que lo prueba |
-|---|---|---|
-| Compilador | **MPLAB XC8 v2.46**, build `20240104201356` | `dist\default\debug\18f2550_baliza__V1.X.debug.map`, línea 1: `Microchip MPLAB XC8 Compiler V2.46` |
-| Dónde estaba instalado | `C:\Program Files\Microchip\xc8\v2.46\` | mismo `.map`, línea 6: `--edf=C:\Program Files\Microchip\xc8\v2.46\pic\dat\20240104201356_en.msgs` |
-| Licencia | **Free** (no PRO) | `dist\default\debug\18f2550_baliza__V1.X.debug.lst`: `Microchip MPLAB XC8 C Compiler v2.46 (Free license) build 20240104201356 Og1` |
-| Dispositivo | `18F2550` | mismo `.map`: `-Q18F2550`, `Machine type is 18F2550` |
-| Configuración compilada | `default` / `debug` | rutas `build\default\debug\`, `dist\default\debug\` |
-| Ficheros `.c` que entraron | **11**, exactamente los `.c` que hay en la carpeta | `build\default\debug\`: `Alarma, Aplicacion, Buzzer, Cluster, DS1307, EEprom, I2C, LedLive, Serial, TimeBase, main` (`.p1`) |
-
-Nótese que **`UART.h` no tiene `.c`**: es sólo cabecera. Y que `Rtos\` son sólo cabeceras, no hay `.c` que compilar allí.
+**Sobre la versión de MPLAB X: no la actualices.** El usuario ya dijo que las versiones nuevas no le funcionan con sus programadores, y hay una razón técnica que lo apoya: la tabla de soporte que trae esta instalación (`...\v5.45\docs\Device Support.htm`, fila `PIC18F2550`) marca en **verde** PICkit 3, ICD 3 y REAL ICE, tres herramientas que Microchip retiró de las versiones posteriores del IDE. Ver §14.
 
 ---
 
-## 2. Qué hay que instalar, en orden
+## 1. Compilar ahora mismo — el comando que funciona
 
-### 2.1 MPLAB X IDE v5.45 — ya está
-
-Nada que hacer. Si algún día hay que reinstalarlo, el instalador está guardado:
-
-```
-D:\@Proyect\Baliza\6 Sw pic\MPLABX-v5.45-windows-installer.exe
-```
-
-**No lo actualices.** Ver §0 y §10.
-
-### 2.2 MPLAB XC8 — ✅ v2.36 YA INSTALADA
-
-**MPLAB X no trae compilador.** Es un IDE: gestiona proyectos, habla con los programadores y depura, pero el que convierte `.c` en código de PIC es XC8, que se instala **aparte** y se descarga **aparte**.
-
-**Estado actual, comprobado el 21-ago-2026:**
-
-```
-C:\Program Files\Microchip\xc8\v2.36\
-    bin\xc8.exe          ← driver clásico. ES EL QUE FUNCIONA
-    bin\xc8-cc.exe       ← driver nuevo. Ver §2.6, hoy falla con este dispositivo
-    bin\xc8-ar.exe
-    pic\bin\picc18.exe   ← compilador de PIC18 propiamente dicho
-```
-
-Verificación:
-
-```powershell
-& "C:\Program Files\Microchip\xc8\v2.36\pic\bin\picc18.exe" --ver
-# Microchip MPLAB XC8 C Compiler V2.36
-# Build date: Jan 27 2022
-# Part Support Version: 2.36
-```
-
-**Nada que instalar para poder compilar.** Si hiciera falta reinstalarlo, el instalador está guardado en `D:\@Proyect\Baliza\6 Sw pic\xc8-v2.36-full-install-windows-x64-installer.exe`.
-
-> **Si alguna vez hay que reinstalarlo, dos cosas:**
-> - **La instalación pide permisos de administrador.** **La tiene que lanzar el usuario a mano**, haciendo doble clic sobre el instalador. No se puede automatizar desde una sesión sin privilegios.
-> - En el asistente, marca las casillas de **añadir XC8 al `PATH`** y de **integrar con MPLAB X** (*Update MPLAB X…*). Sin la primera, los comandos de §5 exigen escribir la ruta completa. Sin la segunda, XC8 no aparecerá en la lista de compiladores al crear el proyecto (§3).
-
----
-
-### 2.3 ✅ El comando que compila — probado y funcionando
+Probado hoy en esta máquina, código de salida **0**:
 
 ```powershell
 cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
@@ -129,14 +50,12 @@ cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
 & "C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" `
     --chip=18f2550 `
     --std=c99 `
-    --outdir=<carpeta_de_salida> `
+    --outdir="D:\@Proyect\Baliza\_build" `
     main.c Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c `
     EEprom.c I2C.c LedLive.c Serial.c TimeBase.c
 ```
 
-**Resultado: código de salida 0.** Genera **`main.hex`** en la carpeta de salida (60 044 bytes en la prueba).
-
-**Resumen de memoria real que imprime** — guárdalo como referencia para saber si un cambio futuro se pasó de sitio:
+**Salida real de hoy:**
 
 ```
 Memory Summary:
@@ -147,38 +66,35 @@ Memory Summary:
     ID Location space    used     0h (     0) of     8h bytes   (  0.0%)
 ```
 
-**Quedan libres unos 11 000 bytes de flash y 1 361 bytes de RAM.** Si un cambio hace que «Program space» pase del 90 %, párate y revisa qué has metido.
+El `.hex` sale como **`main.hex`** dentro de la carpeta de `--outdir` (toma el nombre del primer fuente de la lista; por eso conviene poner `main.c` el primero).
 
-> **Fíjate en que `UART.h` no aparece en la lista de ficheros.** Es correcto: `UART.h` **no es una cabecera normal, contiene el código de las funciones** y se incluye desde `main.c`. Si lo añades a la línea de comandos, obtendrás errores de símbolo duplicado.
+### Las tres cosas que hay que entender de ese comando
 
-#### Avisos que salen y NO son fallos
+| Parte | Por qué |
+|---|---|
+| `xc8.exe`, no `xc8-cc.exe` | §4 |
+| `--std=c99` | **Obligatoria.** Sin ella el firmware **no compila**. §2 |
+| `--outdir=` fuera del árbol de fuentes | **Obligatoria en la práctica.** Sin ella XC8 deja la basura mezclada con el código. §3 |
 
-La compilación imprime bastante ruido. **Todo esto es esperado. No lo arregles.**
+### Los 11 fuentes, ni uno más ni uno menos
 
-| Aviso | Dónde | Por qué es normal |
-|---|---|---|
-| `(228) illegal character (0xBF)` | `Serial.c:148` | Es el **delimitador de inicio de trama** del protocolo. Es intencionado. Ver `MANUAL_FUNCIONAL_BLUETOOTH.md` §8 |
-| `(359) illegal conversion between pointer types` | `Serial.c:184` y `:189` | Conversiones entre `char*` y `unsigned char*` del código original |
-| `non-reentrant function … has been duplicated by the compiler` | `_vfprintf`, `_dtoa`, `_stoa`, `_pad`, `_UART_write`, `_putch`, `_strlen`, `_fputc`… | Ver abajo |
+`main.c`, `Alarma.c`, `Aplicacion.c`, `Buzzer.c`, `Cluster.c`, `DS1307.c`, `EEprom.c`, `I2C.c`, `LedLive.c`, `Serial.c`, `TimeBase.c`.
 
-**Sobre la duplicación de funciones**, que es la lista más larga y la más llamativa: el PIC18 no tiene pila de datos, así que XC8 asigna las variables locales en direcciones fijas. Si una función se llama **desde dos grafos de llamada distintos** —por ejemplo desde el programa principal **y desde una interrupción**— el compilador no puede compartir esas direcciones y **genera dos copias del código**.
+Son exactamente los `.c` que hay en la carpeta, y coinciden uno a uno con los `.p1` que dejó la compilación original en `build\default\debug\`. **`UART.h` no tiene `.c`**: es sólo cabecera, se incluye desde `Serial.c`. Y en `Rtos\` sólo hay cabeceras (`pt.h`, `pt-sem.h`, `lc.h`, `lc-switch.h`, `lc-addrlabels.h`): no hay nada que compilar allí, pero tienen que estar en disco o no compila.
 
-Aquí pasa porque se usa `printf`/`sprintf` desde varios sitios, y porque `UART_write` se llama tanto desde la aplicación como desde la interrupción de `main.c`. **Esa duplicación es una de las razones de que el programa ocupe el 65 % de la flash.** Es un coste conocido y aceptado, no un error.
+### Entrecomilla todas las rutas
+
+`Program Files` tiene un espacio. `1 Firmware` tiene un espacio. `Doc mplabx` tiene un espacio. Y **`18f2550_baliza_ V1.X` tiene un espacio antes de `V1.X`**. Sin comillas, cualquiera de esas rutas se parte por la mitad y el error que sale no menciona las comillas. En PowerShell, además, hace falta el operador de llamada `&` delante de una ruta entrecomillada.
 
 ---
 
-### 2.4 ⚠️ `--std=c99` NO ES OPCIONAL — el hallazgo principal
+## 2. `--std=c99` NO ES OPCIONAL
 
-> ### Sin `--std=c99`, el firmware NO COMPILA
->
-> El driver `xc8.exe` compila en **C90** por defecto. En C90 el código falla.
-
-**Comprobado.** Ejecutando el mismo comando de §2.3 **sin** la bandera `--std=c99`:
+**Sin esa bandera, `xc8.exe` compila en C90 y el firmware falla.** Comprobado hoy, ejecutando el mismo comando sin `--std=c99`: código de salida **1**.
 
 ```
 DS1307.c
 DS1307.c: escribirRTC()
-    66:	const uint8_t rtc_datos[7]={hor, min, seg, dia, mes, ano, diaSe};
 	                               ^ (188) constant expression required
 	 (188) constant expression required ^
 	      (188) constant expression required ^
@@ -186,310 +102,309 @@ DS1307.c: escribirRTC()
 	                (188) constant expression required ^
 	                     (188) constant expression required ^
 	                            (188) constant expression required ^
-(908) exit status = 1
 ```
 
-**Código de salida: 1. No se genera `.hex`.**
-
-**Qué pasa exactamente.** La línea 66 de `DS1307.c` declara un array `const` **local**, inicializado con los **parámetros de la función**:
+**La causa**, en `DS1307.c`, línea 66, dentro de `escribirRTC()`:
 
 ```c
-const uint8_t rtc_datos[7] = {hor, min, seg, dia, mes, ano, diaSe};
+void escribirRTC(uint8_t hor, uint8_t min, uint8_t seg, uint8_t dia, uint8_t mes, uint8_t ano, uint8_t diaSe)
+{
+     ...
+     const uint8_t rtc_datos[7]={hor, min, seg, dia, mes, ano, diaSe};
 ```
 
-En **C90**, los inicializadores de un array deben ser *expresiones constantes* conocidas en tiempo de compilación. Los parámetros de una función no lo son. En **C99** esto es perfectamente legal.
+Es un array `const` **local** inicializado con **los parámetros de la función**. En C99 eso es perfectamente legal: el inicializador de un objeto automático puede ser cualquier expresión. En **C90 no**: exige expresiones constantes, y `hor`, `min`, `seg`... no lo son. Siete elementos, siete errores `(188)`.
 
-> ### La conclusión, y es importante
+> ### El código NO está roto. `DS1307.c` no se toca. Se compila en C99.
 >
-> **El proyecto original estaba configurado en C99.** No es que el código esté mal: es que se está compilando con el estándar equivocado.
->
-> **NO TOQUES `DS1307.c`.** La tentación de «arreglar» esa línea desmontando el array es un error: cambiaría código probado que hoy funciona en las señales instaladas, para resolver un problema que se resuelve con una bandera.
->
-> **La solución es compilar en C99.** Nada más.
+> Es tentador «arreglar» ese array convirtiéndolo en siete asignaciones, o quitándole el `const`. **No lo hagas.** El firmware de producción se compiló en C99 y funciona; cambiar `DS1307.c` para complacer a un modo de compilación equivocado introduce un cambio real en el binario a cambio de nada.
 
-**Al recrear el proyecto en MPLAB X (§3), hay que ponerlo a mano:**
+Esto encaja con lo que ya se sabía: el `.lst` de la compilación original registra `XC8 C Compiler v2.46 (Free license) ... Og1`, y todo el resto del firmware —protothreads, declaraciones en mitad de bloque— es código de estilo C99. **El proyecto original ya estaba en C99.** Lo que pasa es que ese ajuste vivía en `nbproject\configurations.xml`, y esa carpeta se perdió (§5). Por eso hay que volver a ponerlo a mano.
 
-`Project Properties` → `XC8 Global Options` (o `XC8 Compiler`) → **`C standard` → `C99`**
-
-**Si no lo haces, te encontrarás ese error 188 y creerás que el código está roto.** No lo está.
-
-*Esto encaja con lo que ya decía el `.lst` de producción (§1.1): el proyecto original se compiló con XC8 v2.46 en licencia Free, y en C99.*
+**Quien recree el proyecto en MPLAB X tiene que poner C99 en las propiedades** (§7, paso 10) o se encontrará exactamente estos siete errores y creerá que el código está roto.
 
 ---
 
-### 2.5 ⚠️ Discrepancia de versión: producción es v2.46, aquí hay v2.36
+## 3. `--outdir` NO ES OPCIONAL
 
-**Los dos datos, ambos verificados:**
+**Si compilas sin `--outdir`, XC8 deja todos los artefactos intermedios en el directorio de trabajo, que es la carpeta de los fuentes.** No es una hipótesis: **ya pasó hoy**. Estos ficheros están ahora mismo en `D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X\`, mezclados con el código:
 
-| | Versión | Cómo se sabe |
+```
+startup.lst   startup.o   startup.rlf   startup.s
+test_build.cmf   test_build.elf   test_build.hxl   test_build.o
+test_build.s     test_build.sdb   test_build.sym
+```
+
+Alrededor de **1,1 MB de basura** que hubo que excluir del repositorio a mano.
+
+Por qué importa más de lo que parece:
+
+- Ensucia el árbol de fuentes, que es lo único que hay que conservar y versionar.
+- Los `.s` y `.o` se parecen lo bastante a código como para que alguien los abra, los edite, o los meta en un ZIP creyendo que son parte del firmware.
+- Si un día alguien añade un `startup.c` de verdad, chocará con el `startup.s` generado.
+
+**Compila SIEMPRE con `--outdir` apuntando fuera del árbol de fuentes.** Por ejemplo `D:\@Proyect\Baliza\_build`, que está fuera de `1 Firmware\` y se puede borrar entero sin pensarlo.
+
+Para limpiar lo que ya hay (revísalo antes de ejecutarlo; **no borres ningún `.c` ni `.h`**):
+
+```powershell
+cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
+Remove-Item startup.lst,startup.o,startup.rlf,startup.s,test_build.*
+```
+
+Y de paso, lo que **no** se versiona nunca: `build\`, `dist\`, `defmplabxtrace.log*`, y la carpeta de `--outdir`. Lo que **sí** se versiona: los `.c`, los `.h`, `Rtos\` y —cuando exista— `nbproject\`.
+
+---
+
+## 4. Qué driver usar: `xc8.exe`, no `xc8-cc.exe`
+
+XC8 v2.36 trae **dos** ejecutables de línea de órdenes en `bin\`, y **no dan el mismo resultado**. Ambos compilan el firmware, pero uno produce un binario mucho mayor. Medido hoy, mismos 11 fuentes, misma versión del compilador, mismo `-std=c99`:
+
+| Driver | Opción del dispositivo | Resultado | Programa | Datos |
+|---|---|---|---|---|
+| **`xc8.exe`** ✅ | `--chip=18f2550` | ✅ compila | **21 309 bytes — 65,0 %** | 687 — 33,5 % |
+| `xc8-cc.exe` ⚠ | `-mcpu=18F2550` | ✅ compila | **26 863 bytes — 82,0 %** | 675 — 33,0 % |
+
+**5 554 bytes más de flash (17 puntos porcentuales) por cambiar de driver, con el mismo código y el mismo compilador.** `xc8.exe` es el driver heredado de la v1.x y aplica por defecto un juego de opciones distinto del de `xc8-cc.exe`, que es el driver moderno con front-end de clang.
+
+**Usa `xc8.exe --chip=18f2550`**, por dos razones: es el que da 65,0 %, muy cerca del 66,0 % de producción, y es el que deja margen. Con `xc8-cc` a 82 % quedarían menos de 6 KB libres.
+
+Sobre el nombre del dispositivo: comprobado que **ambos drivers aceptan mayúsculas y minúsculas** (`18f2550` y `18F2550` funcionan en los dos). No es fuente de errores.
+
+> ⚠ Se ha reportado en esta misma sesión que `xc8-cc.exe -mcpu=18F2550` fallaba con `(2043) target device was not recognized`. **No he podido reproducirlo**: en mis pruebas de hoy `xc8-cc` compiló los 11 fuentes sin ese error (código de salida 0). Ver §14.
+
+### El tamaño depende de las banderas, y eso hay que anotarlo
+
+Tres cifras del **mismo código** compilado en el **mismo día**:
+
+| Cómo se compiló | Programa | % |
+|---|---:|---:|
+| XC8 v2.46, proyecto MPLAB X original, config `debug` | 21 640 | 66,0 % |
+| XC8 v2.36, `xc8.exe --chip --std=c99` | 21 309 | 65,0 % |
+| XC8 v2.36, `xc8-cc.exe -mcpu -std=c99` | 26 863 | 82,0 % |
+
+> ### **La versión del compilador Y sus banderas son parte del entregable.**
+>
+> Un `.hex` sin esa información no es reproducible: nadie puede volver a generarlo, ni comparar el suyo con él, ni saber si el 82 % que le sale es un problema de su código o de su línea de órdenes.
+>
+> **Hoy esa información sólo se sabe porque alguien leyó por casualidad un fichero `.lst`** que sobrevivió dentro de `dist\`. Eso es suerte, no un proceso.
+>
+> **Junto a cada `.hex` que se entregue, deja un fichero de texto con:** versión exacta de XC8, driver usado, línea de órdenes completa (o la configuración de MPLAB X), fecha, y el resumen de memoria. Dos líneas de texto que ahorran una tarde de arqueología.
+
+---
+
+## 5. ⚠ El IDE sigue bloqueado: no hay proyecto de MPLAB X
+
+Esto **no** lo arregla tener el compilador. Es un problema aparte.
+
+La carpeta del firmware es:
+
+```
+D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X\
+```
+
+Dentro hay el código y los restos de una compilación antigua, pero **no hay `nbproject\`**:
+
+```
+Alarma.c/.h   Aplicacion.c/.h   Buzzer.c/.h   Cluster.c/.h   DS1307.c/.h
+EEprom.c/.h   I2C.c/.h          LedLive.c/.h  Serial.c/.h    TimeBase.c/.h
+UART.h        main.c/.h         Rtos\  (5 cabeceras)
+build\        dist\             defmplabxtrace.log     + la basura de §3
+```
+
+Un proyecto de MPLAB X **es** la carpeta `nbproject\`: ahí viven `configurations.xml` (dispositivo, compilador, **estándar del lenguaje**, herramienta de programación, lista de ficheros) y `project.xml`. **Sin esa carpeta, MPLAB X no reconoce `18f2550_baliza_ V1.X` como proyecto y `File → Open Project` no la ofrecerá.**
+
+Comprobado: la búsqueda de `nbproject` / `configurations.xml` / `project.xml` sobre **todo** `D:\@Proyect\Baliza` no encuentra ni un fichero.
+
+**Consecuencias:**
+
+- Desde línea de comandos (§1) **no importa**: se compila igual, sin proyecto.
+- Para usar el IDE —editar con navegación, depurar, o grabar con `Make and Program Device`— hay que **crear el proyecto** (§7). Es media hora, una sola vez.
+- **Y es lo que causó el problema de §2:** el ajuste «C99» vivía en `configurations.xml`. Al perderse la carpeta se perdió el ajuste, y con él la información de que este código necesita C99 para compilar.
+
+### Lo que sí sobrevivió: la prueba de con qué se compiló
+
+`build\` y `dist\` son los artefactos de la última compilación real, del **17 de septiembre de 2025 a las 18:36:11**:
+
+| Dato | Valor | Fichero que lo prueba |
 |---|---|---|
-| **Firmware de producción** | **XC8 v2.46** | El `.map` de `dist\default\debug\` dice literalmente «Microchip MPLAB XC8 Compiler **V2.46**» y todas sus rutas internas apuntan a `C:\Program Files\Microchip\xc8\v2.46\` |
-| **Instalado hoy** | **XC8 v2.36** | `picc18.exe --ver` |
-
-**Por qué se bajó la v2.36:** por compatibilidad con MPLAB X 5.45, que es la versión del IDE instalada y la que el usuario no quiere actualizar.
-
-**Qué significa esto en la práctica:**
-
-- ✅ **La v2.36 sirve perfectamente para compilar y para seguir desarrollando.** Está probado (§2.3).
-- ❌ **Pero el `.hex` que salga NO será comparable con `18f2550_baliza__V1.X.production.hex`.** Lo generó otra versión del compilador, así que cambian el tamaño, la disposición en memoria y posiblemente los tiempos del código generado. **Una comparación byte a byte (§7.3) no tiene sentido entre versiones distintas.**
-
-**Recomendación razonada — elige según lo que quieras hacer:**
-
-| Si tu objetivo es… | Entonces… |
-|---|---|
-| **Reproducir y comparar** con lo que hay instalado en las señales | **Instala la v2.46.** Es la única forma de que una diferencia en el `.hex` signifique «lo cambié yo» y no «cambió el compilador» |
-| **Sólo seguir desarrollando** y grabar firmware nuevo | **La v2.36 vale y basta.** Deja escrito en el proyecto con qué versión se compiló |
-
-> ### 📌 La versión del compilador es un dato del entregable
->
-> **Ahora mismo sólo se sabe con qué se compiló producción por casualidad, leyendo un fichero de mapa que casualmente sobrevivió.** Eso no puede volver a pasar.
->
-> **A partir de ahora, junto a cada `.hex` que se entregue tiene que quedar anotado:**
-> - la **versión exacta de XC8** (`picc18.exe --ver`),
-> - el **tipo de licencia** (Free o PRO),
-> - las **banderas de compilación** usadas (como mínimo `--chip` y `--std`),
-> - la **fecha** de compilación.
->
-> **Las banderas importan tanto como la versión.** Prueba de ello: para este mismo código se han medido **21 640 bytes** (66,0 %, del `memoryfile.xml` original), **21 309 bytes** (65,0 %, la compilación de hoy — cifras que casan bien) y **26 863 bytes** (82,0 %, otra compilación de esta misma sesión con banderas distintas). **El mismo código fuente, tres tamaños.** Sin anotar las banderas, ese número no significa nada.
+| Compilador | **MPLAB XC8 v2.46**, build `20240104201356` | `dist\default\debug\18f2550_baliza__V1.X.debug.map`, línea 1 |
+| Dónde estaba instalado | `C:\Program Files\Microchip\xc8\v2.46\` | mismo `.map`, línea 6: `--edf=C:\Program Files\Microchip\xc8\v2.46\pic\dat\...` |
+| Licencia | **Free** (no PRO), optimización `Og1` | `dist\default\debug\...debug.lst`, línea 4 |
+| Dispositivo | `18F2550` | mismo `.map`: `-Q18F2550`, `Machine type is 18F2550` |
+| Configuración | `default` / `debug` | rutas `build\default\debug\` |
+| Los 11 `.c` que entraron | los mismos que hay hoy | los 11 `.p1` de `build\default\debug\` |
 
 ---
 
-### 2.6 El driver `xc8-cc.exe` hoy no funciona con este dispositivo
+## 6. Versiones del compilador: v2.36 instalada, v2.46 en producción
 
-XC8 trae **dos** drivers. El clásico (`xc8.exe`) y el nuevo (`xc8-cc.exe`). **Usa el clásico.**
+| | Instalada hoy | La de producción |
+|---|---|---|
+| Versión | **v2.36**, build 27-ene-2022 | **v2.46**, build `20240104201356` |
+| Ruta | `C:\Program Files\Microchip\xc8\v2.36\` | `C:\Program Files\Microchip\xc8\v2.46\` (ya no existe) |
+| Licencia | Free (por defecto sin licencia) | **Free**, verificado en el `.lst` |
+| Programa | 21 309 (65,0 %) | 21 640 (66,0 %) |
+| Prueba | `picc18.exe --ver` ejecutado hoy | `...debug.map` línea 1 y `...debug.lst` línea 4 |
 
-```powershell
-# ✅ FUNCIONA
-& "C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" --chip=18f2550 --std=c99 ...
+**Las cifras casan** —331 bytes de diferencia sobre 21 000— lo que confirma que el comando de §1 está compilando lo mismo y con opciones equivalentes. Pero **el `.hex` que sale de la v2.36 NO es comparable byte a byte** con `18f2550_baliza__V1.X.production.hex`: medidos hoy, 21 309 bytes de programa contra 21 638. Una comparación `fc` daría diferencias en casi todas las líneas, y no sabrías cuáles son tuyas.
 
-# ❌ FALLA
-& "C:\Program Files\Microchip\xc8\v2.36\bin\xc8-cc.exe" -mcpu=18F2550 ...
-# (2043) target device was not recognized
-```
+### Cuál usar
 
-**Y el dispositivo sí está soportado** — existen `pic\dat\cfgdata\18f2550.cfgdata`, `pic\dat\ini\18f2550.ini` y `pic\include\proc\pic18f2550.h`. Así que el fallo es de invocación, no de soporte.
+| Si quieres... | Usa | Por qué |
+|---|---|---|
+| **Desarrollar, probar, ver si tu cambio cabe** | **v2.36, la que ya está** | Funciona hoy, sin instalar nada. Compila, enlaza y da un `.hex` válido y grabable. **Anota la versión junto al `.hex`** (§4) |
+| **Reproducir el binario de producción, o comparar tu cambio contra él línea a línea** | **Instala la v2.46** | Es la única forma de que la única diferencia entre los dos `.hex` sea tu cambio, y no el compilador |
+| **Grabar algo que sustituya al firmware de la señal** | **v2.46** | Si vas a reemplazar un binario probado en campo, compílalo con lo mismo con que se hizo el que está funcionando. No mezcles «mi cambio» con «otro compilador» en la misma grabación |
 
-**No se ha averiguado la forma correcta de llamar a `xc8-cc` para este dispositivo.** Queda en §10 como pregunta abierta. **Mientras tanto, `xc8.exe` es el camino bueno y está probado.**
+**Mantén la v2.36 instalada aunque pongas la v2.46.** XC8 permite varias versiones a la vez, cada una en su carpeta (`xc8\v2.36`, `xc8\v2.46`), y MPLAB X las ofrece las dos en la lista de compiladores. No hay que desinstalar nada.
 
----
+**Y déjalo en modo Free.** El `.lst` prueba que producción se compiló con licencia Free. En ese modo XC8 aplica sólo la optimización básica (`Og1`); los niveles altos son de la licencia PRO. Si activaras PRO, el binario saldría más pequeño y **dejaría de ser comparable**. Los 11 KB libres de flash son un colchón real, no uno prestado por el optimizador.
 
-### 2.7 Si algún día se instala la v2.46 — por qué esa y no la última
+### Dónde se descargan las versiones antiguas
 
-**Tres razones:**
+En la web de Microchip, en la página del compilador (*MPLAB® XC8 Compiler*, dentro de *Tools and Resources → Develop → Compilers*), hay una pestaña de archivo de versiones (*Downloads Archive*) con todas las versiones antiguas de XC8, la v2.46 incluida. Es descarga gratuita; no hace falta licencia para el modo Free. Instálala en la ruta por defecto, `C:\Program Files\Microchip\xc8\v2.46\`, que es exactamente donde estaba. **No he podido verificar la URL exacta ni el nombre del fichero desde esta máquina** (sin red); ver §14.
 
-1. **Para poder comparar.** El `.hex` que hay hoy en producción salió de XC8 v2.46 en modo Free. Si compilas con otra versión, el binario nuevo se diferenciará del viejo por dos motivos mezclados —tus cambios y el cambio de compilador— y ya no podrás saber cuál de los dos causó qué. Con la misma versión, cualquier diferencia en el `.hex` es **tuya**.
-2. **Porque cambia el tamaño y los tiempos.** Otra versión de XC8 genera otro código: otro tamaño en flash, otro número de ciclos por función, otro reparto de bancos de RAM. En un 18F2550 al 66 % de la flash (§4.2) eso importa. Y en un firmware que temporiza con Timer0 y protothreads, un cambio de ciclos puede mover comportamientos.
-3. **Porque puede cambiar el comportamiento.** Este código depende de detalles que las versiones de compilador tratan distinto. El caso concreto y comprobado: `strAplicacion ap;` está definida **sin `extern`** en `Aplicacion.c` **y** otra vez en `LedLive.c`, y `srtAlarmas ala1..ala5` están definidas dos veces, en `Serial.c` y en `Alarma.c`. Son *definiciones tentativas*. XC8 las fusiona en un solo objeto y por eso el firmware funciona. Un compilador que deje de fusionarlas rompe el programa. (Esto está documentado en la cabecera de `D:\@Proyect\Baliza\4 Simulador\arnes.c`, y es la razón de que el simulador use `-fcommon`.)
-
-**Modo Free.** El `.lst` prueba que el firmware actual se compiló con **licencia Free**. En modo Free XC8 aplica sólo el nivel de optimización básico (el `.lst` lo marca como `Og1`); los niveles altos de la optimización OCG son de la licencia PRO. Consecuencias prácticas:
-
-- Instala XC8 y **déjalo en Free** (es lo que hace por defecto cuando no hay licencia). Si activaras PRO, el binario saldría más pequeño y **dejaría de ser comparable** con el de producción.
-- El código de producción ocupa lo que ocupa **porque está sin optimizar**. Los 11 128 bytes libres (§4.2) son un colchón real, no uno que dependa del compilador.
-
-**Dónde se descargan las versiones antiguas.** En la web de Microchip, en la página del compilador (*MPLAB® XC8 Compiler*, dentro de *Tools and Resources → Develop → Compilers*), hay una pestaña de **archivo de versiones** (*Downloads Archive*) con todas las versiones antiguas de XC8, la v2.46 incluida. Es una descarga gratuita, no hace falta licencia para el modo Free. **No he podido verificar la URL exacta ni el nombre del fichero desde esta máquina** (sin red); ver §10.
-
-**Dónde instalarlo:** deja la ruta por defecto, `C:\Program Files\Microchip\xc8\v2.46\`, que es exactamente donde estaba antes según el `.map`. Marca la casilla que añade XC8 al `PATH` si quieres usar la línea de comandos (§5).
-
-**Comprueba después de instalar** — usa `picc18.exe`, que es el que da la versión de forma fiable:
+Después de instalar, comprueba:
 
 ```powershell
-dir "C:\Program Files\Microchip\xc8\v2.46\bin"
 & "C:\Program Files\Microchip\xc8\v2.46\pic\bin\picc18.exe" --ver
+dir "C:\Program Files\Microchip\xc8\v2.46\bin"
 ```
-
-**Y compila con el driver clásico y C99**, igual que en §2.3, cambiando `v2.36` por `v2.46` en la ruta. **Las dos versiones pueden convivir instaladas a la vez** en carpetas distintas; lo que decide cuál usas es la ruta que escribas en el comando.
 
 ---
 
-## 3. Recrear el proyecto de MPLAB X
+## 7. Recrear el proyecto de MPLAB X
 
-Con XC8 ya instalado (si no, XC8 no aparecerá en la lista del paso 5 y no podrás terminar).
+Sólo hace falta si quieres usar el IDE (editar con navegación, depurar, grabar con un clic). Para compilar basta con §1.
 
 Abre `C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\bin\mplab_ide64.exe`.
 
-1. **`File → New Project`** (o Ctrl+Shift+N).
+1. **`File → New Project`** (Ctrl+Shift+N).
 2. **Categoría `Microchip Embedded` → tipo `Standalone Project`** → `Next`.
    *No* elijas `Existing MPLAB IDE v8 Project` ni `Prebuilt (Hex, Loadable Image) Project`.
-3. **`Select Device`**: en `Family` pon `Advanced 8-bit MCUs (PIC18)` y en `Device` escribe **`PIC18F2550`** → `Next`.
-4. **`Select Tool`**: elige tu programador de la lista. Si está conectado por USB aparece con su número de serie; si no, aparece igualmente en la lista genérica. Para el PIC18F2550 esta instalación da soporte verde a **PICkit 3, PICkit 4, ICD 3, ICD 4, REAL ICE y PM3**. **MPLAB Snap NO sirve para este micro** (ver §6.1). Si aún no sabes cuál usarás, elige `Simulator` y cámbialo luego en las propiedades del proyecto → `Next`.
-5. **`Select Compiler`**: elige **`XC8 (v2.46)`**. **Si la lista sale vacía o no aparece XC8, es que no lo has instalado, o lo instalaste con MPLAB X abierto.** Cierra MPLAB X, instala XC8, vuelve a abrir → `Next`.
+3. **`Select Device`**: `Family` = `Advanced 8-bit MCUs (PIC18)`, `Device` = **`PIC18F2550`** → `Next`.
+4. **`Select Tool`**: elige tu programador. Para el PIC18F2550 esta instalación soporta **PICkit 3, PICkit 4, ICD 3, ICD 4, REAL ICE y PM3**. **MPLAB Snap NO sirve para este micro** (§10.1). Si aún no sabes cuál usarás, elige `Simulator` y cámbialo luego → `Next`.
+5. **`Select Compiler`**: elige **`XC8 (v2.36)`** —o `XC8 (v2.46)` si la instalaste (§6)—. Si la lista sale vacía, cierra y reabre MPLAB X, o `Tools → Options → Embedded → Build Tools → Scan for Build Tools` → `Next`.
 6. **`Select Project Name and Folder`**:
-   - `Project Name`: **`18f2550_baliza_ V1.X`** — sin `.X` extra: MPLAB X añade `.X` solo si no lo pones, y aquí el nombre ya lo lleva. El objetivo es que el proyecto se llame igual que la carpeta que ya existe.
+   - `Project Name`: **`18f2550_baliza_ V1.X`** (ya lleva el `.X`; no le añadas otro).
    - `Project Location`: **`D:\@Proyect\Baliza\1 Firmware\Doc mplabx`**
-   - Comprueba abajo que `Project Folder` queda en `D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X` — es decir, **el proyecto se crea encima de la carpeta que ya tiene el código**. Así `nbproject\` nace donde tiene que estar.
-   - `Encoding`: **pon `windows-1252`**. Los fuentes están en Windows-1252 y el delimitador de trama del protocolo es el byte `0xBF`. Si lo dejas en UTF-8, verás caracteres raros en el editor y corres el riesgo de que un guardado te corrompa el protocolo. (El simulador compila con `-finput-charset=CP1252 -fexec-charset=CP1252` justo por esto; ver `correr.py`.)
+   - Comprueba abajo que `Project Folder` queda en `...\Doc mplabx\18f2550_baliza_ V1.X`, es decir, **encima de la carpeta que ya tiene el código**. Así `nbproject\` nace donde debe.
+   - `Encoding`: **`windows-1252`**. Los fuentes están en Windows-1252 y el delimitador de trama del protocolo es el byte `0xBF`. En UTF-8 verás caracteres raros y un guardado puede corromper el protocolo. (El simulador compila con `-finput-charset=CP1252 -fexec-charset=CP1252` justo por esto.)
    - `Finish`.
 
-7. **Añadir los ficheros que ya existen.** En la ventana `Projects`, botón derecho sobre cada carpeta virtual:
+7. **Añadir los ficheros que ya existen.** Botón derecho sobre cada carpeta virtual del árbol `Projects`:
 
    | Carpeta virtual | Menú | Qué añadir |
    |---|---|---|
-   | `Source Files` | **`Add Existing Item...`** | los 11 `.c`: `Alarma.c`, `Aplicacion.c`, `Buzzer.c`, `Cluster.c`, `DS1307.c`, `EEprom.c`, `I2C.c`, `LedLive.c`, `main.c`, `Serial.c`, `TimeBase.c` |
-   | `Header Files` | **`Add Existing Item...`** | los 12 `.h` de la raíz: `Alarma.h`, `Aplicacion.h`, `Buzzer.h`, `Cluster.h`, `DS1307.h`, `EEprom.h`, `I2C.h`, `LedLive.h`, `main.h`, `Serial.h`, `TimeBase.h`, `UART.h` |
-   | `Header Files` | **`Add Existing Items from Folders...`** | la carpeta **`Rtos\`** (5 cabeceras: `pt.h`, `pt-sem.h`, `lc.h`, `lc-switch.h`, `lc-addrlabels.h`) |
+   | `Source Files` | `Add Existing Item...` | los **11** `.c` |
+   | `Header Files` | `Add Existing Item...` | los **12** `.h` de la raíz (incluido `UART.h`) |
+   | `Header Files` | `Add Existing Items from Folders...` | la carpeta **`Rtos\`** (5 cabeceras) |
 
-   > **No olvides `Rtos\`.** Todo el firmware son protothreads: `Cluster.h` hace `#include "Rtos/pt.h"`. Si no está, no compila. Aunque técnicamente basta con que los ficheros estén en disco, añadirlos al proyecto es lo que hace que se vean en el árbol y que la navegación del IDE funcione.
+   > **No olvides `Rtos\`.** Todo el firmware son protothreads: `Cluster.h` hace `#include "Rtos/pt.h"`. Si no está, no compila.
 
-8. **⚠ En el diálogo de añadir ficheros, elige `Auto` o `Relative` — NUNCA `Copy`.**
-   El desplegable `Store path as:` del diálogo `Add Existing Item` ofrece copiar el fichero dentro del proyecto. **No lo hagas.** Los fuentes ya están en su sitio; si dejas que MPLAB X los copie, acabas con dos copias del firmware, editas una y compilas la otra, y el simulador (§7) seguirá midiendo la original. Usa `Auto` (que resuelve a ruta relativa, porque están dentro de la carpeta del proyecto).
+8. **⚠ En el diálogo, `Store path as:` → `Auto` o `Relative`. NUNCA `Copy`.** Los fuentes ya están en su sitio. Si dejas que MPLAB X los copie, acabas con dos copias del firmware, editas una y compilas la otra, y el simulador (§11.2) seguirá midiendo la original.
 
-9. **⚠ `build\` y `dist\` que ya están ahí son basura vieja, de septiembre de 2025.** No los añadas al proyecto y no te fíes de lo que contienen. En cuanto compiles, MPLAB X escribirá encima. Si quieres conservar el binario antiguo como referencia antes de que eso pase, cópialo fuera:
-   ```powershell
-   Copy-Item "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X\dist" `
-             "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\dist_2025-09-17_ANTIGUO" -Recurse
-   ```
-   El `.hex` de producción (`Doc mplabx\18f2550_baliza__V1.X.production.hex`) está **fuera** de la carpeta del proyecto, así que ése no corre peligro.
+9. **⚠ No añadas `build\`, `dist\`, ni los `startup.*` / `test_build.*` de §3.** Son artefactos viejos. Límpialos primero (§3) para no tener que distinguirlos.
 
-### 3.1 Guarda `nbproject\` junto al código. Siempre.
+10. ### ⚠ **Poner C99 — este paso es obligatorio**
+
+    `File → Project Properties` → en el árbol, **`XC8 Global Options` → `XC8 Compiler`** → categoría **`Optimization`** o **`General`** según la versión → localiza **`C standard`** y ponlo en **`C99`**.
+
+    **Si te lo saltas, la compilación fallará con los siete errores `(188) constant expression required` de `DS1307.c`** que explica §2, y parecerá que el código está roto. No lo está.
+
+11. `Clean and Build` (Shift+F11). Debe decir `BUILD SUCCESSFUL`.
+
+### 7.1 Guarda `nbproject\` junto al código. Siempre.
 
 Cuando termines, dentro de `18f2550_baliza_ V1.X\` habrá una carpeta nueva `nbproject\` con `configurations.xml`, `project.xml` y `Makefile-*.mk`.
 
-**Esa carpeta es parte del código fuente. Va con él a todas partes.** Es exactamente lo que faltaba hoy y lo que ha obligado a hacer este trabajo: alguien empaquetó el firmware quedándose los `.c` y tirando el proyecto, y con ello se perdió qué dispositivo era, qué compilador, con qué opciones y qué ficheros entraban. Todo eso ha habido que deducirlo de un fichero de mapa que sobrevivió por casualidad.
+**Esa carpeta es parte del código fuente. Va con él a todas partes.** Es lo que faltaba y lo que ha costado este trabajo: alguien empaquetó el firmware quedándose los `.c` y tirando el proyecto, y con ello se perdió qué dispositivo era, qué compilador, **qué estándar de lenguaje** y qué ficheros entraban. Todo eso ha habido que deducirlo de un `.map` y un `.lst` que sobrevivieron por casualidad, y el asunto del C99 sólo salió a la luz al ver la compilación reventar.
 
 - Guárdala en el control de versiones o en el ZIP, al lado de los `.c`.
-- Lo que **no** se guarda es `build\` y `dist\`: son generados, se rehacen en cada compilación y sólo estorban.
-- `defmplabxtrace.log` tampoco.
+- Lo que **no** se guarda: `build\`, `dist\`, `defmplabxtrace.log*`, la carpeta de `--outdir`, y los `startup.*`/`test_build.*` de §3.
 
 ---
 
-## 4. Compilar desde la interfaz
+## 8. Compilar desde la interfaz
 
-### 4.1 Los botones
+| Quiero | Botón / menú | Atajo |
+|---|---|---|
+| Compilar sólo lo que cambió | **`Build Project`** (martillo) | F11 |
+| Compilar todo desde cero | **`Clean and Build Project`** (martillo + escoba) | Shift+F11 |
+| Compilar **y grabar** | `Make and Program Device` | — ⚠ **esto toca el hardware, lee §10 antes** |
 
-| Quiero | Botón / menú | Atajo | Qué hace |
-|---|---|---|---|
-| Compilar sólo lo que cambió | **`Build Project`** (martillo) | F11 | Recompila los `.c` modificados y enlaza |
-| Compilar todo desde cero | **`Clean and Build Project`** (martillo + escoba) | Shift+F11 | Borra `build\` y `dist\` y rehace todo. **Usa éste** cuando cambies cabeceras, opciones del proyecto o versión de compilador |
-| Compilar **y grabar** | `Make and Program Device` (flecha hacia abajo sobre un chip) | — | **Esto ya toca el hardware. Ver §6 antes de pulsarlo** |
+Usa `Clean and Build` siempre que cambies cabeceras, opciones del proyecto o versión de compilador. Comprueba que la barra de configuración de arriba dice **`default`** y no `debug` si quieres un binario de producción (§8.2).
 
-Asegúrate de que la barra de configuración de arriba dice **`default`** y no `debug`, si lo que quieres es un binario de producción. Ver §4.3.
-
-### 4.2 Dónde sale el resultado y dónde queda el `.hex`
-
-El resultado se imprime en la ventana **`Output`** (pestaña con el nombre del proyecto), abajo. Al final aparece el resumen de memoria de XC8, que tiene esta forma:
-
-```
-Memory Summary:
-    Program space        used  XXXXh (  YYYYY) of  8000h bytes   ( NN.N%)
-    Data space           used   XXXh (   YYY) of   800h bytes   ( NN.N%)
-    EEPROM space         used     0h (     0) of   100h bytes   (  0.0%)
-    ...
-:: warning: (1273) Omniscient Code Generation not available in Free mode
-```
-
-y termina con `BUILD SUCCESSFUL` o `BUILD FAILED`.
-
-El `.hex` queda en:
+El resultado se imprime en la ventana **`Output`**, abajo, y termina en `BUILD SUCCESSFUL` o `BUILD FAILED`. El `.hex` queda en:
 
 ```
 18f2550_baliza_ V1.X\dist\default\production\18f2550_baliza_ V1.X.production.hex
 ```
 
-(y en `dist\default\debug\...debug.hex` si compilaste en modo debug).
+### 8.1 Cuánta memoria tiene el 18F2550 y cuánto queda
 
-### 4.3 Cuánta memoria tiene el 18F2550 y cuánto queda
+El PIC18F2550 tiene **32 KB de flash (32 768 bytes), 2 048 bytes de RAM y 256 bytes de EEPROM de datos**. Los dos primeros salen de `dist\default\debug\memoryfile.xml`; el de EEPROM del `.map` (`-AEEDATA=0F00000h-0F000FFh`).
 
-MPLAB X escribe el resumen también en un XML. El de la última compilación real está en `dist\default\debug\memoryfile.xml` y dice, literalmente:
+Referencias medidas:
 
-| Espacio | Total | Usado | Libre | Ocupación |
+| Compilación | Programa | % | Datos | % |
 |---|---:|---:|---:|---:|
-| **Program (flash)** | 32 768 bytes (32 KB) | 21 640 | 11 128 | **66,0 %** |
-| **Data (RAM)** | 2 048 bytes | 564 | 1 484 | **27,5 %** |
-| **EEPROM** | 256 bytes | — | — | — |
-
-Los totales de la tabla son los del PIC18F2550: **32 KB de flash, 2 048 bytes de RAM, 256 bytes de EEPROM de datos**. Los dos primeros salen del propio `memoryfile.xml`; el de EEPROM sale del `.map` (`-AEEDATA=0F00000h-0F000FFh`, o sea `0x00`–`0xFF`).
+| Producción, XC8 v2.46 (`memoryfile.xml`) | 21 640 | 66,0 | 564 | 27,5 |
+| Hoy, XC8 v2.36 con `xc8.exe` | 21 309 | 65,0 | 687 | 33,5 |
+| Hoy, XC8 v2.36 con `xc8-cc.exe` | 26 863 | 82,0 | 675 | 33,0 |
 
 Cómo leerlo:
 
-- **Program space** es la flash. Si supera el 100 %, el enlazador falla con `can't find space` y no sale `.hex`. Con **11 128 bytes libres** hay sitio de sobra para cambios normales; preocúpate si empiezas a añadir cadenas de texto o tablas grandes, que es lo que se come la flash de golpe.
-- **Data space** es la RAM. Es la que muerde antes en este micro: 2 KB repartidos en bancos, y el PIC18 sólo direcciona un banco a la vez. Si añades arrays grandes puedes agotar un banco concreto aunque el porcentaje global parezca bajo. El síntoma es un error de enlazado que nombra un `psect` (`bssBANK1`, `cstackBANK0`...), no un simple «no cabe».
-- **Ojo con comparar debug contra production.** La compilación de arriba es **debug**: el `.map` muestra `-ACODE=00h-07D3Fh`, es decir que el ejecutivo de depuración se reserva de `0x7D40` a `0x7FFF` (704 bytes) y el programa no puede usarlos. Una compilación `production` dispone de los 32 768 completos. Compara siempre production contra production.
+- **Program space** es la flash. Si pasa del 100 %, el enlazador falla con `can't find space` y no sale `.hex`. Con ~11 000 bytes libres hay sitio de sobra para cambios normales; lo que se come la flash de golpe son las cadenas de texto y las tablas grandes.
+- **Data space** es la RAM, y es la que muerde antes: 2 KB repartidos en bancos, y el PIC18 direcciona un banco a la vez. Puedes agotar un banco concreto aunque el porcentaje global parezca bajo. El síntoma es un error que nombra un `psect` (`bssBANK1`, `cstackBANK0`...), no un simple «no cabe».
+- **No compares debug contra production.** La compilación de referencia de producción es **debug**: el `.map` muestra `-ACODE=00h-07D3Fh`, o sea que el ejecutivo de depuración reserva de `0x7D40` a `0x7FFF` (704 bytes). Una compilación `production` dispone de los 32 768 completos.
+- **No compares entre drivers ni entre versiones** sin decirlo. Ver §4.
 
 ---
 
-## 5. Compilar desde la línea de comandos
+## 9. Compilar desde la línea de comandos con el proyecto
 
-Dos caminos. El segundo es el bueno para automatizar, porque usa el proyecto y por tanto las mismas opciones que la interfaz.
+§1 ya da el camino directo, que no necesita proyecto. Este otro compila **el proyecto**, con las opciones guardadas en `nbproject\configurations.xml` —incluido el C99—, así que es idéntico a pulsar `Clean and Build` pero desde un script.
 
-### 5.1 Llamando a XC8 directamente
-
-**Comprobado que no existe hoy:** `C:\Program Files\Microchip\xc8\v2.46\bin\` no está, porque XC8 no está instalado. Estos comandos son para después de instalar (§2.2).
-
-XC8 v2.x trae **dos** ejecutables de línea de órdenes, y **usan opciones distintas**:
-
-| Ejecutable | Qué es | Opción del dispositivo |
-|---|---|---|
-| `xc8-cc.exe` | El driver moderno de la v2.x, el que usa MPLAB X para proyectos v2. Es el que hay que usar. | **`-mcpu=18F2550`** |
-| `xc8.exe` | El driver heredado de la v1.x, que se conserva por compatibilidad | **`--chip=18F2550`** |
-
-**No he podido verificar cuál de los dos está presente en la v2.46 ni sus opciones exactas, porque el compilador no está instalado en esta máquina.** Lo anterior es lo que documenta Microchip para XC8 v2.x. En cuanto lo instales, confírmalo tú con `dir "C:\Program Files\Microchip\xc8\v2.46\bin"` y `xc8-cc.exe --help`. Ver §10.
-
-Forma esperada del comando, desde la carpeta del proyecto (PowerShell, todo en una línea o con acentos graves de continuación):
-
-```powershell
-cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
-
-& "C:\Program Files\Microchip\xc8\v2.46\bin\xc8-cc.exe" `
-    -mcpu=18F2550 `
-    -o baliza.hex `
-    Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c EEprom.c `
-    I2C.c LedLive.c main.c Serial.c TimeBase.c
-```
-
-Notas:
-
-- **Los 11 `.c`, ni uno más ni uno menos.** Son los que aparecen como `.p1` en `build\default\debug\`. `UART.h` no tiene `.c`, y en `Rtos\` sólo hay cabeceras.
-- **No hace falta `-I`** para `Rtos\`: los `#include` son `"Rtos/pt.h"`, relativos al directorio del fuente, y compilas desde ahí.
-- **Los `#pragma config` ya están en `main.h`**, así que los bits de configuración salen en el `.hex` sin que haya que pasar nada por línea de comandos.
-- **Entrecomilla todo.** `Program Files` tiene un espacio, `1 Firmware` tiene un espacio, `Doc mplabx` tiene un espacio y `18f2550_baliza_ V1.X` tiene un espacio **antes** de `V1.X`. Sin comillas, cualquiera de esas rutas se parte y el error que sale no dice que el problema sean las comillas.
-
-### 5.2 Usando el `make` de MPLAB X sobre el proyecto (recomendado para automatizar)
-
-Esto compila **el proyecto**, con las opciones que guardaste en `nbproject\configurations.xml`. Es idéntico a pulsar `Clean and Build`, pero desde un script.
-
-**Herramientas comprobadas en disco el 21-ago-2026:**
+**Herramientas comprobadas en disco:**
 
 | Herramienta | Ruta exacta | Verificado |
 |---|---|---|
-| GNU Make 3.81 | `C:\Program Files\Microchip\MPLABX\v5.45\gnuBins\GnuWin32\bin\make.exe` | ✅ existe |
-| Generador de makefiles | `C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\bin\prjMakefilesGenerator.bat` | ✅ existe (es un `.bat` que lanza `..\lib\PrjMakefilesGenerator.jar` con el java de MPLAB X) |
-| IDE | `C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\bin\mplab_ide64.exe` | ✅ existe |
-| IPE (grabador gráfico) | `C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\bin\mplab_ipe64.exe` | ✅ existe |
-| IPE por línea de comandos | `C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\mplab_ipe\ipecmd.exe` | ✅ existe, ayuda verificada (§6.4) |
-| Utilidades | `hexmate.exe`, `checksum.jar`, `mdb.bat` en `mplab_platform\bin\` | ✅ existen |
-
-Secuencia:
+| GNU Make 3.81 | `...\v5.45\gnuBins\GnuWin32\bin\make.exe` | ✅ |
+| Generador de makefiles | `...\v5.45\mplab_platform\bin\prjMakefilesGenerator.bat` | ✅ (lanza `..\lib\PrjMakefilesGenerator.jar`) |
+| IDE | `...\v5.45\mplab_platform\bin\mplab_ide64.exe` | ✅ |
+| IPE gráfico | `...\v5.45\mplab_platform\bin\mplab_ipe64.exe` | ✅ |
+| IPE por línea de comandos | `...\v5.45\mplab_platform\mplab_ipe\ipecmd.exe` | ✅ ayuda verificada (§10.4) |
+| Utilidades | `hexmate.exe`, `checksum.jar`, `mdb.bat` en `mplab_platform\bin\` | ✅ |
 
 ```powershell
 $MPLABX = "C:\Program Files\Microchip\MPLABX\v5.45"
 $PROY   = "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
 
-# 1) Regenerar los makefiles a partir de nbproject\configurations.xml
-#    (sólo hace falta si cambió la lista de ficheros o las opciones)
-& "$MPLABX\mplab_platform\bin\prjMakefilesGenerator.bat" "$PROY@default"
+# 1) Regenerar los makefiles desde nbproject\configurations.xml
+&"$MPLABX\mplab_platform\bin\prjMakefilesGenerator.bat" "$PROY@default"
 
 # 2) Compilar
 cd "$PROY"
-& "$MPLABX\gnuBins\GnuWin32\bin\make.exe" -f nbproject/Makefile-default.mk SUBPROJECTS= .build-conf
+&"$MPLABX\gnuBins\GnuWin32\bin\make.exe" -f nbproject/Makefile-default.mk SUBPROJECTS= .build-conf
 ```
 
-`$PROY@default` es la sintaxis `<ruta del proyecto>@<configuración>`; `default` es el nombre de la configuración que usó la compilación original (por eso las rutas son `build\default\...`). **No he podido verificar esta sintaxis ejecutándola, porque no hay proyecto que regenerar; ver §10.** El destino `.build-conf` y el makefile `nbproject/Makefile-default.mk` los genera el propio MPLAB X al crear el proyecto: si el nombre no coincide, míralo dentro de `nbproject\` una vez creado.
-
-El `.hex` sale en el mismo sitio que desde la interfaz (§4.2). El código de salida de `make` es 0 si compiló.
+`$PROY@default` es la sintaxis `<ruta del proyecto>@<configuración>`; `default` es el nombre que usó la compilación original (por eso las rutas son `build\default\...`). **No he podido verificar esta sintaxis ejecutándola, porque todavía no hay proyecto que regenerar** (§14). El destino `.build-conf` y el nombre `Makefile-default.mk` los genera MPLAB X: mira dentro de `nbproject\` una vez creado. `make` devuelve 0 si compiló.
 
 ---
 
-## 6. Grabar el PIC
+## 10. Grabar el PIC
 
 > # ⚠⚠ NO GRABES SI NO TE LO HAN PEDIDO
 >
 > **Hay una señal montada al otro lado.** Grabar el PIC reinicia el equipo y sustituye el programa que está gobernando esa señal ahora mismo. Una baliza que se apaga, que se queda encendida, o que arranca con horarios distintos a los de la chapa atornillada, es un problema de seguridad, no un problema de software.
 >
-> **Compilar es gratis. Grabar no.** Puedes hacer todo lo de §3, §4, §5 y §7 sin acercarte a la tarjeta. Grabar es un acto separado, que se hace **cuando alguien lo pide**, sabiendo qué señal es y qué pasa mientras está sin programa.
+> **Compilar es gratis. Grabar no.** Puedes hacer todo lo de §1 a §9 y §11 sin acercarte a la tarjeta. Grabar es un acto separado, que se hace **cuando alguien lo pide**, sabiendo qué señal es y qué pasa mientras está sin programa.
 
-### 6.1 Qué programador
+### 10.1 Qué programador
 
-La tarjeta expone una **cabecera ICSP de 5 pines, `J1`**, documentada en `D:\@Proyect\Baliza\HARDWARE.md` (§2.2 de ese documento, línea 66, y el mapa de netos de las líneas 853–870):
+La tarjeta expone una **cabecera ICSP de 5 pines, `J1`**, documentada en `D:\@Proyect\Baliza\HARDWARE.md` (§2.2 de ese documento, línea 66; mapa de netos en las líneas 853–870):
 
 | Pin de `J1` | Señal | A dónde va en el PIC |
 |---|---|---|
@@ -499,94 +414,82 @@ La tarjeta expone una **cabecera ICSP de 5 pines, `J1`**, documentada en `D:\@Pr
 | **4** | `PGD` | pin 28 (`RB7`) |
 | **5** | `PGC` | pin 27 (`RB6`) |
 
-`HARDWARE.md` dice que es **compatible pin a pin con PICkit 3 / PICkit 4**. Esos programadores tienen 6 pines; el sexto (`PGM`/`AUX`) queda al aire, y **no hace falta**, porque el firmware lleva `#pragma config LVP = OFF` (`main.h`, línea 37): programación en bajo voltaje deshabilitada. Se graba con **VPP alto sobre MCLR**, que es el modo por defecto.
+`HARDWARE.md` dice que es **compatible pin a pin con PICkit 3 / PICkit 4**. Esos programadores tienen 6 pines; el sexto (`PGM`/`AUX`) queda al aire y **no hace falta**, porque el firmware lleva `#pragma config LVP = OFF` (`main.h`, línea 37): se graba con **VPP alto sobre MCLR**, que es el modo por defecto.
 
-**Herramientas que soportan el PIC18F2550, según la tabla de esta instalación** (`...\v5.45\docs\Device Support.htm`, fila `PIC18F2550` — columnas en el orden `SNAP-D, SNAP-P, PK4-D, PK4-P, ICD4-D, ICD4-P, RICE-D, RICE-P, ICD3-D, ICD3-P, PK3-D, PK3-P, PM3, SIM-ISA, SIM-P, AICE-P, PIC-AS, XC8, XC16, XC32` con valores `R,R,G,G,G,G,G,G,G,G,G,G,G,G,Y,R,1.00,1.00,R,R`):
+**Herramientas que soportan el PIC18F2550**, según `...\v5.45\docs\Device Support.htm`, fila `PIC18F2550` (columnas `SNAP-D, SNAP-P, PK4-D, PK4-P, ICD4-D, ICD4-P, RICE-D, RICE-P, ICD3-D, ICD3-P, PK3-D, PK3-P, PM3, SIM-ISA, SIM-P, AICE-P, PIC-AS, XC8, XC16, XC32` con valores `R,R,G,G,G,G,G,G,G,G,G,G,G,G,Y,R,1.00,1.00,R,R`):
 
 | Herramienta | Depurar | Grabar |
 |---|---|---|
 | **MPLAB Snap** | ❌ **NO** | ❌ **NO** |
-| **PICkit 4** | ✅ | ✅ |
-| **ICD 4** | ✅ | ✅ |
-| **REAL ICE** | ✅ | ✅ |
-| **ICD 3** | ✅ | ✅ |
-| **PICkit 3** | ✅ | ✅ |
-| **PM3** | — | ✅ |
-| Simulador | ✅ | (preliminar) |
-| XC8 | — | soportado desde v1.00 |
+| PICkit 4 | ✅ | ✅ |
+| ICD 4 | ✅ | ✅ |
+| REAL ICE | ✅ | ✅ |
+| ICD 3 | ✅ | ✅ |
+| PICkit 3 | ✅ | ✅ |
+| PM3 | — | ✅ |
 
-> **El Snap no vale para este micro.** Es el error más caro de esta lista: es el programador barato que la gente compra primero, y con el PIC18F2550 no funciona, no porque esté mal, sino porque Microchip nunca lo soportó.
+> **El Snap no vale para este micro.** Es el error más caro de esta lista: es el programador barato que se compra primero, y con el PIC18F2550 no funciona, no porque esté defectuoso, sino porque Microchip nunca lo soportó.
 
-### 6.2 Cómo se conecta — y la decisión de la alimentación
+### 10.2 Cómo se conecta — y la decisión de la alimentación
 
-**El PIC18F2550 de esta tarjeta funciona a 5 V** (`HARDWARE.md` §4: raíl `+5V` desde un `LM78M05`, y el PIC a 20 MHz en modo `HS`, que a 3,3 V no está garantizado). El programador tiene que trabajar a 5 V, no a 3,3 V.
+**El PIC18F2550 de esta tarjeta funciona a 5 V** (`HARDWARE.md` §4: raíl `+5V` desde un `LM78M05`, PIC a 20 MHz en modo `HS`, que a 3,3 V no está garantizado). El programador tiene que trabajar a 5 V, no a 3,3 V.
 
 Como `J1.2` está atado al raíl de 5 V de la tarjeta, **hay que decidir de dónde sale ese 5 V, y sólo puede salir de un sitio**:
 
 | Opción | Cómo | Cuándo | Riesgo si te equivocas |
 |---|---|---|---|
-| **A — La tarjeta se alimenta sola** (recomendado) | Alimenta la tarjeta por `J2` con sus 12 V. En el programador, **NO** actives «power target from tool». En IPE, deja `VDD` sin marcar; en línea de comandos, **no** pongas `/W` | Es lo normal y lo más seguro. La tarjeta ya está montada y alimentada | Ninguno |
-| **B — El programador alimenta la tarjeta** | Sin 12 V en `J2`. Activa «power target» y **fija 5,0 V** | Sólo con la tarjeta en el banco, desconectada de la señal | El PICkit 3 sólo entrega ~30 mA a 5 V. El consumo del raíl de +5 V de esta tarjeta es **≈21 mA típicos pero hasta ≈70 mA de pico** (`HARDWARE.md` §4.5, con el HC-06 tirando 40 mA en emparejamiento). El programador no llega: la tensión cae y **la grabación falla a mitad**, o el micro queda a medio programar |
-| **A+B a la vez** ❌ | Los 12 V puestos **y** «power target» activado | Nunca | El programador empuja 5 V contra la salida del `LM78M05`. Es la forma habitual de matar el programador, el regulador, o los dos |
+| **A — La tarjeta se alimenta sola** (recomendado) | Alimenta la tarjeta por `J2` con sus 12 V. En el programador, **NO** actives «power target from tool». En IPE deja `VDD` sin marcar; en `ipecmd`, **no** pongas `/W` | Es lo normal: la tarjeta ya está montada y alimentada | Ninguno |
+| **B — El programador alimenta la tarjeta** | Sin 12 V en `J2`. Activa «power target» y **fija 5,0 V** | Sólo con la tarjeta en el banco, desconectada de la señal | El PICkit 3 entrega ~30 mA a 5 V. El consumo del raíl de +5 V de esta tarjeta es **≈21 mA típicos y hasta ≈70 mA de pico** (`HARDWARE.md` §4.5: el HC-06 tira 40 mA al emparejar). El programador no llega: la tensión cae y **la grabación se corta a mitad** |
+| **A+B a la vez** ❌ | 12 V puestos **y** «power target» activado | Nunca | El programador empuja 5 V contra la salida del `LM78M05`. Es la forma habitual de matar el programador, el regulador, o los dos |
 
-**Regla:** si la tarjeta está en su sitio y enchufada → **opción A**. Si está suelta en la mesa → **opción B**, y con el HC-06 quitado del zócalo para bajar el consumo.
+**Regla:** tarjeta en su sitio y enchufada → **opción A**. Tarjeta suelta en la mesa → **opción B**, y con el HC-06 fuera del zócalo para bajar el consumo.
 
-**Otras cosas que comprobar antes de tocar nada:**
+**Antes de tocar nada:**
 
-- **Masa común.** Si la tarjeta se alimenta de su fuente y el programador del USB del PC, `J1.3` es lo único que las une. Que esté bien conectado.
-- **Orientación de `J1`.** Es una tira de 5 pines sin polarizar: se puede enchufar del revés. Pin 1 (`MCLR/VPP`) es el que va marcado con el triángulo del PICkit. Enchufarlo al revés pone VPP (≈9 V) en `PGC`.
-- **La salida CLUSTER.** Grabar reinicia el micro. Mientras el PIC está en reset y durante toda la grabación, `RC2` queda como entrada y la puerta del MOSFET la mantiene `R9` (4,7 k) a masa: el cluster queda **apagado**. Después del reset, el firmware arranca de cero. Si la señal debe seguir dando luz mientras tanto, no puede: planifícalo.
-- **La hora.** El DS1307 tiene pila de respaldo (`BT1`) y **no** pierde la hora al grabar. Pero la EEPROM interna del PIC, donde el firmware guarda las alarmas, **sí se borra** si grabas con el borrado completo activado, que es el comportamiento por defecto (`ipecmd`: `OH  Erase All Before Programming ... Default: Selected`). Ver §6.4 si quieres conservarla.
+- **Masa común.** Si la tarjeta va con su fuente y el programador con el USB del PC, `J1.3` es lo único que las une.
+- **Orientación de `J1`.** Es una tira de 5 pines sin polarizar: se puede enchufar del revés, y eso pone VPP (≈9 V) en `PGC`. Pin 1 = `MCLR/VPP`, el marcado con el triángulo del PICkit.
+- **La salida CLUSTER.** Durante la grabación el micro está en reset, `RC2` queda como entrada y `R9` (4,7 k) mantiene la puerta del MOSFET a masa: el cluster queda **apagado**. Si la señal debe seguir dando luz mientras tanto, no puede.
+- **La hora no se pierde**: el DS1307 tiene pila (`BT1`). **Las alarmas sí**, si grabas con borrado completo, que es el comportamiento por defecto (`ipecmd`: `OH  Erase All Before Programming ... Default: Selected`). Usa `/Z` para conservar la EEPROM.
 
-### 6.3 Grabar desde MPLAB X
+### 10.3 Grabar desde MPLAB X
 
 1. Conecta el programador al USB y a `J1` respetando el pin 1.
-2. Resuelve la alimentación según §6.2.
+2. Resuelve la alimentación según §10.2.
 3. `Production → Set Project Configuration → default` (no `debug`).
-4. `File → Project Properties`, en el árbol de la izquierda selecciona tu herramienta y revisa **`Power`**: la casilla `Power target circuit from <herramienta>` marcada o no, según §6.2. Revisa también `Program Options` si quieres preservar la EEPROM.
-5. Compila: **`Clean and Build`** (Shift+F11). Espera a `BUILD SUCCESSFUL`.
-6. **`Make and Program Device`** (o `Run → Run Project`, que compila y graba).
-7. Lee la ventana `Output`: debe aparecer la detección del dispositivo (`Device ID Revision`), el borrado, la programación y la verificación, y terminar en `Programming/Verify complete`.
+4. `File → Project Properties` → tu herramienta → **`Power`**: casilla `Power target circuit from <herramienta>` marcada o no, según §10.2. Revisa `Program Options` si quieres preservar la EEPROM.
+5. `Clean and Build` (Shift+F11). Espera `BUILD SUCCESSFUL`.
+6. `Make and Program Device`.
+7. En `Output` debe verse la detección (`Device ID Revision`), el borrado, la programación y la verificación, y terminar en `Programming/Verify complete`.
 8. Desconecta el programador. La tarjeta arranca sola.
 
-### 6.4 Grabar desde MPLAB IPE
+### 10.4 Grabar desde MPLAB IPE
 
-IPE es el programa de grabar sin compilar: le das un `.hex` y lo mete. Es el adecuado para grabar un binario que ya existe, por ejemplo el de producción.
+IPE graba un `.hex` sin compilar. Ejecutable: `...\v5.45\mplab_platform\bin\mplab_ipe64.exe`.
 
-**Ejecutable:** `C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\bin\mplab_ipe64.exe`
+1. `Device`: `PIC18F2550`. 2. `Tool`: el programador. 3. `Connect` (debe leer el Device ID). 4. `Hex File → Browse`. 5. Pestaña `Power` según §10.2. 6. `Program`, luego `Verify`.
 
-1. `Device`: escribe `PIC18F2550`.
-2. `Tool`: elige el programador conectado.
-3. `Connect`. Debe leer el Device ID.
-4. `Hex File → Browse`: elige el `.hex`.
-   - El de producción actual: `D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza__V1.X.production.hex`
-   - El que acabas de compilar: `...\18f2550_baliza_ V1.X\dist\default\production\...production.hex`
-5. Revisa la pestaña `Power`: la casilla de alimentar desde la herramienta, según §6.2.
-6. `Program`. Luego `Verify`.
-
-**Y por línea de comandos** (`ipecmd.exe`). Las opciones de abajo están **verificadas ejecutando `ipecmd.exe /?` en esta máquina**, versión v5.45:
+**Por línea de comandos.** Opciones **verificadas ejecutando `ipecmd.exe /?`** en esta máquina (v5.45):
 
 | Opción | Qué hace | Por defecto |
 |---|---|---|
-| `/P<parte>` | Selección del dispositivo. Ej. `/P18F2550` | — |
-| `/TP<herramienta>` | Selección de herramienta. Códigos: `PK3` (PICkit 3), `PK4` (PICkit 4), `ICD3`, `ICD4`, `RICE` (REAL ICE), `PM3`, `SNAP`, `PKOB`, `PKOB4` | — |
+| `/P<parte>` | Dispositivo. Ej. `/P18F2550` | — |
+| `/TP<herramienta>` | Herramienta: `PK3`, `PK4`, `ICD3`, `ICD4`, `RICE`, `PM3`, `SNAP`, `PKOB`, `PKOB4` | — |
 | `/F<fichero>` | El `.hex` | — |
-| `/M` | **Programar el dispositivo** (sin región = todo) | No programa |
+| `/M` | **Programar** (sin región = todo) | No programa |
 | `/Y` | Verificar | No verifica |
 | `/E` | Borrar la flash | No borra |
 | `/OH` | Borrar todo antes de programar | **Seleccionado** |
-| `/Z` | **Preservar la EEPROM al programar** | No preserva |
+| `/Z` | **Preservar la EEPROM** | No preserva |
 | `/W` | **Alimentar el objetivo desde la herramienta** | **Objetivo alimentado externamente** |
-| `/J` | MCLR de alto voltaje | **Seleccionado** (es lo correcto con `LVP = OFF`) |
-| `/L` | Programación en bajo voltaje | No seleccionado (**déjalo así**: el firmware tiene `LVP = OFF`) |
+| `/J` | MCLR de alto voltaje | **Seleccionado** (correcto con `LVP = OFF`) |
+| `/L` | Programación en bajo voltaje | No seleccionado (**déjalo así**) |
 | `/OL` | Soltar el reset al terminar | Lo deja en reset |
 | `/OD` | VDD antes que VPP (PICkit 3, ICD 3, ICD 4) | VPP primero |
-| `/K` | Mostrar la suma de comprobación del `.hex` | No |
-| `/I` | Mostrar el Device ID | No |
-| `/OK` | Sólo conectar (sin programar) | — |
-| `/OSL<0-7><ruta>` | Registro de diagnóstico | — |
+| `/K` | Suma de comprobación del `.hex` | No |
+| `/I` | Device ID | No |
+| `/OK` | Sólo conectar | — |
 
-Ejemplo, **tarjeta alimentada por sí misma** (sin `/W`), PICkit 3, conservando las alarmas de la EEPROM:
+Ejemplo, tarjeta alimentada por sí misma (sin `/W`), PICkit 3, conservando las alarmas:
 
 ```powershell
 & "C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\mplab_ipe\ipecmd.exe" `
@@ -595,54 +498,56 @@ Ejemplo, **tarjeta alimentada por sí misma** (sin `/W`), PICkit 3, conservando 
     /M /Y /Z /OL
 ```
 
-Prueba en seco antes, que no graba nada:
+Prueba en seco, que no graba nada:
 
 ```powershell
-& "C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\mplab_ipe\ipecmd.exe" /P18F2550 /TPPK3 /OK /I
+& "C:\...\ipecmd.exe" /P18F2550 /TPPK3 /OK /I
 ```
 
-`ipecmd` devuelve un código de salida distinto de 0 si falla, así que se puede meter en un script.
+`ipecmd` devuelve un código distinto de 0 si falla, así que se puede meter en un script.
 
 ---
 
-## 7. Cómo saber que lo que compilaste es lo que querías
+## 11. Verificar antes de grabar
 
-Tres controles, y **ninguno de los tres sustituye a los otros dos**.
+Tres controles. **Ninguno sustituye a los otros dos.**
 
-### 7.1 El orden correcto
+### 11.1 El orden correcto
 
 ```
-  1. SIMULADOR      python correr.py           ¿la lógica sigue haciendo lo que debe?
+  1. SIMULADOR      python correr.py        ¿la lógica sigue haciendo lo que debe?
          ↓
-  2. XC8            Clean and Build            ¿cabe en el micro? ¿compila de verdad?
+  2. XC8            §1  (o Clean and Build) ¿compila? ¿cabe en el micro?
          ↓
-  3. COMPARAR       resumen de memoria + hex   ¿cambió lo que yo quería y sólo eso?
+  3. COMPARAR       memoria + hex           ¿cambió lo que yo quería, y sólo eso?
          ↓
-  4. GRABAR         ...cuando lo pidan         §6
+  4. GRABAR         ...cuando lo pidan      §10
 ```
 
-El simulador va **primero** porque es el único de los cuatro que se puede repetir cien veces en un minuto sin tocar nada. Compilar con XC8 dice si *cabe*, no si *funciona*.
+El simulador va **primero** porque es el único que se puede repetir cien veces en un minuto sin tocar nada. Compilar con XC8 dice si *cabe*, no si *funciona*.
 
-### 7.2 El simulador de PC
+### 11.2 El simulador de PC
 
 ```powershell
 cd "D:\@Proyect\Baliza\4 Simulador"
 python correr.py
 ```
 
-**Qué es.** Un arnés de prueba que **compila los `.c` REALES del firmware con gcc** —los mismos ficheros que MPLAB X grabaría en el PIC, sin copiarlos ni reescribirlos— contra un `<xc.h>` falso (`stubs\xc.h`) y una plataforma simulada (`sim\plataforma.c`), y luego los ejercita. Compila **7** de los 11 `.c`: `TimeBase.c`, `LedLive.c`, `Buzzer.c`, `Cluster.c`, `Serial.c`, `Alarma.c`, `Aplicacion.c`. Los otros cuatro quedan fuera y sustituidos, por razones escritas en la cabecera de `arnes.c`: `main.c` usa `__interrupt()` (sólo existe en XC8; su bucle principal y su ISR de Timer0 están reproducidos literalmente en `plataforma.c`), `EEprom.c` espera sobre un periférico inexistente, `DS1307.c` habla I²C con un chip que aquí no hay, e `I2C.c` sólo lo usa `DS1307.c`.
+**Qué es.** Un arnés que **compila los `.c` REALES del firmware con gcc** —los mismos ficheros que se graban en el PIC, sin copiarlos ni reescribirlos— contra un `<xc.h>` falso (`stubs\xc.h`) y una plataforma simulada (`sim\plataforma.c`), y luego los ejercita. Compila **7** de los 11: `TimeBase.c`, `LedLive.c`, `Buzzer.c`, `Cluster.c`, `Serial.c`, `Alarma.c`, `Aplicacion.c`. Los otros cuatro quedan fuera por razones escritas en la cabecera de `arnes.c`: `main.c` usa `__interrupt()` (sólo existe en XC8; su bucle principal y su ISR de Timer0 están reproducidos literalmente en `plataforma.c`), `EEprom.c` espera sobre un periférico inexistente, `DS1307.c` habla I²C con un chip que aquí no hay, e `I2C.c` sólo lo usa `DS1307.c`.
+
+**Compila fichero a fichero, no en unidad única, y no por capricho:** `Cluster.h` no tiene guarda de inclusión (§12), y en unidad única el compilador vería dos veces la misma `struct` y el mismo `enum` y abortaría. El propio `arnes.c` lo explica en su cabecera.
 
 **Códigos de salida:**
 
 | Código | Significa | Qué hacer |
 |---|---|---|
-| **0** | **PASS** — compiló, corrió, y el firmware cumple | Sigue al paso 2 |
-| **1** | **FALLA** — compiló, corrió, y el firmware NO cumple | Mira qué escenario está rojo |
-| **2** | **ABORTADO** — no pudo medir: falta gcc, falta un fuente, o el arnés no compila | **Arregla el instrumento, no el firmware.** Un arnés que no corre no dice nada del firmware. Suele ser que `D:\toolchain\mingw64\bin\gcc.exe` no está, o que renombraste un `.c` y no actualizaste `FUENTES_FW` en `correr.py` |
+| **0** | **PASS** — compiló, corrió, y cumple | Sigue al paso 2 |
+| **1** | **FALLA** — compiló, corrió, y NO cumple | Mira qué escenario está rojo |
+| **2** | **ABORTADO** — no pudo medir | **Arregla el instrumento, no el firmware.** Suele ser que falta `D:\toolchain\mingw64\bin\gcc.exe`, o que renombraste un `.c` sin actualizar `FUENTES_FW` en `correr.py` |
 
-**Estado hoy, medido el 21-ago-2026:** sale **código 1**, con **33 comprobaciones, 24 ok, 9 FALLA**. Eso es lo **esperado**: siete de esos rojos están marcados en el propio arnés como `[ROJO ESPERADO 21-ago-2026]` (escenarios D1 a D6) y documentan defectos reales del firmware que aún no se han arreglado; los otros dos están en el escenario C (duración del pulso de la luz).
+**Estado hoy, medido:** código **1**, con **33 comprobaciones, 24 ok, 9 FALLA**. Es lo **esperado**: siete de esos rojos están marcados en el arnés como `[ROJO ESPERADO 21-ago-2026]` (escenarios D1 a D6) y documentan defectos reales del firmware aún sin arreglar; los otros dos están en el escenario C (duración del pulso de la luz).
 
-> **Cómo usar eso en la práctica:** guarda la salida de hoy como línea base y compara. Lo que importa no es que salga verde, sino **que no aparezcan rojos nuevos** y que los que arregles pasen a ok.
+> **En la práctica:** guarda la salida de hoy como línea base y compara. Lo que importa no es que salga verde, sino **que no aparezcan rojos nuevos**.
 > ```powershell
 > cd "D:\@Proyect\Baliza\4 Simulador"
 > python correr.py > base.txt 2>&1        # antes de tocar nada
@@ -662,128 +567,115 @@ Lo que este arnes NO dice:
   Verde aqui NO es entregable.
 ```
 
-A eso hay que añadir lo que se deduce de cómo está construido:
+Y además:
 
-- **No toca un solo pin real.** Ni un temporizador real, ni el ADC, ni el I²C, ni la UART. `<xc.h>` es un stub.
-- **No usa XC8.** Usa gcc. No dice nada sobre tamaño en flash, uso de bancos de RAM, ni si el código cabe.
-- **No mide tiempos reales.** El tiempo del arnés es simulado; no hay cristal de 20 MHz ni Timer0.
+- **No toca un solo pin real.** Ni temporizador, ni ADC, ni I²C, ni UART. `<xc.h>` es un stub.
+- **No usa XC8.** Usa gcc. No dice nada sobre tamaño en flash, bancos de RAM, ni si cabe.
+- **No mide tiempos reales.** No hay cristal de 20 MHz ni Timer0.
 - **No prueba `main.c`, `DS1307.c`, `I2C.c` ni `EEprom.c`.** El arranque real, el reloj real y la EEPROM real quedan sin cubrir.
 
 > ### ⚠ **Verde en el simulador NO autoriza a grabar.**
 > Es una prueba de la **lógica**, corriendo en un PC. Que la lógica esté bien y que el equipo funcione son dos afirmaciones distintas, y esta herramienta sólo respalda la primera.
 
-### 7.3 Comparar el `.hex` nuevo con el de producción
+### 11.3 Comparar el `.hex` nuevo con el de producción
 
-Referencia, medida sobre `D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza__V1.X.production.hex`:
+Referencia, medida sobre `18f2550_baliza__V1.X.production.hex`:
 
 | Dato | Valor |
 |---|---|
-| Tamaño del fichero | 61 008 bytes, 1360 líneas |
+| Tamaño | 61 008 bytes, 1360 líneas |
 | Bytes de programa con datos | **21 638** de 32 768 → **66,0 %** |
-| Rango de programa | `0x0000` – `0x7FFF` (hay constantes de texto arriba del todo, hasta `0x7FFF`) |
-| Palabras de configuración (`0x300000`) | `00 0C 18 1E FF 83 81 FF 0F C0 0F E0 0F 40` |
+| Rango de programa | `0x0000` – `0x7FFF` (hay constantes de texto hasta arriba) |
+| Configuración (`0x300000`) | `00 0C 18 1E FF 83 81 FF 0F C0 0F E0 0F 40` |
 | IDLOCs (`0x200000`) | `FF FF FF FF FF FF FF FF` (sin usar) |
 
-De las palabras de configuración, `CONFIG4L = 0x81` confirma lo que dice `main.h`: `STVREN = ON` (bit 0 = 1), `LVP = OFF` (bit 2 = 0), `XINST = OFF` (bit 6 = 0), y el bit 7 a 1 = **DEBUG deshabilitado**, o sea que este `.hex` es una compilación de **producción**, no de depuración.
-
-Comparación práctica:
+`CONFIG4L = 0x81` confirma lo que dice `main.h`: `STVREN = ON`, `LVP = OFF`, `XINST = OFF`, y el bit 7 a 1 = **DEBUG deshabilitado**, o sea que ese `.hex` es de **producción**.
 
 ```powershell
 $VIEJO = "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza__V1.X.production.hex"
-$NUEVO = "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X\dist\default\production\18f2550_baliza_ V1.X.production.hex"
+$NUEVO = "D:\@Proyect\Baliza\_build\main.hex"
 
-# 1) ¿Son idénticos?
 (Get-FileHash $VIEJO).Hash
 (Get-FileHash $NUEVO).Hash
-
-# 2) ¿Qué líneas cambiaron?
 fc.exe "$VIEJO" "$NUEVO"
 ```
 
 Cómo interpretarlo:
 
-- **Hashes iguales** → no cambiaste nada que afecte al binario. Si esperabas un cambio, no compiló lo que crees: revisa que editaste el fichero correcto y que hiciste `Clean and Build`.
-- **Cambian unas pocas líneas, alrededor de la función que tocaste** → es lo normal y lo deseable.
-- **Cambia el fichero entero, o cambia mucho el tamaño** → algo más cambió: **la versión de XC8**, el modo de licencia (Free vs PRO), o la configuración (`debug` vs `production`). Vuelve a §2.2. Un `.hex` que cambia entero por un `if` que añadiste es una señal de alarma, no de éxito.
-- **Cambian las palabras de configuración de `0x300000`** → tocaste un `#pragma config` de `main.h`. Asegúrate de que fue a propósito: ahí viven el oscilador, el watchdog, el brown-out y la protección de código.
-- Compara siempre **production contra production**. Un `.hex` de debug lleva el ejecutivo de depuración y no se parece.
+- ⚠ **Con XC8 v2.36 esta comparación NO es concluyente.** Producción se hizo con v2.46 y ya de partida hay 329 bytes de diferencia (21 638 contra 21 309) sin que nadie haya tocado el código. Para comparar de verdad, instala la v2.46 (§6).
+- **Con la misma versión y las mismas banderas**: hashes iguales → no cambiaste nada que afecte al binario (si esperabas un cambio, revisa que editaste el fichero correcto y que compilaste desde cero). Cambian unas pocas líneas alrededor de lo que tocaste → normal y deseable. Cambia el fichero entero → cambió la versión, el driver, el modo de licencia o la configuración (§4).
+- **Si cambian las palabras de configuración de `0x300000`**, tocaste un `#pragma config` de `main.h`. Asegúrate de que fue a propósito: ahí viven el oscilador, el watchdog, el brown-out y la protección de código.
+- Compara siempre **production contra production**, y **mismo driver contra mismo driver**.
 
-Y compara también el **resumen de memoria** (§4.3) contra los 21 640 / 564 bytes de la compilación de referencia. Un salto grande sin motivo aparente casi siempre significa que arrastraste una función pesada de la biblioteca (un `printf` con `%f`, típicamente).
+Y compara el **resumen de memoria** (§8.1). Un salto grande sin motivo casi siempre significa que arrastraste una función pesada de la biblioteca (un `printf` con `%f`, típicamente) o que cambiaste de driver.
 
 ---
 
-## 8. Problemas frecuentes y su causa
+## 12. Problemas frecuentes y su causa
 
 | Síntoma | Causa | Solución |
 |---|---|---|
-| **`File → Open Project` no ofrece la carpeta del firmware; sale sin el icono de proyecto** | **No hay `nbproject\`.** Comprobado: no existe en ninguna parte de `D:\@Proyect\Baliza` | Crear el proyecto desde cero, §3. No hay atajo |
-| **`(188) constant expression required` en `DS1307.c:66`** | **Falta `--std=c99`.** El driver `xc8.exe` compila en C90 por defecto, y en C90 ese array `const` local inicializado con parámetros es ilegal | **Añade `--std=c99`** al comando, o pon `C standard = C99` en las propiedades del proyecto. **NO toques `DS1307.c`.** Ver **§2.4** |
-| **En `New Project → Select Compiler` la lista sale vacía o sin XC8** | XC8 **sí está instalado** (v2.36, comprobado). Si no aparece, es que lo instalaste con MPLAB X abierto y el IDE no lo ha visto, o no marcaste la integración con MPLAB X en el asistente | Cierra y reabre MPLAB X. Si aun así no sale: `Tools → Options → Embedded → Build Tools → Scan for Build Tools`, y añade a mano `C:\Program Files\Microchip\xc8\v2.36\bin` |
-| **`(2043) target device was not recognized` con `xc8-cc.exe`** | El driver nuevo no acepta este dispositivo tal como se le invoca, aunque el soporte está presente en disco | **Usa el driver clásico `xc8.exe --chip=18f2550`.** Ver §2.6 |
-| **Compila pero el binario sale muy distinto del de producción** | **Lo instalado es v2.36 y producción se hizo con v2.46.** También puede ser licencia PRO en vez de Free, o banderas distintas | **Es lo esperado, no un fallo.** Ver **§2.5**. Para comparar byte a byte hace falta la **v2.46 en modo Free** con las mismas banderas |
-| **Avisos `(228) illegal character (0xBF)` y `non-reentrant function … duplicated`** | Son **normales**. El `0xBF` es el delimitador de trama del protocolo; la duplicación la provoca llamar a `printf`/`UART_write` desde el programa y desde una interrupción | **No los arregles.** Ver §2.3 |
-| **El comando de línea de órdenes falla con «no se encuentra la ruta» o parte la orden por la mitad** | **Espacios en las rutas.** `Program Files`, `1 Firmware`, `Doc mplabx`, y sobre todo **`18f2550_baliza_ V1.X` tiene un espacio antes de `V1.X`** | Entrecomilla **todas** las rutas, siempre. En PowerShell usa el operador de llamada: `& "C:\...\xc8-cc.exe"` |
-| **Avisos `unknown pragma` o `unrecognized #pragma config`** | `main.h` tiene **58 `#pragma config`** (líneas 12–73), que son directivas **de XC8**. Cualquier otro compilador —gcc, un analizador, un editor con IntelliSense— no los entiende | Con XC8 no pasa: son suyos y deben aplicarse. Con gcc, el simulador ya los silencia (`-Wno-unknown-pragmas` en `correr.py`). **Si XC8 te avisa de un `#pragma config`, no lo ignores**: significa que ese bit no se está grabando y el micro arrancará con el valor por defecto (otro oscilador, watchdog activo...) |
-| **Errores de «redefinición» de `strCluster`, `states_cluster`, `PERIOD_CLUSTER`...** | **`Cluster.h` NO tiene guarda de inclusión.** Comprobado: no empieza con `#ifndef CLUSTER_H` ni lleva `#pragma once`; empieza directamente con el comentario de cabecera y los `#include` (ver el fichero). Lo incluyen **tres** fuentes: `Cluster.c:6`, `Aplicacion.c:27` y `main.c:19`. Además está `static int taskCluster(struct pt *pt);` declarada en la cabecera, que es otra rareza | Hoy **no da problemas** porque cada `.c` se compila por separado y ninguno la incluye dos veces por caminos distintos. **Empezará a darlos** en cuanto: (a) alguien añada `#include "Cluster.h"` a otra cabecera que ya se incluya, creando una inclusión doble indirecta; (b) alguien intente una compilación en unidad única (`#include` de los `.c`) — el arnés del simulador **no puede hacerlo por esta razón exacta**, y lo dice en la cabecera de `arnes.c`; (c) alguien active la generación de código omnisciente. **Lo correcto es ponerle la guarda.** `EEprom.h` y `UART.h` tampoco la tienen, y les pasa lo mismo |
-| **`correr.py` devuelve 2** | Falta `D:\toolchain\mingw64\bin\gcc.exe`, o se renombró/movió un `.c` del firmware sin actualizar `FUENTES_FW` en `correr.py` | Es un fallo **del instrumento**, no del firmware. Arréglalo antes de sacar conclusiones. Nunca lo cuentes como «falla» |
-| **El programador no conecta / no lee el Device ID** | Alimentación: o nadie alimenta la tarjeta, o la alimentan dos a la vez. Ver §6.2 | Decide A o B. Nunca las dos |
-| **La grabación empieza y se corta a mitad** | Estás alimentando la tarjeta desde el programador (`/W`) y no llega la corriente: ~30 mA del PICkit 3 contra hasta 70 mA de pico de la tarjeta | Alimenta la tarjeta por `J2` y quita `/W`. O quita el HC-06 del zócalo |
-| **El Snap no reconoce el micro** | **MPLAB Snap no soporta el PIC18F2550.** Verificado en `docs\Device Support.htm` | Usa PICkit 3, PICkit 4, ICD 3, ICD 4, REAL ICE o PM3 |
-| **Después de grabar, las alarmas están perdidas** | El borrado completo antes de programar está activado por defecto y borra también la EEPROM del PIC, donde el firmware guarda las alarmas | Usa `/Z` (preservar EEPROM) en `ipecmd`, o la opción equivalente en las propiedades del proyecto / IPE. La **hora** no se pierde: el DS1307 tiene pila |
-| **El editor muestra caracteres raros en los `.c`** | Los fuentes están en **Windows-1252** y el delimitador del protocolo es el byte `0xBF` | Pon el proyecto en `windows-1252` (§3, paso 6). Si lo guardas en UTF-8, rompes el protocolo con la app del móvil |
+| **`(188) constant expression required` × 7 en `DS1307.c: escribirRTC()`** | **Falta C99.** `DS1307.c:66` tiene un array `const` local inicializado con los parámetros de la función: legal en C99, ilegal en C90, que es el modo por defecto de `xc8.exe` | Añade **`--std=c99`** (§1) o pon `C standard = C99` en las propiedades del proyecto (§7 paso 10). **NO toques `DS1307.c`** |
+| **Aparecen `startup.s`, `startup.o`, `test_build.*` entre los fuentes** | **Compilaste sin `--outdir`.** XC8 escribe los intermedios en el directorio de trabajo | Compila siempre con `--outdir` fuera del árbol de fuentes. Limpia con el comando de §3 |
+| **El binario sale al 82 % en vez de al 65 %** | Usaste `xc8-cc.exe` en vez de `xc8.exe`. Mismo código, mismo compilador, **5 554 bytes más** | Usa `xc8.exe --chip=18f2550` (§4) |
+| **El `.hex` no coincide con el de producción aunque no cambiaste nada** | Lo instalado es **v2.36**; producción se hizo con **v2.46** | Instala la v2.46 si necesitas comparar (§6). Si sólo desarrollas, anota la versión junto al `.hex` |
+| **`File → Open Project` no ofrece la carpeta del firmware** | **No hay `nbproject\`** (verificado: no existe en ningún sitio) | Crear el proyecto desde cero, §7. No hay atajo |
+| **En `Select Compiler` la lista sale vacía o sin XC8** | MPLAB X no ha detectado el compilador, o lo instalaste con el IDE abierto | Cierra y reabre MPLAB X, o `Tools → Options → Embedded → Build Tools → Scan for Build Tools` |
+| **El comando falla con «no se encuentra la ruta», o se parte por la mitad** | **Espacios en las rutas.** `Program Files`, `1 Firmware`, `Doc mplabx`, y sobre todo **`18f2550_baliza_ V1.X` tiene un espacio antes de `V1.X`** | Entrecomilla **todas** las rutas. En PowerShell usa `& "C:\...\xc8.exe"` |
+| **Avisos `unknown pragma` sobre los `#pragma config`** | `main.h` tiene **58 `#pragma config`** (líneas 12–73), directivas **de XC8** que ningún otro compilador entiende | Con XC8 no pasan: son suyos y deben aplicarse. El simulador ya los silencia (`-Wno-unknown-pragmas`). **Si XC8 te avisa de uno, no lo ignores**: ese bit no se está grabando y el micro arrancará con el valor por defecto (otro oscilador, watchdog activo...) |
+| **Errores de «redefinición» de `strCluster`, `states_cluster`, `PERIOD_CLUSTER`...** | **`Cluster.h` no tiene guarda de inclusión.** Verificado: no empieza con `#ifndef CLUSTER_H` ni lleva `#pragma once`. La incluyen **tres** fuentes: `Cluster.c:6`, `Aplicacion.c:27`, `main.c:19`. Además declara `static int taskCluster(struct pt *pt);` en la cabecera, que es otra rareza. **`EEprom.h` y `UART.h` tampoco tienen guarda** | Hoy no da problemas porque cada `.c` se compila por separado y ninguno la incluye dos veces por caminos distintos. **Empezará a darlos** si: (a) alguien añade `#include "Cluster.h"` a otra cabecera ya incluida, creando inclusión doble indirecta; (b) alguien intenta compilación en unidad única — **el simulador no puede hacerlo por esta razón exacta y compila fichero a fichero** (§11.2); (c) alguien activa generación de código omnisciente. **Lo correcto es ponerle la guarda a las tres** |
+| **`correr.py` devuelve 2** | Falta `D:\toolchain\mingw64\bin\gcc.exe`, o se renombró un `.c` sin actualizar `FUENTES_FW` | Es un fallo **del instrumento**, no del firmware. Arréglalo antes de sacar conclusiones. Nunca lo cuentes como «falla» |
+| **El programador no conecta / no lee el Device ID** | Alimentación: o nadie alimenta la tarjeta, o la alimentan dos a la vez | §10.2. Decide A o B, nunca las dos |
+| **La grabación se corta a mitad** | Alimentas desde el programador (`/W`): ~30 mA del PICkit 3 contra hasta 70 mA de pico de la tarjeta | Alimenta por `J2` y quita `/W`. O quita el HC-06 del zócalo |
+| **El Snap no reconoce el micro** | **MPLAB Snap no soporta el PIC18F2550** (verificado en `docs\Device Support.htm`) | PICkit 3, PICkit 4, ICD 3, ICD 4, REAL ICE o PM3 |
+| **Tras grabar, las alarmas están perdidas** | El borrado completo antes de programar está activado por defecto y borra la EEPROM del PIC, donde viven las alarmas | Usa `/Z` en `ipecmd`, o la opción equivalente en el proyecto / IPE. La **hora** no se pierde: el DS1307 tiene pila |
+| **Caracteres raros en los `.c`** | Los fuentes están en **Windows-1252** y el delimitador del protocolo es el byte `0xBF` | Pon el proyecto en `windows-1252` (§7 paso 6). Si lo guardas en UTF-8, rompes el protocolo con la app del móvil |
 
 ---
 
-## 9. Procedimiento resumido — una página
+## 13. Procedimiento resumido — una página
 
-### Compilar HOY, sin IDE — 30 segundos
-
-**Esto ya funciona. No hay que instalar nada.**
+### Compilar hoy (no hace falta nada más)
 
 ```powershell
 cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
-& "C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" --chip=18f2550 --std=c99 --outdir=.\salida `
-    main.c Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c EEprom.c I2C.c LedLive.c Serial.c TimeBase.c
+& "C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" --chip=18f2550 --std=c99 --outdir="D:\@Proyect\Baliza\_build" main.c Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c EEprom.c I2C.c LedLive.c Serial.c TimeBase.c
 ```
+`.hex` → `D:\@Proyect\Baliza\_build\main.hex` · Esperado: **65,0 % programa · 33,5 % datos**
+**`--std=c99` obligatoria** (si no, 7 errores en `DS1307.c`) · **`--outdir` obligatoria** (si no, ensucia los fuentes) · **`xc8.exe`, no `xc8-cc.exe`** (82 % en vez de 65 %)
 
-Genera `salida\main.hex`. Debe terminar con `Program space used … ( 65.0%)` y **código de salida 0**.
-**`--std=c99` es obligatorio** (§2.4). El `.hex` **no** es comparable con el de producción (§2.5).
+### Preparar el IDE (una sola vez, sólo si quieres usar MPLAB X)
 
-### Preparar el IDE (una sola vez)
-
-1. **XC8 ya está instalado (v2.36).** Nada que descargar. *(Sólo si quieres reproducir producción byte a byte: descarga e instala además **XC8 v2.46** del archivo de versiones de Microchip, en modo **Free**. Pueden convivir las dos. Ver §2.5 y §2.7.)*
-2. Abrir `C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\bin\mplab_ide64.exe`.
-3. `File → New Project → Microchip Embedded → Standalone Project`.
-4. Device: **`PIC18F2550`**.
-5. Tool: el programador (**no Snap**). Si no hay, `Simulator`.
-6. Compiler: **`XC8 (v2.36)`** — o `v2.46` si la instalaste.
-6b. **`Project Properties → XC8 Global Options → C standard → C99`.** **Sin esto no compila** (§2.4).
-7. Name: `18f2550_baliza_ V1.X` · Location: `D:\@Proyect\Baliza\1 Firmware\Doc mplabx` · Encoding: **`windows-1252`**.
-8. `Source Files → Add Existing Item`: los 11 `.c`. **`Store path as: Auto`, NUNCA `Copy`.**
-9. `Header Files → Add Existing Item`: los 12 `.h`. Luego `Add Existing Items from Folders` → **`Rtos\`**.
-10. `Clean and Build` (Shift+F11). Debe decir `BUILD SUCCESSFUL`.
-11. **Guardar `nbproject\` junto al código.** No guardar `build\` ni `dist\`.
+1. Limpiar la basura de §3: `Remove-Item startup.lst,startup.o,startup.rlf,startup.s,test_build.*`
+2. Abrir `C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\bin\mplab_ide64.exe`
+3. `File → New Project → Microchip Embedded → Standalone Project`
+4. Device **`PIC18F2550`** · Tool: el programador (**no Snap**) · Compiler **XC8 (v2.36)**
+5. Name `18f2550_baliza_ V1.X` · Location `D:\@Proyect\Baliza\1 Firmware\Doc mplabx` · Encoding **`windows-1252`**
+6. `Source Files → Add Existing Item`: los 11 `.c`. **`Store path as: Auto`, NUNCA `Copy`**
+7. `Header Files`: los 12 `.h` + `Add Existing Items from Folders` → **`Rtos\`**
+8. **`Project Properties → XC8 Compiler → C standard = C99`** ← obligatorio
+9. `Clean and Build` (Shift+F11) → `BUILD SUCCESSFUL`
+10. **Guardar `nbproject\` junto al código.** No guardar `build\` ni `dist\`
 
 ### Cada vez que se modifica algo
 
 1. Editar el `.c` / `.h`.
 2. `cd "D:\@Proyect\Baliza\4 Simulador"` → `python correr.py`
-   `0` PASS · `1` FALLA · `2` **ABORTADO = arreglar el instrumento, no el firmware**.
-   Hoy la línea base es **código 1, 33 comprobaciones, 24 ok, 9 FALLA**. Que no aparezcan rojos nuevos.
-3. En MPLAB X: configuración **`default`**, no `debug`. `Clean and Build` (Shift+F11).
-4. Leer el resumen de memoria. Referencia: **21 640 / 32 768 bytes de programa (66 %)**, **564 / 2 048 de RAM (27,5 %)**.
-5. `.hex` nuevo en `...\18f2550_baliza_ V1.X\dist\default\production\`.
-6. Comparar con `D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza__V1.X.production.hex`:
-   `fc.exe "<viejo>" "<nuevo>"` — deben cambiar pocas líneas, y sólo donde tocaste.
+   `0` PASS · `1` FALLA · `2` **ABORTADO = arreglar el instrumento, no el firmware**
+   Línea base de hoy: **código 1, 33 comprobaciones, 24 ok, 9 FALLA.** Que no aparezcan rojos nuevos.
+3. Compilar (comando de arriba, o `Clean and Build` con configuración **`default`**).
+4. Leer el resumen de memoria. Referencias: **v2.46 → 66,0 % / 27,5 %** · **v2.36 `xc8.exe` → 65,0 % / 33,5 %**.
+5. **Anotar junto al `.hex`: versión de XC8, driver, línea de órdenes completa, fecha y resumen de memoria.**
+6. Comparar con `18f2550_baliza__V1.X.production.hex` — **sólo concluyente si compilaste con v2.46**.
 7. **PARAR AQUÍ.** No grabar.
 
 ### Grabar — sólo cuando lo pidan
 
 1. Confirmar que lo piden. **Hay una señal montada al otro lado.**
-2. Decidir la alimentación: **tarjeta alimentada por `J2` (12 V) → NO activar «power target»**. O tarjeta suelta → activar «power target» a 5,0 V. **Nunca las dos.**
-3. Conectar el programador a `J1` (5 pines: 1=`MCLR/VPP`, 2=`+5V`, 3=`GND`, 4=`PGD`, 5=`PGC`). **Respetar el pin 1.**
-4. MPLAB X: `Make and Program Device`. O IPE: `Device: PIC18F2550` → `Tool` → `Connect` → `Hex File` → `Program` → `Verify`.
-5. Línea de comandos, con la tarjeta alimentada por sí misma y conservando las alarmas:
+2. Alimentación: **tarjeta por `J2` (12 V) → NO activar «power target»**. O tarjeta suelta → «power target» a 5,0 V. **Nunca las dos.**
+3. Conectar a `J1` (1=`MCLR/VPP`, 2=`+5V`, 3=`GND`, 4=`PGD`, 5=`PGC`). **Respetar el pin 1.**
+4. MPLAB X: `Make and Program Device`. O IPE: `PIC18F2550` → `Tool` → `Connect` → `Hex File` → `Program` → `Verify`.
+5. O por línea de comandos:
    ```
    "C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\mplab_ipe\ipecmd.exe" /P18F2550 /TPPK3 /F"<ruta.hex>" /M /Y /Z /OL
    ```
@@ -791,27 +683,26 @@ Genera `salida\main.hex`. Debe terminar con `Program space used … ( 65.0%)` y 
 
 ---
 
-## 10. Preguntas abiertas
+## 14. Preguntas abiertas
 
-Cosas que **no** he podido comprobar en esta máquina. Están aquí como preguntas, no como suposiciones disfrazadas de hecho.
+Lo que **no** he podido comprobar. Están como preguntas, no como suposiciones disfrazadas de hecho.
 
-1. **¿Qué programador tiene el usuario exactamente?** No hay ninguna pista en el proyecto: no queda `nbproject\configurations.xml`, que es donde se guarda la herramienta seleccionada. El `.map` sólo prueba que fue una compilación **debug**, lo que implica que había una herramienta con capacidad de depuración conectada (Snap queda descartado porque no soporta el 18F2550). `HARDWARE.md` dice que `J1` es «compatible pin a pin con PICkit 3/4». **Pregunta: ¿es un PICkit 3, un PICkit 4, o un ICD 3?** De la respuesta depende el código `/TP...` de `ipecmd` y si se puede alimentar la tarjeta desde el programador.
+1. **¿Por qué a otro operador le falló `xc8-cc.exe` con `(2043) target device was not recognized`?** **No he podido reproducirlo.** Hoy, en esta máquina, `xc8-cc.exe -mcpu=18F2550 -std=c99` compiló los 11 fuentes con código de salida 0 (aunque produjo 26 863 bytes, 82,0 %, frente a los 21 309 de `xc8.exe`). Probé además mayúsculas y minúsculas en el nombre del dispositivo con los dos drivers: los cuatro casos funcionan. **Pregunta: ¿con qué combinación exacta de banderas salió ese error?** Mientras no se sepa, la recomendación de §4 (`xc8.exe`) se sostiene igual, por el tamaño.
 
-2. **¿Por qué exactamente fallan las versiones nuevas de MPLAB X con sus programadores?** La hipótesis que encaja es que Microchip retiró el soporte de PICkit 3 / ICD 3 / REAL ICE en las versiones posteriores a la 5.45, y que el usuario tiene una de esas. **No lo he podido verificar sin acceso a las notas de versión de Microchip.** Lo que sí está verificado es que **esta** instalación sí los soporta para el PIC18F2550 (`docs\Device Support.htm`). **Pregunta: ¿el programador es uno de los tres retirados?** Si lo es, queda cerrado el asunto y no hay que volver a plantear actualizar.
+2. **¿Merece la pena instalar la v2.46?** Depende de para qué (§6). **Pregunta al usuario: ¿el objetivo es reproducir/actualizar el firmware que está en la señal, o desarrollar y probar cambios?** Si es lo primero, hay que instalarla; si es lo segundo, la v2.36 sirve y basta con anotar la versión.
 
-3. ~~**¿Cómo se llama el ejecutable de XC8 y qué opción usa para el dispositivo?**~~ ✅ **RESUELTO el 21-ago-2026.** El driver que funciona es **`bin\xc8.exe` con `--chip=18f2550`**, y hace falta **`--std=c99`**. Probado, código de salida 0. Ver §2.3.
-   **Queda una pregunta derivada:** **¿por qué `xc8-cc.exe -mcpu=18F2550` falla con `(2043) target device was not recognized`,** si el soporte del dispositivo está presente en disco (`pic\dat\cfgdata\18f2550.cfgdata`, `pic\dat\ini\18f2550.ini`, `pic\include\proc\pic18f2550.h`)? ¿Es cuestión de mayúsculas en el argumento, de que `xc8-cc` exija además `-mdfp=` apuntando al *device family pack*, o de que este dispositivo sólo esté soportado por el driver clásico en la v2.36? **Mientras no se aclare, usa `xc8.exe`.** Ver §2.6.
+3. **¿Se puede reproducir bit a bit el `.hex` de producción?** No se sabrá hasta instalar la v2.46 y compilar el código **sin modificar**. Merece la pena hacerlo **antes** de tocar nada: si sale idéntico, queda demostrado que la reconstrucción del proyecto es correcta y toda diferencia posterior es tuya. Si sale distinto, hay que averiguar por qué **antes** de empezar, no después.
 
-4. **La URL y el nombre del instalador de XC8 v2.46**, por si se decide instalarla para reproducir producción (§2.5). Búscalo como «MPLAB XC8 Compiler → Downloads Archive → v2.46, Windows». *(Ya no bloquea nada: con la v2.36 se compila y se desarrolla sin problema.)*
+4. **¿Qué programador tiene el usuario exactamente?** No queda ninguna pista: `nbproject\configurations.xml`, donde se guarda la herramienta seleccionada, se perdió. El `.map` sólo prueba que fue una compilación **debug**, o sea que había una herramienta con capacidad de depuración conectada (el Snap queda descartado porque no soporta el 18F2550). **Pregunta: ¿PICkit 3, PICkit 4, o ICD 3?** De ello dependen el código `/TP...` de `ipecmd` y si se puede alimentar la tarjeta desde el programador.
 
-4b. **¿Con qué banderas exactas se compiló producción?** Se sabe la versión (**v2.46**) y la licencia (**Free**, `Og1`) por el `.map` y el `.lst`, pero **no las banderas completas** — en particular si llevaba `--std=c99` explícito o lo heredaba de la configuración del proyecto. **Importa:** para el mismo código se han medido 21 640, 21 309 y 26 863 bytes según versión y banderas. **Sin las banderas no se puede reproducir el binario.** Ver el recuadro de §2.5.
+5. **¿Por qué exactamente fallan las versiones nuevas de MPLAB X con sus programadores?** La hipótesis que encaja es que Microchip retiró el soporte de PICkit 3 / ICD 3 / REAL ICE en las versiones posteriores a la 5.45. **No lo he podido verificar sin acceso a las notas de versión.** Lo que sí está verificado es que **esta** instalación los soporta para el PIC18F2550. **Pregunta: ¿el programador es uno de los tres retirados?** Si lo es, queda cerrado el asunto y no hay que volver a plantear actualizar.
 
-5. **La sintaxis exacta de `prjMakefilesGenerator.bat`.** El `.bat` existe (verificado, es un lanzador de `..\lib\PrjMakefilesGenerator.jar`), pero no imprime ayuda y no hay proyecto sobre el que probarlo. La forma `<ruta del proyecto>@<configuración>` es la documentada por Microchip. **Confirmar cuando exista el proyecto**, y de paso mirar dentro de `nbproject\` cómo se llama realmente el makefile generado (se espera `Makefile-default.mk`).
+6. **La URL y el nombre del instalador de XC8 v2.46.** No tengo red desde aquí. Búscalo como «MPLAB XC8 Compiler → Downloads Archive → v2.46, Windows».
 
-6. **¿Se puede reproducir bit a bit el `.hex` de producción?** **Con la v2.36 que hay instalada, no** — es otra versión de compilador y el binario sale necesariamente distinto (§2.5). La pregunta sigue abierta **para la v2.46**: haría falta instalarla, compilar el código sin modificar y comparar. Merece la pena hacerlo **antes** de tocar nada: si sale idéntico, queda demostrado que la reconstrucción del proyecto es correcta y que a partir de ahí toda diferencia es tuya. Si sale distinto, hay que averiguar por qué **antes** de modificar, no después. **Depende también de 4b** (las banderas).
+7. **La sintaxis exacta de `prjMakefilesGenerator.bat`.** El `.bat` existe (verificado, es un lanzador de `..\lib\PrjMakefilesGenerator.jar`), pero no imprime ayuda y no hay proyecto sobre el que probarlo. La forma `<ruta>@<configuración>` es la documentada por Microchip. **Confirmar cuando exista el proyecto**, y mirar dentro de `nbproject\` cómo se llama el makefile generado (se espera `Makefile-default.mk`).
 
-7. **¿Qué contiene la EEPROM del PIC en la tarjeta que está montada?** Las alarmas programadas viven ahí. Antes de grabar convendría leerla (`ipecmd ... /GE0-FF`) y guardarla, para poder restaurarla si algo sale mal. No se puede hacer desde aquí: hace falta la tarjeta y el programador.
+8. **¿Qué contiene la EEPROM del PIC de la tarjeta montada?** Las alarmas programadas viven ahí. Antes de grabar convendría leerla (`ipecmd ... /GE0-FF`) y guardarla para poder restaurarla. No se puede hacer desde aquí: hace falta la tarjeta y el programador.
 
 ---
 
-*Documento generado el 21 de agosto de 2026. Fuentes: inspección directa de `C:\Program Files\Microchip\MPLABX\v5.45\`, de `D:\@Proyect\Baliza\1 Firmware\Doc mplabx\`, de `D:\@Proyect\Baliza\4 Simulador\`, de `D:\@Proyect\Baliza\HARDWARE.md`, y ejecución de `ipecmd.exe /?` y `python correr.py`.*
+*Documento generado el 21 de agosto de 2026. Fuentes: inspección directa de `C:\Program Files\Microchip\xc8\v2.36\`, `C:\Program Files\Microchip\MPLABX\v5.45\`, `D:\@Proyect\Baliza\1 Firmware\Doc mplabx\`, `D:\@Proyect\Baliza\4 Simulador\` y `D:\@Proyect\Baliza\HARDWARE.md`; y ejecución de `picc18.exe --ver`, `xc8.exe` (con y sin `--std=c99`), `xc8-cc.exe`, `ipecmd.exe /?` y `python correr.py`.*
