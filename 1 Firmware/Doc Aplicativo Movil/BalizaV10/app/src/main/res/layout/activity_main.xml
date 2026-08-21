@@ -1,47 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#F5F5F5"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/idBtEntrar"
-        android:layout_width="wrap_content"
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="248dp"
-        android:layout_marginLeft="248dp"
-        android:layout_marginTop="550dp"
-        android:text="@string/sEntrar"
-        app:backgroundTint="@android:color/holo_red_light"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:cardCornerRadius="12dp"
+        app:cardElevation="6dp">
 
-    <EditText
-        android:id="@+id/idEditTxName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="500dp"
-        android:ems="10"
-        android:hint="@string/sName"
-        android:inputType="textPersonName"
-        android:visibility="visible"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:background="#FFFFFF">
 
-    <EditText
-        android:id="@+id/idEditTxtPass"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="550dp"
-        android:ems="10"
-        android:hint="@string/sPass"
-        android:inputType="textPassword"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="BALIZA VIAL 30"
+                android:textColor="#D32F2F"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Control y Configuración"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginBottom="24dp" />
+
+            <EditText
+                android:id="@+id/idEditTxName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/sName"
+                android:inputType="textPersonName"
+                android:text="admin"
+                android:layout_marginBottom="16dp" />
+
+            <EditText
+                android:id="@+id/idEditTxtPass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/sPass"
+                android:inputType="textPassword"
+                android:text="admin"
+                android:layout_marginBottom="24dp" />
+
+            <Button
+                android:id="@+id/idBtEntrar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sEntrar"
+                app:backgroundTint="#D32F2F"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:padding="12dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>
