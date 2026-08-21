@@ -1,0 +1,146 @@
+# =============================================================================
+#  .gitignore del proyecto Baliza
+#
+#  CRITERIO: al repositorio va lo que hace falta para ENTENDER y RECONSTRUIR el
+#  equipo — los .md, el codigo fuente, los manuales y los ficheros de la
+#  tarjeta. Fuera todo lo que se regenera compilando, lo que se vuelve a
+#  descargar del fabricante, y lo que solo tiene sentido en esta maquina.
+#
+#  Cada bloque lleva escrito POR QUE se excluye. Dentro de un ano nadie se va a
+#  acordar, y la duda acaba en un "por si acaso lo subo" que engorda el repo.
+# =============================================================================
+
+
+# --- Ejecutables e instaladores ---------------------------------------------
+#
+# "6 Sw pic" guarda el instalador de MPLAB X (1,23 GB) y el de XC8 (71 MB).
+# GitHub rechaza cualquier fichero de mas de 100 MB: esto no es preferencia,
+# es que el push falla. Y se bajan de la web de Microchip cuando hagan falta.
+#
+# Lo que SI tiene que quedar escrito es QUE VERSION exacta se necesita: eso
+# vive en COMPILAR_Y_GRABAR.md y en ESTADO.md, que son texto.
+*.exe
+*.msi
+*.dmg
+6 Sw pic/
+
+
+# --- Binarios que se recompilan ---------------------------------------------
+#
+# Los dos APK pesan 3,1 MB cada uno y son EL MISMO fichero duplicado. Salen de
+# `gradlew assembleRelease`. Como reconstruirlos esta en APP_MOVIL.md.
+*.apk
+*.aab
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# El .rar de los gerbers es una copia comprimida de los .gbr que estan al lado,
+# sueltos y legibles. Versionar las dos cosas garantiza que un dia difieran.
+*.rar
+*.7z
+
+
+# --- Artefactos de compilacion del PIC --------------------------------------
+#
+# MPLAB X y XC8 regeneran esto en cada build. Subirlo garantiza que en dos
+# semanas haya en el repositorio un .hex que no corresponde a ningun fuente.
+build/
+dist/
+*.p1
+*.d
+*.i
+*.obj
+*.elf
+*.cof
+*.sdb
+*.sym
+*.rlf
+*.mum
+*.hxl
+*.cmf
+*.lst
+*.map
+defmplabxtrace.log
+defmplabxtrace.log.inx
+
+# EXCEPCION: el binario que hay hoy instalado en las senales SI se versiona.
+# Son 60 KB de texto y es la unica forma de saber, dentro de seis meses, que
+# estaba corriendo en la calle.
+!1 Firmware/Doc mplabx/*.production.hex
+
+
+# --- Estado local de MPLAB X ------------------------------------------------
+#
+# nbproject/private/ guarda rutas absolutas y la herramienta elegida en ESTA
+# maquina. El resto de nbproject/ (configurations.xml, project.xml) SI debe
+# subirse: hoy falta, y por eso el proyecto no se puede abrir. Ver ESTADO.md.
+nbproject/private/
+nbproject/Package-*.bash
+
+
+# --- Simulador de PC --------------------------------------------------------
+#
+# Se regenera entero con `python correr.py`. Lo que vale son las fuentes.
+4 Simulador/obj/
+4 Simulador/diag.c
+
+
+# --- App Android ------------------------------------------------------------
+#
+# local.properties lleva la ruta del SDK de quien compilo: subirla rompe la
+# compilacion del siguiente. .gradle/ y .idea/ son estado del IDE.
+.gradle/
+.idea/
+local.properties
+captures/
+*.iml
+
+
+# --- KiCad ------------------------------------------------------------------
+#
+# Copias de seguridad y ficheros de bloqueo. El esquematico, el PCB, los
+# gerbers sueltos y los PDF SI se versionan: la tarjeta ya esta fabricada y
+# esos ficheros son la unica descripcion de lo que hay montado.
+*-backups/
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*.kicad_prl
+*.lck
+~*
+fp-info-cache
+
+
+# --- Temporales de Office y del sistema -------------------------------------
+#
+# "~$..." son bloqueos de Word: aparecen al abrir un .docx y desaparecen al
+# cerrarlo. Subirlos hace que el siguiente vea el documento como bloqueado.
+Thumbs.db
+desktop.ini
+.DS_Store
+
+
+# --- Python -----------------------------------------------------------------
+__pycache__/
+*.pyc
+
+
+# --- Nada de credenciales ---------------------------------------------------
+#
+# Hoy no deberia haber ninguna. La regla esta puesta para que si manana alguien
+# anade una integracion, no acabe publicada.
+*.key
+*.pem
+secrets.*
+.env
+
+
+# --- Restos de compilaciones de prueba --------------------------------------
+#
+# XC8 deja estos ficheros EN LA CARPETA DE FUENTES si se compila sin --outdir.
+# Aparecieron el 21-ago-2026 tras una compilacion de prueba: 1,1 MB de basura
+# mezclada con el codigo. Compila siempre con --outdir apuntando fuera.
+*.s
+*.o
+startup.s
+startup.o
+test_build.*

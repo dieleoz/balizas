@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Baliza</string>
+
+    <string name="sEntrar">ENTRAR</string>
+
+    <string name="sDispositivo">Dispositivo</string>
+    <string name="sLeer">Leer</string>
+    <string name="sConfig">Config</string>
+
+    <string name="sNoAlarma">Alarma No:</string>
+    <string name="sEnable">ON-OFF</string>
+    <string name="sAlarmaInit">Alarma Inicio:</string>
+    <string name="sAlarmaEnd">Alarma Fin:</string>
+    <string name="sHorario">Horario:</string>
+
+    <string name="sName">Nombre:</string>
+    <string name="sPass">Contraseña:</string>
+
+</resources>

@@ -1,0 +1,5 @@
+17 de septiembre 2025
+
+Archivos:
+	- 18f2550_baliza_v1.x: código fuente microcontrolador
+	- 18f2550_baliza_v1.X.production.hex: archivo .HEX, descargable micro
