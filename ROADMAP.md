@@ -261,26 +261,36 @@ aplica 6.
 
 ---
 
-## Fase 4 — La app
+## Fase 4 — Modernización y Mejora Integral de la App Móvil (Baliza App v2.0)
 
-Detalle completo y los 20 defectos en [`Manuales/APP_MOVIL.md`](Manuales/APP_MOVIL.md). Lo que sube al roadmap:
+Detalle completo de los 20 defectos heredados en [`Manuales/APP_MOVIL.md`](Manuales/APP_MOVIL.md). 
+Plan de trabajo estructurado para la versión 2.0:
 
-- [ ] **Falta la hora «02»** en las listas de inicio y de fin. No se puede programar nada entre
-      las 2 y las 3 de la madrugada. Una entrada que falta en un array.
-- [ ] **La comparación de textos con `==`.** Hoy funciona por casualidad. El día que alguien
-      mueva las etiquetas a `strings.xml` o las traduzca, **todas** las alarmas caerán a «fin de
-      semana» y las señales escolares dejarán de titilar de lunes a viernes. Es el defecto con
-      peor relación entre lo trivial del arreglo y lo grave de la consecuencia.
-- [ ] **Los bytes NUL de la trama**, y —más importante— **comentar el filtro de `Serial.c` que
-      los tapa**. Hoy no tiene ni una línea de explicación: quien lo sustituya por un `memcpy`
-      corrompe la fecha de todas las balizas.
-- [ ] **Acuse de recibo.** La app dice «Mensaje Enviado!!» sin leer un byte. Mientras no lo
-      tenga, el procedimiento de campo **obliga** a pedir el volcado con `¿L?` y comparar contra
-      la chapa.
-- [ ] **Permisos de Android.** `targetSdkVersion 30` y solo `BLUETOOTH`/`BLUETOOTH_ADMIN`.
-      Comprobar en qué versión deja de funcionar.
-- [ ] **El acceso con usuario y contraseña fijos en el código.** Decidir si se quita o se hace
-      de verdad; lo que hay ahora no protege nada y da a entender que sí.
+### 4.1 · Corrección de Defectos Críticos de Lógica (Hotfixes)
+- [ ] **Falta la hora «02»:** Corregir el array de horas en `MainActivity2.java` para incluir la hora `"02"` (actualmente salta de `"01"` a `"03"`).
+- [ ] **Comparación segura de textos:** Sustituir todas las comparaciones de cadenas `==` por `.equals()` para evitar fallos si se internacionalizan o mueven a `strings.xml`.
+- [ ] **Visualización con ScrollView:** Envolver el área de volcado `idTxtViewOut` en un `ScrollView` para que el texto de las 5 alarmas no se corte.
+- [ ] **Permisos dinámicos Android 12+:** Declarar y solicitar en tiempo de ejecución `BLUETOOTH_CONNECT` y `BLUETOOTH_SCAN` (`targetSdkVersion` actualizado).
+
+### 4.2 · Protocolo Robusto, Asincronía y Acuse de Recibo
+- [ ] **Operaciones Bluetooth asíncronas:** Migrar la comunicación fuera del hilo principal de UI con indicadores de progreso (*ProgressBar* / *Loading state*).
+- [ ] **Manejo de timeouts y diagnósticos claros:** Notificar al técnico el estado exacto (*«Conectado»*, *«Esperando respuesta de la baliza...»*, *«Sin respuesta / Verificar encendido»*).
+- [ ] **Sincronización de reloj en 1 toque:** Botón dedicado que capture la fecha/hora del celular y transmita la trama `¿RHH:MM:SS,CDD/MM/AA-W?` al RTC DS1307.
+- [ ] **Verificación post-escritura:** Al enviar una alarma, solicitar automáticamente la trama `¿L?` y cotejar en segundo plano que el micro la guardó fielmente.
+
+### 4.3 · Rediseño Moderno de UI/UX (Material Design)
+- [ ] **Acceso directo en campo:** Eliminar el login inútil de credenciales fijas `admin`/`admin` para acceso inmediato.
+- [ ] **Selectores de hora tipo reloj:** Integrar `TimePickerDialog` nativo en lugar de menús desplegables rígidos de 5 minutos.
+- [ ] **Selector visual de días:** Chips/botones para *Lunes a Viernes (Escolar)*, *Todos los días (Diario)* y *Fin de Semana*.
+- [ ] **Tarjetas de Estado y Telemetría:**
+  - Nivel de batería visual con semáforo de color (Verde/Amarillo/Rojo).
+  - Temperatura reportada por el equipo.
+  - Tarjetas individuales por alarma con switch ON/OFF.
+
+### 4.4 · Empaquetado y Entrega
+- [ ] Compilar y generar `Baliza_v2.0.apk`.
+- [ ] Probar instalación en dispositivos físicos Android.
+- [ ] Documentar el manual de usuario actualizado en `Manuales/APP_MOVIL.md`.
 
 ---
 
