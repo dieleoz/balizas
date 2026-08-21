@@ -22,7 +22,9 @@
 *.exe
 *.msi
 *.dmg
+*.zip
 6 Sw pic/
+7 sw apk/
 
 
 # --- Binarios que se recompilan ---------------------------------------------
