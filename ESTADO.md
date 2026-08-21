@@ -51,7 +51,7 @@ MIDIERON: 37 comprobaciones   ok: 37   FALLA: 0
 * PIC18F2550 + JDY-31 a 9600 8N1 probado y operativo en hardware real.
 * Envío de trama `¿L?` verificado con respuesta íntegra del RTC DS1307 y volcado de alarmas en EEPROM.
 * **Sincronización RTC 100% Validada:** Ajuste de hora `¿R[HHMM],C[DDMMAA-D]?` probado en hardware real, fijando la hora del micro al segundo con la hora celular.
-* App móvil Android modernizada y empaquetada como **`Baliza_v3.0.apk`** (botón de **1-Toque para Horario Escolar Oficial de la Placa**, branding **IT vial s.a.s.** con ícono naranja de la «t», nombre **IT Vial**, login responsive con banner, temas Light/Night de alto contraste y **Panel de Diagnóstico con Test de Luz Inmediato de 2 Minutos**).
+* App móvil Android modernizada y empaquetada como **`Baliza_v3.1.apk`** (nombre unificado **`Baliza ITVIAL`**, botón de **1-Toque para Horario Escolar Oficial**, branding **IT vial s.a.s.** con ícono naranja de la «t», login responsive con banner, temas Light/Night de alto contraste y **Panel de Diagnóstico con Test de Luz Inmediato de 2 Minutos**).
 
 ## Compilación — resuelta y verificada
 

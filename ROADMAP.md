@@ -116,7 +116,7 @@ Quedan dos cabos, y los dos son baratos:
 - [x] **Fase 4.1 — Validación de Conectividad Móvil y RTC DS1307 en Banco:**
   - ✅ **Demostrado en hardware real (21-Ago-2026):** Comunicación bidireccional Android $\leftrightarrow$ JDY-31 $\leftrightarrow$ PIC18F2550 a 9600 baudios 8N1.
   - ✅ **Sincronización RTC 100% Funcional:** La trama `¿R[HHMM],C[DDMMAA-D]?` se genera automáticamente y ajusta los registros del DS1307 al segundo con la hora satelital/celular.
-  - ✅ **App Baliza v3.0 Liberada:** Botón de **1-Toque para Programar Horario Escolar Oficial Completo (Placa: 06:00-09:00, 11:30-13:30, 15:00-16:30 Lun-Vie)**, branding **IT vial s.a.s.**, sesión persistente, auto-lectura, auto-verificación y panel de **Test de Luz Inmediato (2 Minutos)** con apagado manual.
+  - ✅ **App Baliza ITVIAL v3.1 Liberada:** Nombre oficial **Baliza ITVIAL**, botón de **1-Toque para Programar Horario Escolar Oficial Completo (Placa: 06:00-09:00, 11:30-13:30, 15:00-16:30 Lun-Vie)**, branding **IT vial s.a.s.**, sesión persistente, auto-lectura, auto-verificación y panel de **Test de Luz Inmediato (2 Minutos)** con apagado manual.
 - [ ] **Decidir si se instala XC8 v2.46.** Con v2.36 se desarrolla, pero el binario **no es
       comparable** con el que está en la calle. Para grabar en campo conviene la v2.46.
 
