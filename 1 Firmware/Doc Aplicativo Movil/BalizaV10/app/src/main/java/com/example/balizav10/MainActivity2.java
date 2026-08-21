@@ -48,7 +48,6 @@ public class MainActivity2 extends AppCompatActivity {
     BluetoothDevice device;
 
     private BluetoothSocket btSocket;
-    private ConnectAsyncTask connectAsyncTask;
 
     //*** RUTINA CALENDARIO ***
     Calendar calendar;
@@ -421,226 +420,170 @@ public class MainActivity2 extends AppCompatActivity {
         }
     }//fin querypaired
 
-    //***** METODO QUE INICIA EL HILO DE PRUEBA DEL BLUETOOTH, ABRIENDO, ENVIANDO EL MENSAJE Y CERRANDO LA CONEXION
+    private BluetoothSocket globalSocket = null;
+
+    private synchronized BluetoothSocket getOrCreateSocket(BluetoothDevice dev) throws IOException
+    {
+        if (globalSocket != null && globalSocket.isConnected())
+        {
+            return globalSocket;
+        }
+
+        if (globalSocket != null)
+        {
+            try { globalSocket.close(); } catch (Exception ignored) {}
+            globalSocket = null;
+        }
+
+        try
+        {
+            mBluetoothAdapter.cancelDiscovery();
+        }
+        catch (Exception ignored) {}
+
+        BluetoothSocket tmp;
+        try
+        {
+            tmp = dev.createRfcommSocketToServiceRecord(MY_UUID);
+            tmp.connect();
+        }
+        catch (IOException e)
+        {
+            // Fallback usando canal inseguro si el socket estándar falla
+            try
+            {
+                tmp = dev.createInsecureRfcommSocketToServiceRecord(MY_UUID);
+                tmp.connect();
+            }
+            catch (IOException e2)
+            {
+                throw new IOException("No se pudo establecer sesion Bluetooth: " + e2.getMessage());
+            }
+        }
+
+        globalSocket = tmp;
+        return globalSocket;
+    }
+
     public void startClient()
     {
-        if(device != null)
+        if (device != null)
         {
-            new Thread(new ConnectThread(device)).start();
+            new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    executeBluetoothTask();
+                }
+            }).start();
+        }
+        else
+        {
+            Toast.makeText(this, "Seleccione primero el dispositivo Bluetooth", Toast.LENGTH_SHORT).show();
         }
     }
 
-    /**
-     * This thread runs while attempting to make an outgoing connection
-     * with a device. It runs straight through; the connection either
-     * succeeds or fails.
-     */
-
-    private class ConnectThread extends Thread
+    private void executeBluetoothTask()
     {
-
-        private BluetoothSocket socket;
-        private final BluetoothDevice mmDevice;
-
-
-
-        public ConnectThread(BluetoothDevice device)
+        try
         {
-            mmDevice = device;
-            BluetoothSocket tmp = null;
+            mkmsg("Conectando con " + (device != null ? device.getName() : "Bluetooth") + "...\n");
+            BluetoothSocket socket = getOrCreateSocket(device);
+            OutputStream outStream = socket.getOutputStream();
+            InputStream inStream = socket.getInputStream();
 
-            txtVoutput.setText("");
-            // Get a BluetoothSocket for a connection with the
-            // given BluetoothDevice
-            try
+            mkmsg("✓ Sesion activa con la baliza\n");
+
+            if (bReadConf)
             {
-                tmp = device.createRfcommSocketToServiceRecord(MainActivity2.MY_UUID);
+                // Enviar sincronización de reloj
+                mkmsg("1/2 Sincronizando reloj...\n");
+                outStream.write(sFrameHourCal.getBytes("ISO-8859-1"));
+                outStream.flush();
+
+                try { Thread.sleep(500); } catch (Exception ignored) {}
+
+                // Enviar configuración de alarma
+                mkmsg("2/2 Grabando alarma...\n");
+                outStream.write(sFrameConf.getBytes("ISO-8859-1"));
+                outStream.flush();
+
+                mkmsg("¡Configuracion enviada!\nLeyendo confirmacion de la baliza...\n\n");
+                try { Thread.sleep(400); } catch (Exception ignored) {}
+
+                // Auto-verificación: enviar ¿L? para mostrar cómo quedó la EEPROM
+                outStream.write("¿L?\r\n".getBytes("ISO-8859-1"));
+                outStream.flush();
             }
-            catch (IOException e)
+            else
             {
-                mkmsg("Client connection failed: " + e.getMessage() + "\n");
-            }
-            socket = tmp;
-
-        }
-
-
-
-
-        public void run()
-        {
-            if (socket == null)
-            {
-                mkmsg("Socket Bluetooth nulo. Seleccione el dispositivo de nuevo.\n");
-                return;
-            }
-
-            try
-            {
-                mBluetoothAdapter.cancelDiscovery();
-            }
-            catch (Exception ignored) {}
-
-            try
-            {
-                mkmsg("Conectando con " + (mmDevice != null ? mmDevice.getName() : "Bluetooth") + "...\n");
-                socket.connect();
-            }
-            catch (IOException e)
-            {
-                mkmsg("Error al conectar: " + e.getMessage() + "\nVerifique que el modulo este encendido y no ocupado.\n");
-                try { socket.close(); } catch (Exception ignored) {}
-                return;
+                mkmsg("Enviando comando ¿L?...\n");
+                outStream.write("¿L?\r\n".getBytes("ISO-8859-1"));
+                outStream.flush();
             }
 
-            try
-            {
-                OutputStream outStream = socket.getOutputStream();
-                InputStream inStream = socket.getInputStream();
+            // Lectura de la respuesta
+            byte[] buffer = new byte[1024];
+            StringBuilder sb = new StringBuilder();
+            long startTime = System.currentTimeMillis();
 
-                if (bReadConf)
+            while (System.currentTimeMillis() - startTime < 3500)
+            {
+                if (inStream.available() > 0)
                 {
-                    // Enviar sincronización de reloj
-                    mkmsg("Enviando fecha y hora...\n");
-                    byte[] rawHour = sFrameHourCal.getBytes("ISO-8859-1");
-                    outStream.write(rawHour);
-                    outStream.flush();
-
-                    try { Thread.sleep(600); } catch (Exception ignored) {}
-
-                    // Enviar configuración de alarma
-                    mkmsg("Enviando configuracion de alarma...\n");
-                    byte[] rawConf = sFrameConf.getBytes("ISO-8859-1");
-                    outStream.write(rawConf);
-                    outStream.flush();
-
-                    mkmsg("¡Configuracion enviada con exito a la baliza!\n\n");
-                }
-                else
-                {
-                    // Trama de lectura ¿L?\r\n
-                    mkmsg("Enviando comando ¿L?...\n");
-                    String sTramaLeer = "¿L?\r\n";
-                    byte[] rawLeer = sTramaLeer.getBytes("ISO-8859-1");
-                    outStream.write(rawLeer);
-                    outStream.flush();
-
-                    mkmsg("Esperando respuesta...\n");
-
-                    byte[] buffer = new byte[1024];
-                    StringBuilder sb = new StringBuilder();
-                    long startTime = System.currentTimeMillis();
-
-                    // Lectura bloqueante inicial (espera hasta 3 segundos por los primeros datos)
-                    while (System.currentTimeMillis() - startTime < 3000)
+                    int read = inStream.read(buffer);
+                    if (read > 0)
                     {
-                        if (inStream.available() > 0)
+                        sb.append(new String(buffer, 0, read, "ISO-8859-1"));
+                        long readEnd = System.currentTimeMillis() + 800;
+                        while (System.currentTimeMillis() < readEnd)
                         {
-                            int read = inStream.read(buffer);
-                            if (read > 0)
+                            if (inStream.available() > 0)
                             {
-                                sb.append(new String(buffer, 0, read, "ISO-8859-1"));
-                                // Dar tiempo a que el micro termine de escupir las 5 alarmas
-                                long readEnd = System.currentTimeMillis() + 800;
-                                while (System.currentTimeMillis() < readEnd)
+                                int extra = inStream.read(buffer);
+                                if (extra > 0)
                                 {
-                                    if (inStream.available() > 0)
-                                    {
-                                        int extra = inStream.read(buffer);
-                                        if (extra > 0)
-                                        {
-                                            sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
-                                            readEnd = System.currentTimeMillis() + 400;
-                                        }
-                                    }
-                                    try { Thread.sleep(30); } catch (Exception ignored) {}
+                                    sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
+                                    readEnd = System.currentTimeMillis() + 400;
                                 }
-                                break;
                             }
+                            try { Thread.sleep(30); } catch (Exception ignored) {}
                         }
-                        try { Thread.sleep(50); } catch (Exception ignored) {}
-                    }
-
-                    if (sb.length() > 0)
-                    {
-                        mkmsg("--- DATOS RECIBIDOS ---\n" + sb.toString() + "\n-----------------------\n");
-                    }
-                    else
-                    {
-                        mkmsg("Sin respuesta de la baliza.\nVerifique conexion fisica y alimentacion.\n");
+                        break;
                     }
                 }
+                try { Thread.sleep(50); } catch (Exception ignored) {}
             }
-            catch (Exception e)
+
+            if (sb.length() > 0)
             {
-                mkmsg("Error en transmision: " + e.getMessage() + "\n");
+                mkmsg("--- VOLCADO DE LA BALIZA ---\n" + sb.toString() + "\n----------------------------\n");
             }
-            finally
+            else
             {
-                try
-                {
-                    socket.close();
-                }
-                catch (Exception ignored) {}
+                mkmsg("Sin respuesta de la baliza.\nVerifique conexion y encendido.\n");
             }
         }
-
-
-        public void cancel()
+        catch (Exception e)
         {
-            try
+            mkmsg("Error en comunicacion: " + e.getMessage() + "\n");
+            if (globalSocket != null)
             {
-                socket.close();
+                try { globalSocket.close(); } catch (Exception ignored) {}
+                globalSocket = null;
             }
-            catch (IOException e)
-            {
-                mkmsg("close() of connect socket failed: " + e.getMessage() + "\n");
-            }
-        }
-
-    }//fin class connect thread
-    //**************************************************************************************
-
-
-
-    //Funcion:Tarea paralela que permitira supervisar la conexion bluethooth a todo momento
-    //parametros:Ninguna
-    //Retorno:Ninguno
-    private class ConnectAsyncTask extends AsyncTask<BluetoothDevice, Integer, BluetoothSocket>
-    {
-
-        private BluetoothSocket mmSocket;
-        private BluetoothDevice mmDevice;
-
-        @Override
-        protected BluetoothSocket doInBackground(BluetoothDevice... device)
-        {
-            mmDevice = device[0];
-
-            try
-            {
-
-                String mmUUID = "00001101-0000-1000-8000-00805F9B34FB";
-                mmSocket = mmDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString(mmUUID));
-                mmSocket.connect();
-
-            }
-            catch (Exception e)
-            {
-
-            }
-
-            return mmSocket;
-        }
-
-
-        @Override
-        protected void onPostExecute(BluetoothSocket result)
-        {
-
-            btSocket = result;
-
         }
     }
 
-}//fin main activity2
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        if (globalSocket != null)
+        {
+            try { globalSocket.close(); } catch (Exception ignored) {}
+            globalSocket = null;
+        }
+    }
+}
