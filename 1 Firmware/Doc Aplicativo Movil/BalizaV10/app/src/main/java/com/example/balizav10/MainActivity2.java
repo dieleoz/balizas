@@ -477,140 +477,120 @@ public class MainActivity2 extends AppCompatActivity {
 
         public void run()
         {
-            //mkmsg("Client running\n");
+            if (socket == null)
+            {
+                mkmsg("Socket Bluetooth nulo. Seleccione el dispositivo de nuevo.\n");
+                return;
+            }
 
-
-            // Always cancel discovery because it will slow down a connection
-            mBluetoothAdapter.cancelDiscovery();
-
-            // Make a connection to the BluetoothSocket
             try
             {
-                // This is a blocking call and will only return on a
-                // successful connection or an exception
+                mBluetoothAdapter.cancelDiscovery();
+            }
+            catch (Exception ignored) {}
+
+            try
+            {
+                mkmsg("Conectando con " + (mmDevice != null ? mmDevice.getName() : "Bluetooth") + "...\n");
                 socket.connect();
             }
             catch (IOException e)
             {
-                mkmsg("Connect failed\n");
+                mkmsg("Error al conectar: " + e.getMessage() + "\nVerifique que el modulo este encendido y no ocupado.\n");
+                try { socket.close(); } catch (Exception ignored) {}
+                return;
+            }
+
+            try
+            {
+                OutputStream outStream = socket.getOutputStream();
+                InputStream inStream = socket.getInputStream();
+
+                if (bReadConf)
+                {
+                    // Enviar sincronización de reloj
+                    mkmsg("Enviando fecha y hora...\n");
+                    byte[] rawHour = sFrameHourCal.getBytes("ISO-8859-1");
+                    outStream.write(rawHour);
+                    outStream.flush();
+
+                    try { Thread.sleep(600); } catch (Exception ignored) {}
+
+                    // Enviar configuración de alarma
+                    mkmsg("Enviando configuracion de alarma...\n");
+                    byte[] rawConf = sFrameConf.getBytes("ISO-8859-1");
+                    outStream.write(rawConf);
+                    outStream.flush();
+
+                    mkmsg("¡Configuracion enviada con exito a la baliza!\n\n");
+                }
+                else
+                {
+                    // Trama de lectura ¿L?\r\n
+                    mkmsg("Enviando comando ¿L?...\n");
+                    String sTramaLeer = "¿L?\r\n";
+                    byte[] rawLeer = sTramaLeer.getBytes("ISO-8859-1");
+                    outStream.write(rawLeer);
+                    outStream.flush();
+
+                    mkmsg("Esperando respuesta...\n");
+
+                    byte[] buffer = new byte[1024];
+                    StringBuilder sb = new StringBuilder();
+                    long startTime = System.currentTimeMillis();
+
+                    // Lectura bloqueante inicial (espera hasta 3 segundos por los primeros datos)
+                    while (System.currentTimeMillis() - startTime < 3000)
+                    {
+                        if (inStream.available() > 0)
+                        {
+                            int read = inStream.read(buffer);
+                            if (read > 0)
+                            {
+                                sb.append(new String(buffer, 0, read, "ISO-8859-1"));
+                                // Dar tiempo a que el micro termine de escupir las 5 alarmas
+                                long readEnd = System.currentTimeMillis() + 800;
+                                while (System.currentTimeMillis() < readEnd)
+                                {
+                                    if (inStream.available() > 0)
+                                    {
+                                        int extra = inStream.read(buffer);
+                                        if (extra > 0)
+                                        {
+                                            sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
+                                            readEnd = System.currentTimeMillis() + 400;
+                                        }
+                                    }
+                                    try { Thread.sleep(30); } catch (Exception ignored) {}
+                                }
+                                break;
+                            }
+                        }
+                        try { Thread.sleep(50); } catch (Exception ignored) {}
+                    }
+
+                    if (sb.length() > 0)
+                    {
+                        mkmsg("--- DATOS RECIBIDOS ---\n" + sb.toString() + "\n-----------------------\n");
+                    }
+                    else
+                    {
+                        mkmsg("Sin respuesta de la baliza.\nVerifique conexion fisica y alimentacion.\n");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                mkmsg("Error en transmision: " + e.getMessage() + "\n");
+            }
+            finally
+            {
                 try
                 {
                     socket.close();
-                    socket = null;
                 }
-                catch (IOException e2)
-                {
-                    mkmsg("unable to close() socket during connection failure: " + e2.getMessage() + "\n");
-                    socket = null;
-                }
-                // Start the service over to restart listening mode
+                catch (Exception ignored) {}
             }
-
-            // If a connection was accepted
-            if (socket != null)
-            {
-                //mkmsg("Enviando el Mensaje...\n\r\n\r");
-                //mkmsg("Remote device address: " + socket.getRemoteDevice().getAddress() + "\n");
-
-                String sTramaLeer = "¿L?\n\r";
-
-                OutputStream mmOutStream = null;
-                InputStream  mmInStream = null;
-
-                mmBuffer = new byte[1024];
-                int numBytes;
-
-                //Note this is copied from the TCPdemo code.
-                try
-                {
-                    PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-                    //mkmsg("Attempting to send message ...\n");
-
-                    //is es se envia una trama de configuracion
-                    if(bReadConf)
-                    {
-                        out.println(sFrameHourCal);        //se envia la trama de config
-
-                        TimeUnit.MILLISECONDS.sleep(3000);
-
-                        out.println(sFrameConf);        //se envia la trama de config
-
-                        out.flush();
-                        mkmsg("Mensaje Enviado!!\n\r\n\r");
-                        //mkmsg("Message sent...\n");
-                    }
-                    //si es una trama de lectura
-                    else
-                    {
-                        out.println(sTramaLeer);        //se envia la trama para leer
-                        out.flush();
-
-                        mkmsg("Esperando respuesta de la baliza...\n\r");
-                        mmInStream = socket.getInputStream();
-                        byte[] buffer = new byte[512];
-                        StringBuilder sb = new StringBuilder();
-                        long startTime = System.currentTimeMillis();
-
-                        while (System.currentTimeMillis() - startTime < 3500)
-                        {
-                            if (mmInStream.available() > 0)
-                            {
-                                int read = mmInStream.read(buffer);
-                                if (read > 0)
-                                {
-                                    sb.append(new String(buffer, 0, read, "ISO-8859-1"));
-                                    if (sb.toString().contains("Temp:") || sb.toString().contains("Voltaje:") || sb.toString().contains("5 -"))
-                                    {
-                                        try { Thread.sleep(150); } catch (Exception ignored) {}
-                                        while (mmInStream.available() > 0)
-                                        {
-                                            int r = mmInStream.read(buffer);
-                                            if (r > 0) sb.append(new String(buffer, 0, r, "ISO-8859-1"));
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                try { Thread.sleep(40); } catch (Exception ignored) {}
-                            }
-                        }
-
-                        if (sb.length() > 0)
-                        {
-                            mkmsg(sb.toString() + "\n");
-                        }
-                        else
-                        {
-                            mkmsg("Sin respuesta de la baliza (verifique conexion y encendido)\n");
-                        }
-                    }
-
-                    //mkmsg("We are done, closing connection\n");
-                }
-                catch (Exception e)
-                {
-                    mkmsg("Error happened sending/receiving\n");
-
-                }
-                finally
-                {
-                    try
-                    {
-                        socket.close();
-                    }
-                    catch (IOException e)
-                    {
-                        mkmsg("Unable to close socket" + e.getMessage() + "\n");
-                    }
-                }
-            }
-            else
-            {
-                mkmsg("Made connection, but socket is null\n");
-            }
-           // mkmsg("Client ending \n");
         }
 
 
