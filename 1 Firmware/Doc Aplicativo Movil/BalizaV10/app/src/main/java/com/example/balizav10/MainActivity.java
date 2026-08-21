@@ -55,6 +55,26 @@ public class MainActivity extends AppCompatActivity {
 
     public void startBt()
     {
+        if (android.os.Build.VERSION.SDK_INT >= 31)
+        {
+            String btConnect = "android.permission.BLUETOOTH_CONNECT";
+            String btScan = "android.permission.BLUETOOTH_SCAN";
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, btConnect) != android.content.pm.PackageManager.PERMISSION_GRANTED ||
+                androidx.core.content.ContextCompat.checkSelfPermission(this, btScan) != android.content.pm.PackageManager.PERMISSION_GRANTED)
+            {
+                androidx.core.app.ActivityCompat.requestPermissions(this,
+                    new String[]{btConnect, btScan}, 100);
+            }
+        }
+        else
+        {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED)
+            {
+                androidx.core.app.ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+            }
+        }
+
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if(mBluetoothAdapter == null)
         {
@@ -65,12 +85,7 @@ public class MainActivity extends AppCompatActivity {
         {
             Toast.makeText(getApplicationContext(),"EL Bluetooth esta Apagado",Toast.LENGTH_SHORT).show();
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
-        else
-        {
-            Toast.makeText(getApplicationContext(),"EL Bluetooth esta Encendido",Toast.LENGTH_SHORT).show();
-            //querypaired();
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
     }
 

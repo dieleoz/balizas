@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -286,50 +287,145 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
 
+    private static final int PERMISSION_REQUEST_CODE = 101;
+
+    private boolean checkAndRequestPermissions()
+    {
+        if (android.os.Build.VERSION.SDK_INT >= 31)
+        {
+            String btConnect = "android.permission.BLUETOOTH_CONNECT";
+            String btScan = "android.permission.BLUETOOTH_SCAN";
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, btConnect) != android.content.pm.PackageManager.PERMISSION_GRANTED ||
+                androidx.core.content.ContextCompat.checkSelfPermission(this, btScan) != android.content.pm.PackageManager.PERMISSION_GRANTED)
+            {
+                androidx.core.app.ActivityCompat.requestPermissions(this,
+                    new String[]{btConnect, btScan}, PERMISSION_REQUEST_CODE);
+                return false;
+            }
+        }
+        else
+        {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED)
+            {
+                androidx.core.app.ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE)
+        {
+            boolean allGranted = true;
+            for (int res : grantResults)
+            {
+                if (res != android.content.pm.PackageManager.PERMISSION_GRANTED)
+                {
+                    allGranted = false;
+                    break;
+                }
+            }
+            if (allGranted)
+            {
+                querypaired();
+            }
+            else
+            {
+                Toast.makeText(this, "Permiso de Bluetooth requerido para buscar dispositivos", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     public void querypaired()
     {
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        // If there are paired devices
-        if (pairedDevices.size() > 0)
+        if (!checkAndRequestPermissions())
         {
-            // Loop through paired devices
-            //txtVoutput.append("at least 1 paired device\n");
+            return;
+        }
 
-            final BluetoothDevice blueDev[] = new BluetoothDevice[pairedDevices.size()];
-            String[] items = new String[blueDev.length];
-
-            int i = 0;
-            for (BluetoothDevice devicel : pairedDevices)
+        try
+        {
+            if (mBluetoothAdapter == null)
             {
-                blueDev[i] = devicel;
-                items[i] = blueDev[i].getName() + ": " + blueDev[i].getAddress();
-                //txtVoutput.append("Dispositivo: " + items[i] + "\n");     //imprime en pantalla los dispositivos
-                i++;
+                mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             }
 
-            //AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Elija el  Bluetooth:");
-
-            builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener()
+            if (mBluetoothAdapter == null)
             {
-                public void onClick(DialogInterface dialog, int item)
+                Toast.makeText(this, "Este dispositivo no soporta Bluetooth", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!mBluetoothAdapter.isEnabled())
+            {
+                Toast.makeText(this, "Por favor encienda el Bluetooth", Toast.LENGTH_SHORT).show();
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivity(enableBtIntent);
+                return;
+            }
+
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+
+            if (pairedDevices != null && pairedDevices.size() > 0)
+            {
+                final BluetoothDevice blueDev[] = new BluetoothDevice[pairedDevices.size()];
+                String[] items = new String[blueDev.length];
+
+                int i = 0;
+                for (BluetoothDevice devicel : pairedDevices)
                 {
-                    dialog.dismiss();
-                    if (item >= 0 && item < blueDev.length) {
-                        device = blueDev[item];
-                        btnDevice.setText( blueDev[item].getName());
-
-                        //enable bt
-                        btnRead.setEnabled(true);
-                        btConf.setEnabled(true);
-
-                    }
-
+                    blueDev[i] = devicel;
+                    String devName = devicel.getName() != null ? devicel.getName() : "Desconocido";
+                    items[i] = devName + "\n(" + devicel.getAddress() + ")";
+                    i++;
                 }
-            });
-            AlertDialog alert = builder.create();
-            alert.show();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Seleccione el Módulo Bluetooth:");
+
+                builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int item)
+                    {
+                        dialog.dismiss();
+                        if (item >= 0 && item < blueDev.length)
+                        {
+                            device = blueDev[item];
+                            String dName = blueDev[item].getName() != null ? blueDev[item].getName() : blueDev[item].getAddress();
+                            btnDevice.setText(dName);
+
+                            // habilitar botones de acción
+                            btnRead.setEnabled(true);
+                            btConf.setEnabled(true);
+
+                            Toast.makeText(MainActivity2.this, "Seleccionado: " + dName, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+            else
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Sin Dispositivos Emparejados");
+                builder.setMessage("No hay ningún módulo Bluetooth emparejado en su celular.\n\nVaya a los Ajustes de Bluetooth de su teléfono, busque el dispositivo (ej. JDY-31) y empareje con clave 1234.");
+                builder.setPositiveButton("OK", null);
+                builder.show();
+            }
+        }
+        catch (SecurityException se)
+        {
+            Toast.makeText(this, "Permiso de Bluetooth no otorgado: " + se.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(this, "Error al buscar dispositivos: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }//fin querypaired
 
