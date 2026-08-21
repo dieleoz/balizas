@@ -261,7 +261,7 @@ aplica 6.
 
 ---
 
-## Fase 4 — Modernización y Mejora Integral de la App Móvil (Baliza App v2.0)
+## Fase 4 — Modernización y Mejora Integral de la App Móvil («Baliza Pro & Test Suite v2.0»)
 
 Detalle completo de los 20 defectos heredados en [`Manuales/APP_MOVIL.md`](Manuales/APP_MOVIL.md). 
 Plan de trabajo estructurado para la versión 2.0:
@@ -278,16 +278,19 @@ Plan de trabajo estructurado para la versión 2.0:
 - [ ] **Sincronización de reloj en 1 toque:** Botón dedicado que capture la fecha/hora del celular y transmita la trama `¿RHH:MM:SS,CDD/MM/AA-W?` al RTC DS1307.
 - [ ] **Verificación post-escritura:** Al enviar una alarma, solicitar automáticamente la trama `¿L?` y cotejar en segundo plano que el micro la guardó fielmente.
 
-### 4.3 · Rediseño Moderno de UI/UX (Material Design)
+### 4.3 · Modo Test y Diagnóstico de Banco (Nueva Pestaña / Suite)
+- [ ] **Test de Luz y Potencia:** Botón para forzar destello normativo (1.0 Hz) y verificar MOSFET/LEDs de la baliza en vivo.
+- [ ] **Test de Buzzer:** Botón para disparar tono de prueba en RC1 y verificar transistor/zumbador.
+- [ ] **Telemetría en tiempo real:** Medidor gráfico del voltaje de batería (con umbral de alerta < 11.5 V) y temperatura reportada por el PIC.
+- [ ] **Consola Interactiva de Macros:** Botones de acceso rápido para comandos frecuentes (`¿L?`, `¿R...C...?`, `Borrar Alarmas`, `Volcado HEX`).
+
+### 4.4 · Rediseño Moderno de UI/UX (Material Design)
 - [ ] **Acceso directo en campo:** Eliminar el login inútil de credenciales fijas `admin`/`admin` para acceso inmediato.
 - [ ] **Selectores de hora tipo reloj:** Integrar `TimePickerDialog` nativo en lugar de menús desplegables rígidos de 5 minutos.
 - [ ] **Selector visual de días:** Chips/botones para *Lunes a Viernes (Escolar)*, *Todos los días (Diario)* y *Fin de Semana*.
-- [ ] **Tarjetas de Estado y Telemetría:**
-  - Nivel de batería visual con semáforo de color (Verde/Amarillo/Rojo).
-  - Temperatura reportada por el equipo.
-  - Tarjetas individuales por alarma con switch ON/OFF.
+- [ ] **Tarjetas de Alarma:** Tarjetas individuales por alarma con switch ON/OFF.
 
-### 4.4 · Empaquetado y Entrega
+### 4.5 · Empaquetado y Entrega
 - [ ] Compilar y generar `Baliza_v2.0.apk`.
 - [ ] Probar instalación en dispositivos físicos Android.
 - [ ] Documentar el manual de usuario actualizado en `Manuales/APP_MOVIL.md`.
@@ -316,18 +319,14 @@ No urge. Pero cada uno de estos multiplica el coste de todo lo de arriba.
 
 ---
 
-## Lo que no se puede cerrar desde el escritorio
+## Estado de Validación Física en Banco (Hardware Real)
 
-Por mucho que el simulador se ponga en verde, esto solo lo cierra alguien con el equipo
-delante:
-
-- [ ] **Prueba de banco de cada salida contra su carga.** Ningún pin se ha comprobado nunca.
-- [ ] **Que el DS1307 conserve la hora sin alimentación.** Una pila agotada convierte todos los
-      horarios en ruido, y el síntoma es idéntico al de un firmware mal programado.
-- [ ] **Que el horario grabado en cada señal coincida con SU chapa atornillada.** No contra el
-      horario que alguien recuerde, ni contra el ejemplo de un manual. Hoy no hay registro de
-      qué señal lleva qué horario.
-
-**Verde en el simulador no es entregable, y ni siquiera autoriza a grabar.** Lo que corresponde
-mandar hoy es un encargo de medida, no una versión — ver la skill
-[`entregar`](.claude/skills/entregar/SKILL.md).
+- [x] **Enlace UART / Bluetooth PIC18F2550 ↔ JDY-31 ↔ Móvil Android:**
+  - ✅ **VALIDADO EN BANCO (21-Ago-2026):**
+  - Baudios: 9600 8N1 confirmados en micro y Bluetooth.
+  - Pinout verificado en tarjeta: Pin 17 (`RC6`/TX) $\rightarrow$ `RXD`, Pin 18 (`RC7`/RX) $\leftarrow$ `TXD`.
+  - Trama `¿L?` probada físicamente desde el terminal Android, respondiendo con el volcado completo del RTC (`16:47:18`, `21/8/26-5`) y las 5 alarmas en EEPROM.
+- [ ] **Prueba de banco de cada salida contra su carga:** Verificar encendido de LEDs del Cluster con carga real de 12 V.
+- [ ] **Prueba de sonido del buzzer en RC1.**
+- [ ] **Comprobación de retención horaria del DS1307 sin alimentación.**
+- [ ] **Registro de instalación:** Horario grabado coincidente con la chapa atornillada a la señal.
