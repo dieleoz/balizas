@@ -169,23 +169,15 @@ public class MainActivity2 extends AppCompatActivity {
             {
                 bReadConf = true;
 
-                //*** rutina calendar ***
+                //*** rutina calendar y reloj limpia sin bytes nulos ***
                 calendar = Calendar.getInstance();
-                simpleDateFormat = new SimpleDateFormat("HHmm ddMMyy-u");
-                Date = simpleDateFormat.format(calendar.getTime());
+                SimpleDateFormat sdfHour = new SimpleDateFormat("HHmm", java.util.Locale.US);
+                SimpleDateFormat sdfDate = new SimpleDateFormat("ddMMyy-u", java.util.Locale.US);
+                String sHour = sdfHour.format(calendar.getTime());
+                String sDate = sdfDate.format(calendar.getTime());
 
-
-                char bufferHour[] = new  char[6];
-                char bufferCalen[] = new char [10];
-
-
-                Date.getChars(0,4, bufferHour, 0);
-                Date.getChars(5,13, bufferCalen, 0);
-
-
-                sFrameHourCal = "¿R"+ String.valueOf(bufferHour)+",C"+String.valueOf(bufferCalen)+"?\n\r";
-
-                //***************************
+                sFrameHourCal = "¿R" + sHour + ",C" + sDate + "?\r\n";
+                //*****************************************************
 
 
                 //*** adquisicion de la trama ***
