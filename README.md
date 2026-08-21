@@ -56,7 +56,7 @@ rojo**, todas por defectos reales y localizados. Las tres que más pesan:
 |---|---|---|
 | 🔴 | **La luz no parpadea a la cadencia que debe.** Hace ráfagas de 5 destellos de 50 ms. La norma vial citada pide **500 ms encendida / 500 ms apagada** (≈1 Hz); la reunión había dicho 2 s / 2 s. Las tres cifras difieren y la decisión está **pendiente** | `Cluster.c` |
 | 🔴 | **Si el equipo arranca dentro de una franja, la luz no enciende.** Un corte de luz a las 06:30 deja la señal apagada hasta el día siguiente, con el colegio abierto | `Alarma.c` |
-| 🔴 | **El buzzer está en el pin equivocado.** La tarjeta lo tiene en `RC1`; el firmware ataca `RC0`, que en la placa es el pulsador | `Buzzer.h:24` vs [`HARDWARE.md`](HARDWARE.md) |
+| 🔴 | **El buzzer está en el pin equivocado.** La tarjeta lo tiene en `RC1`; el firmware ataca `RC0`, que en la placa es el pulsador | `Buzzer.h:24` vs [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md) |
 
 La cifra viva y la lista completa están en **[`ESTADO.md`](ESTADO.md)**. El orden en que hay
 que arreglarlo, en **[`ROADMAP.md`](ROADMAP.md)**.
@@ -72,12 +72,12 @@ que arreglarlo, en **[`ROADMAP.md`](ROADMAP.md)**.
 |---|---|
 | [`ESTADO.md`](ESTADO.md) | qué corre hoy y qué está roto. Se reescribe cada sesión |
 | [`ROADMAP.md`](ROADMAP.md) | en qué orden arreglar, y por qué ese orden |
-| [`FIRMWARE.md`](FIRMWARE.md) | el firmware módulo a módulo, con sus defectos y su línea |
-| [`HARDWARE.md`](HARDWARE.md) | la tarjeta: componentes, netlist y el mapeo real de pines |
-| [`APP_MOVIL.md`](APP_MOVIL.md) | la app Android y el contrato de tramas |
-| [`BLUETOOTH.md`](BLUETOOTH.md) | por qué el módulo nuevo no funciona y cómo probarlo |
-| [`MANUAL_FUNCIONAL_BLUETOOTH.md`](MANUAL_FUNCIONAL_BLUETOOTH.md) | la hoja que sigue el funcional para configurar y validar cada módulo |
-| [`COMPILAR_Y_GRABAR.md`](COMPILAR_Y_GRABAR.md) | cómo compilar lo que se modifique y cómo grabarlo |
+| [`Manuales/FIRMWARE.md`](Manuales/FIRMWARE.md) | el firmware módulo a módulo, con sus defectos y su línea |
+| [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md) | la tarjeta: componentes, netlist y el mapeo real de pines |
+| [`Manuales/APP_MOVIL.md`](Manuales/APP_MOVIL.md) | la app Android y el contrato de tramas |
+| [`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md) | por qué el módulo nuevo no funciona y cómo probarlo |
+| [`Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`](Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md) | la hoja que sigue el funcional para configurar y validar cada módulo |
+| [`Manuales/COMPILAR_Y_GRABAR.md`](Manuales/COMPILAR_Y_GRABAR.md) | cómo compilar lo que se modifique y cómo grabarlo |
 
 ---
 
@@ -147,7 +147,7 @@ Dos cosas que hay que saber antes de intentarlo, las dos comprobadas:
   así que MPLAB X no la reconoce como proyecto. Hay que crear uno nuevo y añadir los fuentes
   existentes.
 
-El detalle completo, y cómo grabar el PIC, en [`COMPILAR_Y_GRABAR.md`](COMPILAR_Y_GRABAR.md).
+El detalle completo, y cómo grabar el PIC, en [`Manuales/COMPILAR_Y_GRABAR.md`](Manuales/COMPILAR_Y_GRABAR.md).
 
 ---
 

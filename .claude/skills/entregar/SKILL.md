@@ -19,7 +19,7 @@ citado en un manual acaba en una senal que dice una cosa y hace otra.
 
 **Hoy corresponde un encargo, no una entrega.** El firmware tiene defectos medidos y abiertos
 (la cifra del dia esta en `ESTADO.md`), y hay un desajuste entre lo que el firmware ataca y lo
-que hay en la placa: `HARDWARE.md` situa el buzzer en **RC1** y `Buzzer.h:24` escribe en
+que hay en la placa: `Manuales/HARDWARE.md` situa el buzzer en **RC1** y `Buzzer.h:24` escribe en
 **RC0**. Que `4 Simulador\correr.py` de verde no cambiaria eso — mide logica contra variables,
 no pines contra cargas (ver la skill [`verificar`](../verificar/SKILL.md), punto 7).
 
@@ -60,7 +60,7 @@ Al citar al responsable o al funcional, **comillas y palabras exactas**. Lo que 
 propone como opcion por defecto va marcado aparte, con `▸ Si no hay respuesta:` o equivalente,
 nunca mezclado en el mismo parrafo como si fuera parte de lo acordado.
 
-Vale igual para los manuales tecnicos: en `MANUAL_FUNCIONAL_BLUETOOTH.md` la convencion de
+Vale igual para los manuales tecnicos: en `Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md` la convencion de
 nombres de los modulos es **una propuesta a confirmar**, y tiene que leerse como tal. Un
 requisito que nadie reviso gobernando una senal escolar es peor que un pendiente abierto.
 

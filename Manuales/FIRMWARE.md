@@ -1907,7 +1907,7 @@ cd "D:/@Proyect/Baliza/4 Simulador" && python correr.py
 ```
 
 Cuando alguien vaya a arreglar uno de los que **no** tienen escenario, el primer paso es
-escribirlo. Ver la skill [`simulador`](.claude/skills/simulador/SKILL.md): un defecto sin
+escribirlo. Ver la skill [`simulador`](../.claude/skills/simulador/SKILL.md): un defecto sin
 escenario se arregla a ciegas, y nada avisa si vuelve.
 
 ---

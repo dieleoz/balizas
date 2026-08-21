@@ -41,7 +41,7 @@ implementados**.
 1. **El hardware de la tarjeta esta fabricado y es FIJO.** Cuando el firmware y la placa no
    coincidan, **se cambia el firmware**. No propongas modificaciones de la placa, ni
    componentes nuevos, ni cortar pistas. Lo que hay es lo que hay, y esta documentado en
-   `HARDWARE.md`.
+   `Manuales/HARDWARE.md`.
    Hoy hay dos desajustes medidos:
    - el **buzzer** de la placa esta en **RC1**, y `Buzzer.h:24` escribe en **RC0**, que en la
      tarjeta es la linea del pulsador. En `Buzzer.c:162` esta la linea correcta comentada
@@ -92,7 +92,7 @@ Y al poner un escenario en verde, **quitale la marca `[ROJO ESPERADO ...]` y lim
 comentario en el mismo cambio**. Un escenario que sigue anunciando un defecto ya arreglado
 miente igual que uno que oculta un defecto vivo.
 
-Compilar para el equipo real: MPLAB X 5.45 con XC8 — ver `COMPILAR_Y_GRABAR.md`. **No grabes
+Compilar para el equipo real: MPLAB X 5.45 con XC8 — ver `Manuales/COMPILAR_Y_GRABAR.md`. **No grabes
 sin que te lo pidan**: hay senales montadas en la calle al otro lado.
 
 ## Los tres estados de una comprobacion
@@ -133,9 +133,9 @@ de verde. Van uno por uno y cada uno **se borra**, **se invierte** o **se conser
 |---|---|
 | `ESTADO.md` | la cifra del dia y que esta abierto |
 | `ROADMAP.md` | el orden en que hay que arreglar las cosas |
-| `FIRMWARE.md` | el firmware modulo a modulo, con sus defectos y su linea |
-| `HARDWARE.md` | la tarjeta: netlist, componentes y el mapeo real de pines |
-| `APP_MOVIL.md` | el otro extremo del protocolo |
+| `Manuales/FIRMWARE.md` | el firmware modulo a modulo, con sus defectos y su linea |
+| `Manuales/HARDWARE.md` | la tarjeta: netlist, componentes y el mapeo real de pines |
+| `Manuales/APP_MOVIL.md` | el otro extremo del protocolo |
 | `4 Simulador\arnes.c` | que se mide hoy, y que rojo es esperado y desde cuando |
 
 Si una definicion falta, **no la inventes**: se pregunta. Un requisito que nadie reviso

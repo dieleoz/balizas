@@ -65,7 +65,7 @@ la estás midiendo.
 
 Hay señales montadas en la calle. Cuando el firmware y la placa no coincidan, **se cambia el
 firmware**: no se rediseña el hardware, no se corta una pista, no se añade un componente. Lo
-que hay es lo que hay, y está descrito en [`HARDWARE.md`](HARDWARE.md).
+que hay es lo que hay, y está descrito en [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md).
 
 Hoy hay **dos desajustes medidos**:
 
@@ -80,7 +80,7 @@ toca.
 
 🚫 Y el corolario que hace falta escribir porque tiene tirón: **no propongas mejoras de
 hardware.** Ni fusibles, ni diodos de rueda libre, ni cambiar el MOSFET. Están anotados como
-restricciones en `HARDWARE.md` para que el firmware trabaje alrededor, no como una lista de
+restricciones en `Manuales/HARDWARE.md` para que el firmware trabaje alrededor, no como una lista de
 compras.
 
 ### 2. El protocolo de tramas es un contrato literal con un APK que ya está instalado
@@ -126,7 +126,7 @@ defecto ya arreglado miente igual que uno que oculta un defecto vivo.
 real, ni el I²C, ni el ADC, ni el Bluetooth. La lista completa de lo que no ve está en la skill
 **`verificar`**, punto 7.
 
-### 4. Compilar tiene dos trampas, y las dos ya costaron tiempo
+### 4. Compilar tiene cuatro trampas, y todas ya costaron tiempo
 
 - **`--std=c99` no es opcional.** En C90 el firmware **no compila**: `DS1307.c:66` inicializa un
   array `const` local con los parámetros de la función. No se toca el código: se compila en C99.
@@ -142,7 +142,7 @@ real, ni el I²C, ni el ADC, ni el Bluetooth. La lista completa de lo que no ve 
   tienen que quedar anotadas junto al `.hex`; hoy solo se saben leyendo por casualidad un
   fichero de mapa.
 
-Detalle completo en [`COMPILAR_Y_GRABAR.md`](COMPILAR_Y_GRABAR.md).
+Detalle completo en [`Manuales/COMPILAR_Y_GRABAR.md`](Manuales/COMPILAR_Y_GRABAR.md).
 
 🚫 **No grabes el PIC sin que te lo pidan.** Hay señales montadas en la calle al otro lado.
 
@@ -154,7 +154,7 @@ fijo** (`UART.h`, `SPBRG = 32`, `BRGH = 0`). No sabe ni puede saber qué chip ha
 
 Cuando el Bluetooth falle, el problema está en el módulo, en su configuración, en el cableado o
 en la app — nunca en que el binario sea de otra versión. Separar esas variables es lo que hace
-[`BLUETOOTH.md`](BLUETOOTH.md), y la prueba que más decide es la de bucle: puentear TX con RX
+[`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md), y la prueba que más decide es la de bucle: puentear TX con RX
 del módulo **solo**, sin el PIC de por medio.
 
 ## Nomenclatura

@@ -61,6 +61,7 @@ extern strAnaTrama          anaT1;
 extern strSerial            serial1;
 extern enum states_alarm    stateAlarm;
 extern srtAlarmas           ala1;
+extern srtAlarmas           ala1;
 
 /* La original, renombrada al compilar Serial.c. */
 void fw_transmitUart1(char *ptr);

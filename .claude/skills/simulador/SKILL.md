@@ -125,5 +125,5 @@ pasan a depender del orden de las pruebas. Ya paso el 21-ago-2026.
 
 Que el equipo funcione. Verde aqui significa que un modelo de PC no encuentra nada. **Ningun
 GPIO se ha comprobado contra su carga**, y hay un desajuste medido entre lo que el firmware
-ataca y lo que hay en la tarjeta (`HARDWARE.md`). Antes de creerte un verde, lee el punto 7 de
+ataca y lo que hay en la tarjeta (`Manuales/HARDWARE.md`). Antes de creerte un verde, lee el punto 7 de
 la skill [`verificar`](../verificar/SKILL.md).

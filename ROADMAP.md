@@ -25,7 +25,7 @@ el escenario que lo mide.
 
 **2. Después, las restricciones del hardware.** La tarjeta **ya está fabricada, montada y
 puesta en un poste**. No es una variable: es el terreno. Antes de proponer nada hay que saber
-qué pin va a dónde de verdad. Está hecho: [`HARDWARE.md`](HARDWARE.md), netlist completa. Y ya
+qué pin va a dónde de verdad. Está hecho: [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md), netlist completa. Y ya
 apareció lo que tenía que aparecer — dos sitios donde el firmware y la placa no coinciden.
 
 > **La regla que sale de ahí, y ordena todo lo demás:** cuando el firmware y la tarjeta no
@@ -67,7 +67,7 @@ módulos.
 > Cuesta un minuto y es gratis. Va antes que todo lo demás.
 
 - [ ] **Comparar la serigrafía del módulo con el zócalo antes de alimentarlo.**
-- [ ] Correr el procedimiento de [`BLUETOOTH.md`](BLUETOOTH.md), que separa las variables de lo
+- [ ] Correr el procedimiento de [`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md), que separa las variables de lo
       más simple a lo más complejo. La prueba de bucle —puentear TX con RX del módulo solo— es
       la que decide si el módulo está bien, sin el PIC ni la app de por medio.
 - [ ] **Buscar el módulo por su nombre real, no por el que uno espera.** El HC-06 se anuncia
@@ -84,9 +84,9 @@ módulos.
 - [ ] **Pedir al proveedor los comandos AT del SIG0109A.** El único PDF que publica es el
       datasheet del chip Beken, y **no contiene un solo comando AT** — verificado página a
       página. Sin eso, el módulo no se puede configurar. Las preguntas concretas están en
-      [`MANUAL_FUNCIONAL_BLUETOOTH.md`](MANUAL_FUNCIONAL_BLUETOOTH.md).
+      [`Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`](Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md).
 - [ ] Dejar un módulo configurado y validado con
-      [`MANUAL_FUNCIONAL_BLUETOOTH.md`](MANUAL_FUNCIONAL_BLUETOOTH.md).
+      [`Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`](Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md).
 - [ ] **Acordar la convención de nombres.** Hoy todos los módulos se llaman igual de fábrica.
       Con dos señales en la misma calle, quien va a reprogramar no puede saber a cuál se
       conecta — y una señal escolar con el horario de otra es exactamente el fallo que este
@@ -258,7 +258,7 @@ aplica 6.
 
 ## Fase 4 — La app
 
-Detalle completo y los 20 defectos en [`APP_MOVIL.md`](APP_MOVIL.md). Lo que sube al roadmap:
+Detalle completo y los 20 defectos en [`Manuales/APP_MOVIL.md`](Manuales/APP_MOVIL.md). Lo que sube al roadmap:
 
 - [ ] **Falta la hora «02»** en las listas de inicio y de fin. No se puede programar nada entre
       las 2 y las 3 de la madrugada. Una entrada que falta en un array.

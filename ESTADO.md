@@ -15,21 +15,42 @@ compilado con **XC8 v2.46** (según el `.map` de `dist/default/debug/`).
 
 ```
 python "4 Simulador/correr.py"     →  FALLA (1)
-MIDIERON: 33 comprobaciones   ok: 24   FALLA: 9
+MIDIERON: 33 comprobaciones   ok: 31   FALLA: 2
 ```
 
-Los 9 rojos son **esperados y están fechados** en `4 Simulador/arnes.c`. Ninguno es un defecto
-del instrumento.
+**Medido desde limpio** (`obj/` y `arnes.exe` borrados antes de correr). Esa precisión importa:
+la vez anterior el arnés **no compilaba** —le faltaba declarar `ala1`— y las cifras salían de un
+ejecutable viejo. Un arnés que no compila no mide nada, y ya arrastraba números falsos.
 
-| # | escenario | qué demuestra |
-|---|---|---|
-| C | cadencia de la luz | mide **50 ms encendida / 50 ms apagada**. Ni es lo de la reunión (2 s / 2 s) ni lo que pide la norma citada (500/500) |
-| D1 | arranque dentro de la franja | a las 07:00 con franja 06:00–09:00 la luz **no enciende** |
-| D2 | días personalizados | una alarma pedida para un día concreto **no se graba** y no se avisa |
-| D3 | días personalizados | la tarea de alarma se queda **clavada en `ST_CHECK_ALARM1`** para siempre |
-| D4 | `transmitUart1` | transmite un **byte 0x00 de más** al final de cada línea |
-| D5 | trama truncada | **tumba el firmware** (desbordamiento en `extraerValue`) |
-| D6 | franjas solapadas | la primera franja que termina **apaga la luz** aunque otra siga abierta |
+Los **2 rojos que quedan son exactamente los dos del escenario `C`**: la duración del pulso
+encendido y la del apagado. Son los de la cadencia, que sigue **sin decidirse**. Cualquier otro
+rojo sería un defecto nuevo.
+
+### Lo que se arregló el 21-ago-2026
+
+`Alarma.c` y `Serial.c` fueron modificados y los arreglos están **verificados**:
+
+| escenario | qué se arregló |
+|---|---|
+| `D1` | La nueva `isAlarmActive()` evalúa **pertenencia al intervalo** en vez de igualdad exacta de minuto. Arrancar a las 07:00 dentro de la franja 06:00–09:00 ya enciende la luz |
+| `D6` | `ap.flagAlarm` se calcula como **OR de las cinco** alarmas en `ST_CHECK_ALL_ALA`: una franja que termina ya no apaga la luz si otra sigue abierta |
+| `D3` | Las ramas vacías de días personalizados ya tienen transición: la tarea no se queda clavada |
+| `D4` | El `<=` de `transmitUart1` pasó a `<`. El último byte en `TXREG` es `0x41`, no el terminador |
+| `D5` | `strstr()` comprobado contra `NULL`, copias acotadas y `receiverUart1` con límite. La trama truncada ya no tumba el firmware |
+| `D2` | Se **invirtió**: ahora exige que una alarma para un día concreto se **rechace** — ver el pendiente de abajo |
+
+⚠️ **Tres cosas que quedaron a medias y hay que cerrar:**
+
+1. **`Alarma.c` implementa los días concretos y `Serial.c` los rechaza.** `isAlarmActive()` tiene
+   la rama para `dayAlar` de 1 a 7, pero `Serial.c` no los graba nunca. O sea: código que no
+   puede ejecutarse, y un escenario (`D2`) que afirma lo contrario de lo que hace el módulo de
+   alarma. **Hace falta decidir**: se implementan de verdad o se quita el código muerto.
+2. **`ST_CHECK_HOUR1..5` y `ST_CHECK_ALARM1..5` siguen vivos y siguen escribiendo
+   `ap.flagAlarm`** por igualdad exacta de minuto, compitiendo con el OR nuevo. Hay **dos
+   escritores del mismo flag**. El nuevo recalcula cada ~200 ms y gana en la práctica, pero
+   queda una ventana en la que el viejo puede apagar la luz. `isAlarmActive()` los sustituye:
+   deberían borrarse.
+3. **La cadencia sigue sin tocarse**, a propósito, porque sigue sin decidirse.
 
 ## Compilación — resuelta y verificada
 
@@ -44,7 +65,7 @@ cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
 ```
 
 ```
-Program space   used  533Dh ( 21309) of  8000h bytes  ( 65.0%)
+Program space   used  55A9h ( 21929) of  8000h bytes  ( 66.9%)
 Data space      used   2AFh (   687) of   800h bytes  ( 33.5%)
 EEPROM space    used     0h (     0) of   100h bytes  (  0.0%)
 ```
@@ -73,7 +94,7 @@ las banderas no estén fijadas y anotadas, la cifra de ocupación no significa n
 
 La tarjeta **ya está fabricada y es fija**. Se cambia el firmware.
 
-| | tarjeta ([`HARDWARE.md`](HARDWARE.md)) | firmware | efecto |
+| | tarjeta ([`Manuales/HARDWARE.md`](Manuales/HARDWARE.md)) | firmware | efecto |
 |---|---|---|---|
 | Buzzer | `RC1` | `RC0` (`Buzzer.h:24`) | no suena; y `RC0` es la línea del pulsador |
 | Temperatura | LM35 en `AN3` | `PCFG = 0b1011` solo habilita AN0–AN2, y la fórmula usa factor 10 donde el LM35 pide 100 | la temperatura leída no es la temperatura |
@@ -114,8 +135,8 @@ aplica 6.
   solo si alguien la recompila con `targetSdk ≥ 31`. Pero **el interruptor de Ubicación del
   teléfono tiene que estar encendido** o Android no lista dispositivos.
 
-Diagnóstico y procedimiento de prueba: [`BLUETOOTH.md`](BLUETOOTH.md). Configuración y
-validación módulo a módulo: [`MANUAL_FUNCIONAL_BLUETOOTH.md`](MANUAL_FUNCIONAL_BLUETOOTH.md).
+Diagnóstico y procedimiento de prueba: [`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md). Configuración y
+validación módulo a módulo: [`Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`](Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md).
 
 ## Lo que sigue sin estar decidido — hace falta que alguien lo apruebe
 

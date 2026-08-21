@@ -144,3 +144,5 @@ secrets.*
 startup.s
 startup.o
 test_build.*
+*.as
+build_xc8/

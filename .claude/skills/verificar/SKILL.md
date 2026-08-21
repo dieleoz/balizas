@@ -127,18 +127,18 @@ Reescribir en bloque hasta que todo pase es ajustar el instrumento hasta que de 
 `correr.py` mide logica: maquinas de estado, protocolo, EEPROM, alarmas y la cadencia del
 bit que va a `LATC2`. **No toca un solo pin real.** En concreto no dice nada de:
 
-- **El mapeo de pines contra la tarjeta.** Y ahi hay un problema medido: `HARDWARE.md` dice
+- **El mapeo de pines contra la tarjeta.** Y ahi hay un problema medido: `Manuales/HARDWARE.md` dice
   que el buzzer de la placa va a **RC1**, y el firmware ataca **RC0** (`Buzzer.h:24`) — que en
   la tarjeta es la linea del pulsador. El simulador enciende «el buzzer» tan contento porque
   escribe en una variable. La tarjeta no suena. **La tarjeta ya esta fabricada y es fija: se
   cambia el firmware, no la placa.**
-- **El ADC.** El firmware pone `PCFG = 0b1011`, que segun `HARDWARE.md` solo habilita AN0-AN2,
+- **El ADC.** El firmware pone `PCFG = 0b1011`, que segun `Manuales/HARDWARE.md` solo habilita AN0-AN2,
   y el sensor de temperatura entra por **AN3**. El simulador devuelve el valor que le pidas y
   nunca se entera.
 - **El I2C y el DS1307.** El reloj simulado siempre responde y siempre corre. Una pila
   agotada, unas pull-ups mal o el bit de reloj parado no existen aqui.
 - **El Bluetooth.** El simulador le mete las tramas directamente. Que el modulo empareje es
-  otro asunto entero: `BLUETOOTH.md` y `MANUAL_FUNCIONAL_BLUETOOTH.md`.
+  otro asunto entero: `Manuales/BLUETOOTH.md` y `Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`.
 - **Que el horario grabado coincida con la chapa atornillada de esa senal.** Eso lo mira una
   persona, con la senal delante, y esta en el manual de pruebas de campo.
 

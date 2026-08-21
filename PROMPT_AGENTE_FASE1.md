@@ -43,7 +43,7 @@ Sin ese número de partida no hay forma de saber después si tu cambio se midió
 
 1. **La tarjeta está fabricada, montada y en la calle. Es un dato fijo.** Cuando el firmware y
    la placa no coincidan, **se cambia el firmware**. No propongas cambios de hardware, ni
-   componentes, ni cortar pistas. `HARDWARE.md` describe lo que hay.
+   componentes, ni cortar pistas. `Manuales/HARDWARE.md` describe lo que hay.
 2. **No grabes el PIC.** Ni con MPLAB IPE, ni con `ipecmd`, ni de ninguna forma. Hay señales
    montadas en la calle al otro lado del programador. Compilar sí; grabar no.
 3. **No cambies el protocolo de tramas.** Es un contrato literal con un APK ya instalado en
