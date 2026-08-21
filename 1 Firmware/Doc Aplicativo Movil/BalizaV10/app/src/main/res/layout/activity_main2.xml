@@ -33,7 +33,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Consola de Datos Baliza v2.9"
+                    android:text="Consola de Datos Baliza v3.0"
                     android:textColor="#AAAAAA"
                     android:textSize="11sp"
                     android:textStyle="bold"
@@ -98,6 +98,74 @@
                 app:backgroundTint="#388E3C"
                 android:textColor="#FFFFFF" />
         </LinearLayout>
+
+        <!-- TARJETA HORARIO ESCOLAR OFICIAL (PLACA VIAL) -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp"
+                android:background="#FFF9C4">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🏫 Horario Escolar Oficial (Placa)"
+                        android:textColor="#D84315"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lun a Vie"
+                        android:textColor="#BF360C"
+                        android:textStyle="bold"
+                        android:textSize="11sp"
+                        android:background="#FFE082"
+                        android:paddingLeft="6dp"
+                        android:paddingRight="6dp"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="• Alarma 1: 06:00 am — 09:00 am\n• Alarma 2: 11:30 am — 01:30 pm (13:30)\n• Alarma 3: 03:00 pm (15:00) — 04:30 pm (16:30)"
+                    android:textColor="#4E342E"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="3dp"
+                    android:layout_marginBottom="10dp" />
+
+                <Button
+                    android:id="@+id/idBtnCargarHorarioEscolar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="🏫 Programar Horario Escolar (1 Toque)"
+                    android:textStyle="bold"
+                    android:textSize="13sp"
+                    app:backgroundTint="#E65100"
+                    android:textColor="#FFFFFF" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <!-- TARJETA DE PROGRAMACIÓN DE ALARMA -->
         <androidx.cardview.widget.CardView

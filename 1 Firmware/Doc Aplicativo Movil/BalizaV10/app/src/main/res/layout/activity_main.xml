@@ -51,7 +51,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Versión v2.9 · Control y Diagnóstico"
+                    android:text="Versión v3.0 · Control y Diagnóstico"
                     android:textColor="#546E7A"
                     android:textSize="12sp"
                     android:gravity="center"

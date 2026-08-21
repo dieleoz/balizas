@@ -63,6 +63,7 @@ public class MainActivity2 extends AppCompatActivity {
     private Button btConf;
     private Button btnTestLuz;
     private Button btnStopTest;
+    private Button btnCargarHorarioEscolar;
     private Spinner spNoAlarm;
     private Spinner spHourInit;
     private Spinner spMinInit;
@@ -75,6 +76,7 @@ public class MainActivity2 extends AppCompatActivity {
     public byte[] mmBuffer;
     public boolean  bReadConf = false;
     public boolean  bOnOffAlarm = false;
+    public boolean  bHorarioEscolarFull = false;
     public String sFrameHourCal = "";
     public String sFrameConf = "";
 
@@ -284,6 +286,25 @@ public class MainActivity2 extends AppCompatActivity {
             });
         }
 
+        btnCargarHorarioEscolar = (Button)findViewById(R.id.idBtnCargarHorarioEscolar);
+        if (btnCargarHorarioEscolar != null)
+        {
+            btnCargarHorarioEscolar.setEnabled(false);
+            btnCargarHorarioEscolar.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    if (device == null)
+                    {
+                        Toast.makeText(MainActivity2.this, "Seleccione primero el dispositivo Bluetooth", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    programarHorarioEscolar();
+                }
+            });
+        }
+
         //setup the bluetooth adapter.
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -295,6 +316,7 @@ public class MainActivity2 extends AppCompatActivity {
             btnDevice.setEnabled(false);
             if (btnTestLuz != null) btnTestLuz.setEnabled(false);
             if (btnStopTest != null) btnStopTest.setEnabled(false);
+            if (btnCargarHorarioEscolar != null) btnCargarHorarioEscolar.setEnabled(false);
         }
 
     }//fin onCreate
@@ -442,6 +464,7 @@ public class MainActivity2 extends AppCompatActivity {
                             btConf.setEnabled(true);
                             if (btnTestLuz != null) btnTestLuz.setEnabled(true);
                             if (btnStopTest != null) btnStopTest.setEnabled(true);
+                            if (btnCargarHorarioEscolar != null) btnCargarHorarioEscolar.setEnabled(true);
 
                             Toast.makeText(MainActivity2.this, "Conectando a " + dName + "...", Toast.LENGTH_SHORT).show();
 
@@ -472,6 +495,24 @@ public class MainActivity2 extends AppCompatActivity {
             Toast.makeText(this, "Error al buscar dispositivos: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }//fin querypaired
+
+    public void programarHorarioEscolar()
+    {
+        bHorarioEscolarFull = true;
+        bReadConf = true;
+        sFrameHourCal = "";
+        sFrameConf = "";
+
+        mkmsg("\n========================================\n"
+            + "🏫 GRABANDO HORARIO ESCOLAR OFICIAL\n"
+            + "• Alarma 1: 06:00 -> 09:00 (Lun-Vie)\n"
+            + "• Alarma 2: 11:30 -> 13:30 (Lun-Vie)\n"
+            + "• Alarma 3: 15:00 -> 16:30 (Lun-Vie)\n"
+            + "• Alarma 4: OFF  |  Alarma 5: OFF\n"
+            + "========================================\n");
+
+        startClient();
+    }
 
     public void startTestLuz2Min()
     {
@@ -597,7 +638,57 @@ public class MainActivity2 extends AppCompatActivity {
                     inStream.read(buffer);
                 }
 
-                if (bReadConf)
+                if (bHorarioEscolarFull)
+                {
+                    bHorarioEscolarFull = false;
+                    Calendar cal = Calendar.getInstance();
+                    SimpleDateFormat sdfH = new SimpleDateFormat("HHmm", Locale.US);
+                    SimpleDateFormat sdfD = new SimpleDateFormat("ddMMyy-u", Locale.US);
+                    String sHour = sdfH.format(cal.getTime());
+                    String sDate = sdfD.format(cal.getTime());
+
+                    // 1. Sincronizar Reloj
+                    mkmsg("1/6 Sincronizando RTC con hora oficial...\n");
+                    outStream.write(("¿R" + sHour + ",C" + sDate + "?\r\n").getBytes("ISO-8859-1"));
+                    outStream.flush();
+                    try { Thread.sleep(450); } catch (Exception ignored) {}
+
+                    // 2. Alarma 1 (06:00 a 09:00 Lun-Vie)
+                    mkmsg("2/6 Grabando Alarma 1 (06:00 - 09:00 Lun-Vie)...\n");
+                    outStream.write("¿A1,E1,I0600,F0900,D9,?\r\n".getBytes("ISO-8859-1"));
+                    outStream.flush();
+                    try { Thread.sleep(450); } catch (Exception ignored) {}
+
+                    // 3. Alarma 2 (11:30 a 13:30 Lun-Vie)
+                    mkmsg("3/6 Grabando Alarma 2 (11:30 - 13:30 Lun-Vie)...\n");
+                    outStream.write("¿A2,E1,I1130,F1330,D9,?\r\n".getBytes("ISO-8859-1"));
+                    outStream.flush();
+                    try { Thread.sleep(450); } catch (Exception ignored) {}
+
+                    // 4. Alarma 3 (15:00 a 16:30 Lun-Vie)
+                    mkmsg("4/6 Grabando Alarma 3 (15:00 - 16:30 Lun-Vie)...\n");
+                    outStream.write("¿A3,E1,I1500,F1630,D9,?\r\n".getBytes("ISO-8859-1"));
+                    outStream.flush();
+                    try { Thread.sleep(450); } catch (Exception ignored) {}
+
+                    // 5. Alarma 4 (OFF)
+                    mkmsg("5/6 Desactivando Alarmas 4 y 5 (OFF)...\n");
+                    outStream.write("¿A4,E0,?\r\n".getBytes("ISO-8859-1"));
+                    outStream.flush();
+                    try { Thread.sleep(450); } catch (Exception ignored) {}
+
+                    // 6. Alarma 5 (OFF)
+                    outStream.write("¿A5,E0,?\r\n".getBytes("ISO-8859-1"));
+                    outStream.flush();
+                    try { Thread.sleep(450); } catch (Exception ignored) {}
+
+                    mkmsg("✓ ¡Todas las franjas escolares enviadas!\nVerificando EEPROM con comando ¿L?...\n\n");
+                    try { Thread.sleep(400); } catch (Exception ignored) {}
+
+                    outStream.write("¿L?\r\n".getBytes("ISO-8859-1"));
+                    outStream.flush();
+                }
+                else if (bReadConf)
                 {
                     if (sFrameHourCal != null && !sFrameHourCal.isEmpty())
                     {
