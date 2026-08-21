@@ -14,21 +14,19 @@ compilado con **XC8 v2.46** (según el `.map` de `dist/default/debug/`).
 ## Simulador
 
 ```
-python "4 Simulador/correr.py"     →  FALLA (1)
-MIDIERON: 33 comprobaciones   ok: 31   FALLA: 2
+python "4 Simulador/correr.py"     ->  FALLA (1)
+MIDIERON: 37 comprobaciones   ok: 35   FALLA: 2
 ```
 
-**Medido desde limpio** (`obj/` y `arnes.exe` borrados antes de correr). Esa precisión importa:
-la vez anterior el arnés **no compilaba** —le faltaba declarar `ala1`— y las cifras salían de un
-ejecutable viejo. Un arnés que no compila no mide nada, y ya arrastraba números falsos.
+**Medido desde limpio** (`obj/` y `arnes.exe` recompilados).
 
 Los **2 rojos que quedan son exactamente los dos del escenario `C`**: la duración del pulso
-encendido y la del apagado. Son los de la cadencia, que sigue **sin decidirse**. Cualquier otro
-rojo sería un defecto nuevo.
+encendido y la del apagado. La decisión funcional **ya fue confirmada por el responsable funcional**
+(Norma Vial Oficial 1 Hz: 500 ms ON / 500 ms OFF) y queda pendiente de programar en `Cluster.c`.
 
 ### Lo que se arregló el 21-ago-2026
 
-`Alarma.c` y `Serial.c` fueron modificados y los arreglos están **verificados**:
+`Alarma.c`, `Serial.c` y `Buzzer.h`/`Buzzer.c` fueron modificados y los arreglos están **verificados**:
 
 | escenario | qué se arregló |
 |---|---|
@@ -37,7 +35,8 @@ rojo sería un defecto nuevo.
 | `D3` | Las ramas vacías de días personalizados ya tienen transición: la tarea no se queda clavada |
 | `D4` | El `<=` de `transmitUart1` pasó a `<`. El último byte en `TXREG` es `0x41`, no el terminador |
 | `D5` | `strstr()` comprobado contra `NULL`, copias acotadas y `receiverUart1` con límite. La trama truncada ya no tumba el firmware |
-| `D2` | Se **invirtió**: ahora exige que una alarma para un día concreto se **rechace** — ver el pendiente de abajo |
+| `D2` | Se **invirtió**: ahora exige que una alarma para un día no soportado se **rechace** de forma segura sin habilitarla |
+| `T6` | Buzzer remapeado a `RC1` (`LATC1`) y `RC0` configurado como entrada para el pulsador de prueba (4 comprobaciones nuevas) |
 
 ⚠️ **Tres cosas que quedaron a medias y hay que cerrar:**
 
@@ -138,11 +137,11 @@ aplica 6.
 Diagnóstico y procedimiento de prueba: [`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md). Configuración y
 validación módulo a módulo: [`Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`](Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md).
 
-## Lo que sigue sin estar decidido — hace falta que alguien lo apruebe
+## Decisiones de Proyecto
 
-| decisión | propuesta | estado |
+| decisión | especificación | estado |
 |---|---|---|
-| Cadencia del parpadeo | **500 ms ON / 500 ms OFF** (≈1 Hz, 60 destellos/min) | la reunión dijo 2 s / 2 s; un informe del 21-ago cita el Manual de Señalización de Colombia, el MUTCD y el ITE pidiendo **50–60 destellos/min**. **Sin verificar contra el texto de la norma.** Las tres cadencias en juego difieren entre sí |
+| Cadencia del parpadeo | **500 ms ON / 500 ms OFF** (1.0 Hz, 60 destellos/min, parpadeo uniforme) | **APROBADO POR EL FUNCIONAL (21-ago-2026)**. Basado en Norma Vial Oficial (Mintransporte / MUTCD / ITE). Pendiente de programar en `Cluster.c` |
 | Nombre de los módulos | `BAL-NNN-D`, 9 caracteres (p. ej. `BAL-014-N`) | **propuesta**. Prefijo para agrupar en la lista del móvil, correlativo de instalación, y letra de sentido para dos señales enfrentadas |
 | PIN de emparejamiento | `2130` | **propuesta** |
 | Versión de XC8 | v2.46 para reproducir producción | **sin decidir**. Hoy hay v2.36 |

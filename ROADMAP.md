@@ -145,35 +145,24 @@ abiertas: la primera que llega a su hora de fin apaga la luz, aunque otra siga d
 ahora?», el solape deja de ser un caso especial. Por eso 1.1 va antes: hacerlos por separado es
 escribir dos veces la misma lógica.
 
-### 1.3 · El parpadeo no es el que se definió
-`Cluster.c` · escenario **C** · 🔴
+### 1.3 — El parpadeo no es el que se definió
+`Cluster.c` — escenario **C** — 🟡
 
-**Hay tres cadencias distintas sobre la mesa, y ninguna coincide con otra:**
+**Decisión Funcional Aprobada (21-ago-2026):**
 
-| | cadencia | ciclo | destellos/min | origen |
-|---|---|---|---|---|
-| Lo que hace hoy | ráfagas de 5 × 50 ms + pausa de ~500 ms | ~1 s | ~300 en ráfagas | el código, medido |
-| Lo que se dijo en reunión | 2 s ON / 2 s OFF | 4 s | 15 | una reunión, sin documento |
-| Lo que dice la norma citada | **500 ms ON / 500 ms OFF** | 1 s | **60** | 21-ago-2026, ver abajo |
+| | cadencia | ciclo | destellos/min | origen | estado |
+|---|---|---|---|---|---|
+| Lo que hace hoy | ráfagas de 5 × 50 ms + pausa de ~500 ms | ~1 s | ~300 en ráfagas | el código, medido | A sustituir |
+| Lo que se dijo en reunión | 2 s ON / 2 s OFF | 4 s | 15 | reunión informal | Descartado (muy lento) |
+| **Norma Vial Oficial (1 Hz)** | **500 ms ON / 500 ms OFF** | **1 s** | **60** | **Mintransporte / MUTCD / ITE** | **APROBADO POR EL FUNCIONAL** |
 
-> **La tercera es la que tiene respaldo, y deja sin valor a las otras dos.** Se citan el Manual
-> de Señalización Vial de Colombia (Mintransporte, Res. 1885), el MUTCD y el ITE para balizas de
-> zona escolar: **50 a 60 destellos por minuto**, con el tiempo encendido entre el **50 % y el
-> 60 %** del ciclo. O sea **≈1 Hz**, no 0,25 Hz.
+> **Decisión formal fijada por el funcional:** Se adopta el estándar de **Norma Vial Oficial (1 Hz)** con **parpadeo continuo y uniforme**: **0.5 s (500 ms) encendida / 0.5 s (500 ms) apagada** (60 destellos por minuto).
 >
-> El argumento físico que lo sostiene: a 30 km/h, **2 segundos apagada son 16,7 metros** en los
-> que un conductor que mire ve una señal apagada y deduce que no hay horario escolar. Con 500 ms
-> son 4,1 metros, y siempre ve al menos dos destellos al aproximarse.
+> A 30 km/h en zona escolar, 500 ms de apagado equivalen a solo 4.1 metros recorridos, garantizando que el conductor perciba siempre la señal activa al aproximarse al colegio.
 
-⚠️ **Pendiente de confirmar antes de programar nada.** El dato viene de un informe, y **no está
-verificado contra el texto de la norma** — nadie de este proyecto ha abierto la Res. 1885 ni la
-sección del MUTCD. Si la cifra es correcta, hay que programar 500/500 y **no** 2 s / 2 s.
-
-- [ ] **Confirmar la cadencia**, y a ser posible con la norma delante, no con una reunión.
-- [ ] Cambiar `Cluster.c` a la cadencia confirmada.
-- [ ] **Ajustar el escenario C**, que hoy exige 2 s ± 10 %. Si la respuesta es 500/500, ese
-      escenario está midiendo contra el número equivocado y hay que corregirlo **antes** de tocar
-      el firmware — si no, el arnés daría verde a una señal que incumple.
+- [x] **Confirmar la cadencia con el funcional:** **APROBADA (1 Hz — 500 ms ON / 500 ms OFF).**
+- [ ] Cambiar `Cluster.c` a la cadencia aprobada de 500 ms ON / 500 ms OFF.
+- [ ] **Ajustar el escenario C** en `arnes.c` para verificar 500 ms ± 10% (450 ms a 550 ms).
 
 Es la única parte del equipo que ve el conductor, y va detrás de 1.1 solo porque una luz con
 mala cadencia sigue avisando, y una luz apagada no avisa de nada.
