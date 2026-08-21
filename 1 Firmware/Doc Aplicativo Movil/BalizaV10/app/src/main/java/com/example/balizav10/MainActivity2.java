@@ -523,37 +523,30 @@ public class MainActivity2 extends AppCompatActivity {
                 outStream.flush();
             }
 
-            // Lectura de la respuesta
+            // Lectura directa de la respuesta del PIC
             byte[] buffer = new byte[1024];
             StringBuilder sb = new StringBuilder();
-            long startTime = System.currentTimeMillis();
 
-            while (System.currentTimeMillis() - startTime < 3500)
+            // inStream.read() bloquea en segundo plano hasta que llega la respuesta del micro
+            int read = inStream.read(buffer);
+            if (read > 0)
             {
-                if (inStream.available() > 0)
+                sb.append(new String(buffer, 0, read, "ISO-8859-1"));
+                // Dar 600 ms para acumular las líneas restantes del volcado
+                long readEnd = System.currentTimeMillis() + 600;
+                while (System.currentTimeMillis() < readEnd)
                 {
-                    int read = inStream.read(buffer);
-                    if (read > 0)
+                    if (inStream.available() > 0)
                     {
-                        sb.append(new String(buffer, 0, read, "ISO-8859-1"));
-                        long readEnd = System.currentTimeMillis() + 800;
-                        while (System.currentTimeMillis() < readEnd)
+                        int extra = inStream.read(buffer);
+                        if (extra > 0)
                         {
-                            if (inStream.available() > 0)
-                            {
-                                int extra = inStream.read(buffer);
-                                if (extra > 0)
-                                {
-                                    sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
-                                    readEnd = System.currentTimeMillis() + 400;
-                                }
-                            }
-                            try { Thread.sleep(30); } catch (Exception ignored) {}
+                            sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
+                            readEnd = System.currentTimeMillis() + 300;
                         }
-                        break;
                     }
+                    try { Thread.sleep(20); } catch (Exception ignored) {}
                 }
-                try { Thread.sleep(50); } catch (Exception ignored) {}
             }
 
             if (sb.length() > 0)
@@ -562,7 +555,7 @@ public class MainActivity2 extends AppCompatActivity {
             }
             else
             {
-                mkmsg("Sin respuesta de la baliza.\nVerifique conexion y encendido.\n");
+                mkmsg("Sin respuesta de la baliza.\nVerifique conexion y alimentacion.\n");
             }
         }
         catch (Exception e)
