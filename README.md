@@ -26,12 +26,12 @@ Fotos del equipo en [`3 Imagen/`](3%20Imagen/).
 
 ```mermaid
 flowchart LR
-    APP["📱 App Android<br/>BalizaV10"] -->|"SPP · 9600 8N1<br/>tramas ¿…?"| BT["Módulo Bluetooth<br/>HC-06 / SIG0109A"]
+    APP["📱 App Android<br/>BALIZA IT VIAL 30 (v3.2)"] -->|"SPP · 9600 8N1<br/>tramas ¿…?"| BT["Módulo Bluetooth<br/>JDY-31 / HC-06"]
     BT -->|"RC6 TX · RC7 RX"| PIC["PIC18F2550<br/>6 tareas cooperativas"]
     RTC["DS1307 + pila<br/>hora y día"] <-->|I²C| PIC
     PIC -->|"guarda 5 alarmas"| EE["EEPROM interna<br/>0x00 – 0x23"]
-    PIC -->|"LATC2"| LUZ["💡 Luz de la señal"]
-    PIC -->|"LATC0 ⚠️"| BUZ["Buzzer"]
+    PIC -->|"LATC2"| LUZ["💡 Luz de la señal (1.0 Hz)"]
+    PIC -->|"LATC1"| BUZ["Buzzer"]
     PIC -->|"LATA0"| LED["LED de vida"]
 ```
 

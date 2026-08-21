@@ -1346,19 +1346,23 @@ Comprobaciones hechas sobre el APK:
 
 ---
 
-## 8. Preguntas abiertas
+## 9. Estado Actual — Soluciones Implementadas en la App Oficial v3.2 (`BALIZA IT VIAL 30`)
 
-Lo que no se puede determinar leyendo el código:
+En agosto de 2026 se completó la modernización integral de la aplicación Android, pasando de la versión legacy a la versión de producción **`Baliza_v3.2.apk`**:
 
-1. **¿Cuánto tarda realmente el firmware en volver a `ST_ESPERA_ANA1` tras procesar la trama de reloj?** Depende del tiempo de la escritura I²C al DS1307 (`Serial.c:174` → `DS1307.c:60`) y de si `taskAplicacion` está en `ST_READ_VOLT_AP`. Sin medirlo no se puede saber si el `sleep(3000)` de `MainActivity2.java:427` tiene margen de sobra o va justo. **Hay que medirlo con analizador lógico en la línea RX del PIC.**
-2. **¿En cuántos paquetes RFCOMM entrega el módulo Bluetooth los ~240 bytes de `readDevide()`?** De ello depende si la única `read()` de `MainActivity2.java:447` devuelve el volcado completo o sólo el primer fragmento. **Hay que capturarlo con un HCI snoop log en el teléfono.**
-3. **¿Existe el keystore con que se firmó `Baliza.apk`?** No está en el repositorio. Sin él no hay actualizaciones instalables sobre la versión desplegada.
-4. **¿Qué versión del firmware hay realmente cargada en los equipos en campo?** El `.hex` del repositorio (`18f2550_baliza__V1.X.production.hex`) es de octubre de 2025, pero nada garantiza que coincida con lo que hay en cada baliza instalada. Si algún equipo lleva un firmware anterior, el contrato de tramas de §2 puede no aplicar.
-5. **¿El módulo Bluetooth pasa los bytes `0x00` y `0xC2` sin alterarlos?** Todo el análisis de §2 lo da por supuesto. Un módulo configurado en modo AT, con filtro de 7 bits o con traducción de caracteres invalidaría a la vez D2 y D4. **Verificable con un adaptador USB-serie en la línea RX del PIC.**
-6. **¿Se puede acortar el `sleep(6000)`?** Sólo si antes se arregla D6. La dependencia no está documentada en ningún sitio del código.
-7. **¿Cuál es la altura útil mínima de pantalla en los teléfonos que usan los operarios?** Determina si D17 (botones fuera de pantalla) es un problema real o teórico en este parque de dispositivos.
-8. **¿Con qué frecuencia se reinician los equipos en campo?** Determina la gravedad real de la pérdida de `ap.flagAlarm` en RAM (D12): cada reinicio dentro de una ventana activa deja la señal apagada hasta la ventana siguiente.
+| Defecto Histórico | Solución Implementada en v3.2 |
+|---|---|
+| **D1 (Falta hora "02")** | Solucionado: arrays de horas generados con las 24 horas del día (00 a 23). |
+| **D2/D4 (Encoding UTF-8 vs ISO-8859-1)** | Solucionado: codificación de tramas forzada explícitamente a `ISO-8859-1`. Los delimitadores `0xBF` (`¿`) y `0x3F` (`?`) se transmiten sin alteración. |
+| **D6/D7 (Lecturas parciales y socket efímero)** | Solucionado: canal RFCOMM persistente con auto-reconexión transparente y bucle de lectura reactiva que captura la totalidad del volcado `¿L?` de la EEPROM. |
+| **D9 (Permisos Android 12+)** | Solucionado: solicitud de `BLUETOOTH_CONNECT` y `BLUETOOTH_SCAN` en runtime según directivas de Android 12 y 13. |
+| **D13-D18 (UI fija / Modo Oscuro roto)** | Solucionado: layouts basados en `ScrollView` y `CardView`, tema `Light` forzado con textos `#212121` de alto contraste en móviles con Modo Oscuro global activado. |
+| **D7 (Programación manual tediosa)** | **Solución Definitiva:** Botón de **1-Toque para Programar Horario Escolar Oficial (Placa)** (`06:00-09:00`, `11:30-13:30`, `15:00-16:30` Lun-Vie) con sincronización RTC simultánea y auto-verificación en un solo clic. |
+| **Diagnóstico en Campo** | Incorporado **Panel de Diagnóstico Rápido** con botón **«💡 Test Luz (2 Min)»** (cadencia 1.0 Hz) y **«⛔ Apagar Test»**. |
+| **Identidad Corporativa** | Branding oficial **IT vial s.a.s.** con ícono naranja corporativo de la «t» y título **BALIZA IT VIAL 30**. |
+
+> **Binario Oficial de Producción:** [`1 Firmware/Baliza_v3.2.apk`](../1%20Firmware/Baliza_v3.2.apk)
 
 ---
 
-*Documento generado a partir del código fuente en `D:\@Proyect\Baliza\1 Firmware\`. Todas las afirmaciones están referenciadas a `fichero:línea`. Para emparejamiento Bluetooth, módulos HC-05/HC-06 y permisos de runtime, ver `BLUETOOTH.md`. Para el hardware de la tarjeta, ver `HARDWARE.md`.*
+*Documento generado a partir del código fuente en `D:\@Proyect\Baliza\1 Firmware\`. Todas las afirmaciones están referenciadas a `fichero:línea`. Para emparejamiento Bluetooth, módulos HC-05/JDY-31 y permisos de runtime, ver `BLUETOOTH.md`. Para el hardware de la tarjeta, ver `HARDWARE.md`.*
