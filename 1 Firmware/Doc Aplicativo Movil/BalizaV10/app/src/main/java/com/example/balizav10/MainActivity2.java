@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +61,8 @@ public class MainActivity2 extends AppCompatActivity {
     private Button btnDevice;
     private Button btnRead;
     private Button btConf;
+    private Button btnTestLuz;
+    private Button btnStopTest;
     private Spinner spNoAlarm;
     private Spinner spHourInit;
     private Spinner spMinInit;
@@ -239,6 +242,45 @@ public class MainActivity2 extends AppCompatActivity {
             }
         });
 
+        btnTestLuz = (Button)findViewById(R.id.idBtnTestLuz);
+        btnStopTest = (Button)findViewById(R.id.idBtnStopTest);
+
+        if (btnTestLuz != null)
+        {
+            btnTestLuz.setEnabled(false);
+            btnTestLuz.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    if (device == null)
+                    {
+                        Toast.makeText(MainActivity2.this, "Seleccione primero el dispositivo Bluetooth", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    startTestLuz2Min();
+                }
+            });
+        }
+
+        if (btnStopTest != null)
+        {
+            btnStopTest.setEnabled(false);
+            btnStopTest.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    if (device == null)
+                    {
+                        Toast.makeText(MainActivity2.this, "Seleccione primero el dispositivo Bluetooth", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    stopTestLuz();
+                }
+            });
+        }
+
         //setup the bluetooth adapter.
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -248,6 +290,8 @@ public class MainActivity2 extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"No Hay Bluetooth",Toast.LENGTH_SHORT).show();
             btnRead.setEnabled(false);
             btnDevice.setEnabled(false);
+            if (btnTestLuz != null) btnTestLuz.setEnabled(false);
+            if (btnStopTest != null) btnStopTest.setEnabled(false);
         }
 
     }//fin onCreate
@@ -393,6 +437,8 @@ public class MainActivity2 extends AppCompatActivity {
                             // habilitar botones de acción
                             btnRead.setEnabled(true);
                             btConf.setEnabled(true);
+                            if (btnTestLuz != null) btnTestLuz.setEnabled(true);
+                            if (btnStopTest != null) btnStopTest.setEnabled(true);
 
                             Toast.makeText(MainActivity2.this, "Conectando a " + dName + "...", Toast.LENGTH_SHORT).show();
 
@@ -423,6 +469,46 @@ public class MainActivity2 extends AppCompatActivity {
             Toast.makeText(this, "Error al buscar dispositivos: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }//fin querypaired
+
+    public void startTestLuz2Min()
+    {
+        Calendar calNow = Calendar.getInstance();
+        Calendar calEnd = (Calendar) calNow.clone();
+        calEnd.add(Calendar.MINUTE, 2);
+
+        SimpleDateFormat sdfHHmm = new SimpleDateFormat("HHmm", Locale.US);
+        SimpleDateFormat sdfDisplay = new SimpleDateFormat("HH:mm", Locale.US);
+        SimpleDateFormat sdfDate = new SimpleDateFormat("ddMMyy-u", Locale.US);
+
+        String sInit = sdfHHmm.format(calNow.getTime());
+        String sEnd = sdfHHmm.format(calEnd.getTime());
+        String sDisplayInit = sdfDisplay.format(calNow.getTime());
+        String sDisplayEnd = sdfDisplay.format(calEnd.getTime());
+        String sDate = sdfDate.format(calNow.getTime());
+
+        sFrameHourCal = "¿R" + sInit + ",C" + sDate + "?\r\n";
+        sFrameConf = "¿A5,E1,I" + sInit + ",F" + sEnd + ",D8,?\r\n";
+        bReadConf = true;
+
+        mkmsg("\n==============================\n"
+            + "⚡ ACTIVANDO TEST DE LUZ (2 MIN)\n"
+            + "Franja activa: " + sDisplayInit + " -> " + sDisplayEnd + " (Alarma 5)\n"
+            + "Cadencia esperada: 1.0 Hz (500ms ON / 500ms OFF)\n"
+            + "==============================\n");
+
+        startClient();
+    }
+
+    public void stopTestLuz()
+    {
+        sFrameHourCal = "";
+        sFrameConf = "¿A5,E0,?\r\n";
+        bReadConf = true;
+
+        mkmsg("\n⛔ APAGANDO TEST DE LUZ (Alarma 5 en OFF)...\n");
+
+        startClient();
+    }
 
     private BluetoothSocket globalSocket = null;
 
@@ -510,15 +596,21 @@ public class MainActivity2 extends AppCompatActivity {
 
                 if (bReadConf)
                 {
-                    // Enviar sincronización de reloj
-                    mkmsg("1/2 Sincronizando reloj...\n");
-                    outStream.write(sFrameHourCal.getBytes("ISO-8859-1"));
-                    outStream.flush();
+                    if (sFrameHourCal != null && !sFrameHourCal.isEmpty())
+                    {
+                        // Enviar sincronización de reloj
+                        mkmsg("1/2 Sincronizando reloj...\n");
+                        outStream.write(sFrameHourCal.getBytes("ISO-8859-1"));
+                        outStream.flush();
 
-                    try { Thread.sleep(500); } catch (Exception ignored) {}
+                        try { Thread.sleep(500); } catch (Exception ignored) {}
+                        mkmsg("2/2 Grabando alarma...\n");
+                    }
+                    else
+                    {
+                        mkmsg("Enviando comando de alarma...\n");
+                    }
 
-                    // Enviar configuración de alarma
-                    mkmsg("2/2 Grabando alarma...\n");
                     outStream.write(sFrameConf.getBytes("ISO-8859-1"));
                     outStream.flush();
 

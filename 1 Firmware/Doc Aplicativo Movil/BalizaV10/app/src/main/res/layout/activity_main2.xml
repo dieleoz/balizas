@@ -33,7 +33,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Consola de Datos Baliza v2.5"
+                    android:text="Consola de Datos Baliza v2.6"
                     android:textColor="#AAAAAA"
                     android:textSize="11sp"
                     android:textStyle="bold"
@@ -250,6 +250,71 @@
                         android:id="@+id/idSpHorario"
                         android:layout_width="match_parent"
                         android:layout_height="40dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- TARJETA DE DIAGNÓSTICO Y TEST DE BANCO -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="3dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp"
+                android:background="#FFFFFF">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚡ Diagnóstico de Banco / Terreno"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Activa inmediatamente la luz por 2 minutos para validar el foco LED y el destello normativo de 1 Hz:"
+                    android:textColor="#666666"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="10dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <Button
+                        android:id="@+id/idBtnTestLuz"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:text="💡 Test Luz (2 Min)"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#FF8F00"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/idBtnStopTest"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:text="⛔ Apagar Test"
+                        android:textSize="12sp"
+                        app:backgroundTint="#757575"
+                        android:textColor="#FFFFFF" />
                 </LinearLayout>
 
             </LinearLayout>
