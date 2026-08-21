@@ -113,6 +113,10 @@ Quedan dos cabos, y los dos son baratos:
       invoca.** Se usa `xc8.exe`, que además es el que se acerca al tamaño de producción.
       **La versión del compilador, su driver y sus banderas son parte del entregable**: hoy solo
       se saben leyendo por casualidad un fichero de mapa.
+- [x] **Fase 4.1 — Validación de Conectividad Móvil y RTC DS1307 en Banco:**
+  - ✅ **Demostrado en hardware real (21-Ago-2026):** Comunicación bidireccional Android $\leftrightarrow$ JDY-31 $\leftrightarrow$ PIC18F2550 a 9600 baudios 8N1.
+  - ✅ **Sincronización RTC 100% Funcional:** La trama `¿R[HHMM],C[DDMMAA-D]?` se genera automáticamente y ajusta los registros del DS1307 al segundo con la hora satelital/celular.
+  - ✅ **App Baliza v2.5 Liberada:** Sesión Bluetooth persistente, auto-lectura al conectar, auto-verificación post-configuración y autoreconexión transparente ante cortes de energía en el micro.
 - [ ] **Decidir si se instala XC8 v2.46.** Con v2.36 se desarrolla, pero el binario **no es
       comparable** con el que está en la calle. Para grabar en campo conviene la v2.46.
 
