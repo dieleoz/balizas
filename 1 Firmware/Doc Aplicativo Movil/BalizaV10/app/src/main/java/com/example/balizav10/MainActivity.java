@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setIcon(R.drawable.logo_it_vial_icon);
-            getSupportActionBar().setTitle(" IT Vial");
+            getSupportActionBar().setTitle(" Baliza ITVIAL");
         }
 
         btnEntrar = (Button)findViewById(R.id.idBtEntrar);

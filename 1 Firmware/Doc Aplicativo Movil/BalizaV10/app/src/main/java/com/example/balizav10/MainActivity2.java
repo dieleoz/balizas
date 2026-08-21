@@ -90,7 +90,7 @@ public class MainActivity2 extends AppCompatActivity {
         {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setIcon(R.drawable.logo_it_vial_icon);
-            getSupportActionBar().setTitle(" IT Vial — Baliza 30");
+            getSupportActionBar().setTitle(" Baliza ITVIAL");
         }
 
         scrollViewOut = (ScrollView)findViewById(R.id.idScrollViewOut);
