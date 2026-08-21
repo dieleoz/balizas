@@ -33,7 +33,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Consola de Datos Baliza IT VIAL 30 v3.2"
+                    android:text="Consola de Datos IT VIAL 30 v3.3"
                     android:textColor="#AAAAAA"
                     android:textSize="11sp"
                     android:textStyle="bold"
@@ -358,30 +358,29 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center">
+                    android:orientation="vertical">
 
                     <Button
                         android:id="@+id/idBtnTestLuz"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="6dp"
-                        android:text="💡 Test Luz (2 Min)"
-                        android:textSize="12sp"
+                        android:minHeight="48dp"
+                        android:text="💡 Activar Test Luz (2 Minutos)"
+                        android:textSize="13sp"
                         android:textStyle="bold"
                         app:backgroundTint="#FF8F00"
-                        android:textColor="#FFFFFF" />
+                        android:textColor="#FFFFFF"
+                        android:layout_marginBottom="8dp" />
 
                     <Button
                         android:id="@+id/idBtnStopTest"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="6dp"
+                        android:minHeight="44dp"
                         android:text="⛔ Apagar Test"
-                        android:textSize="12sp"
-                        app:backgroundTint="#757575"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#607D8B"
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
 
