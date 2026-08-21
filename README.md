@@ -61,13 +61,13 @@ cada arreglo a mano y el arnés lo cazó.
 | ✅ | **Una trama malformada ya no tumba el firmware**: `strstr()` comprobado contra `NULL` y copias acotadas | `Serial.c` |
 | ✅ | **El buzzer está en RC1**, que es donde lo tiene la tarjeta, y RC0 vuelve a ser entrada del pulsador | `Buzzer.h` / `Buzzer.c` |
 | ✅ | **Sincronización RTC DS1307 Validada en Banco**: Comando `¿R[HHMM],C[DDMMAA-D]?` probado en hardware real con PIC18F2550 + JDY-31. Ajuste al segundo con la hora celular | Banco Físico / DS1307 |
-| ✅ | **App Móvil v3.2 Liberada (`BALIZA IT VIAL 30`)**: Título y nombre exacto **BALIZA IT VIAL 30**, botón de **1-Toque para Horario Escolar Oficial** (`06:00-09:00`, `11:30-13:30`, `15:00-16:30` Lun-Vie), branding **IT vial s.a.s.**, panel de **Test de Luz Inmediato (2 Min)** y auto-verificación | `Baliza_v3.2.apk` |
+| ✅ | **App Móvil v3.3 Liberada (`IT VIAL 30`)**: Ícono de escritorio **IT Vial** corregido para Android 8+, título completo en ActionBar sin recortes, botones de test verticales y botón de **1-Toque para Horario Escolar Oficial** | `Baliza_v3.3.apk` |
 
 Compila con XC8 en **21.147 de 32.768 bytes (64,5 %)** y 688 de 2.048 de datos.
 
 > **Binarios Oficiales Listos para Banco y Terreno:**
 > * **Firmware PIC:** [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex)
-> * **App Android:** [`1 Firmware/Baliza_v3.2.apk`](1%20Firmware/Baliza_v3.2.apk)
+> * **App Android:** [`1 Firmware/Baliza_v3.3.apk`](1%20Firmware/Baliza_v3.3.apk)
 
 La cifra viva está en **[`ESTADO.md`](ESTADO.md)**; lo que queda por hacer, en
 **[`ROADMAP.md`](ROADMAP.md)**.
