@@ -1,16 +1,20 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.BalizaV10" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/black</item>
+    <!-- Base application theme in night mode: Forzar modo claro de alto contraste -->
+    <style name="Theme.BalizaV10" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <!-- Primary brand color (Rojo Señal Vial). -->
+        <item name="colorPrimary">#D32F2F</item>
+        <item name="colorPrimaryVariant">#B71C1C</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">#1976D2</item>
+        <item name="colorSecondaryVariant">#0D47A1</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+        <item name="android:statusBarColor" tools:targetApi="l">#B71C1C</item>
+        <!-- Colores de texto obligatorios de alto contraste -->
+        <item name="android:editTextColor">#212121</item>
+        <item name="android:textColorPrimary">#212121</item>
+        <item name="android:textColorSecondary">#455A64</item>
+        <item name="android:textColor">#212121</item>
     </style>
 </resources>
