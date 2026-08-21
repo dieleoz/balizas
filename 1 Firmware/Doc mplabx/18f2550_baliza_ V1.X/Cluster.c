@@ -54,8 +54,7 @@ static int taskCluster(struct pt *pt)
                 break;
                 
             case ST_HIGH_CL:
-                // 50 x 10 ms = 500 ms ON
-                if(++cl.uiCnt >= 50)
+                if(++cl.uiCnt >= CLUSTER_TIME_ON_TICKS)
                 {
                     cl.uiCnt = 0;
                     OFF_CLUSTER;
@@ -64,8 +63,7 @@ static int taskCluster(struct pt *pt)
                 break;
                 
             case ST_LOW_CL:
-                // 50 x 10 ms = 500 ms OFF
-                if(++cl.uiCnt >= 50)
+                if(++cl.uiCnt >= CLUSTER_TIME_OFF_TICKS)
                 {
                     cl.uiCnt = 0;
                     if(cl.flagEvento)

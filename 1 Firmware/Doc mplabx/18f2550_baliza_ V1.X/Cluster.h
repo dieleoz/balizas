@@ -17,7 +17,11 @@ extern "C" {
 //****************
     
 //*** DEFINICIONES ***
-#define PERIOD_CLUSTER      10
+#define PERIOD_CLUSTER          10
+
+// Cadencia Normativa Oficial (1.0 Hz = 60 destellos/minuto)
+#define CLUSTER_TIME_ON_TICKS   50  // 50 x 10 ms = 500 ms encendido
+#define CLUSTER_TIME_OFF_TICKS  50  // 50 x 10 ms = 500 ms apagado
 
 #define ON_CLUSTER       LATCbits.LATC2 = 1
 #define OFF_CLUSTER      LATCbits.LATC2 = 0
