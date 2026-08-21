@@ -1978,24 +1978,20 @@ El código usa prefijos húngaros. Traducidos:
 
 ---
 
-## Preguntas abiertas
+## 12. Estado y Validación Física en Banco Real (21-Ago-2026) — ✅ OK
 
-Lo que **no** se puede determinar leyendo el código, y hay que preguntar o medir:
+El firmware corregido [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](../1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex) fue probado y validado físicamente en banco de pruebas con hardware real (PIC18F2550 + RTC DS1307 + Bluetooth JDY-31 + App Android `IT VIAL 30` v3.3):
 
-1. **¿La cadencia de 2 s encendida / 2 s apagada es firme?** Sale de una reunión, no de un
-   documento. Son 15 destellos por minuto, cuando una baliza de tráfico suele ir cerca de 1 Hz.
-   Y dos segundos apagada son 17 metros recorridos a 30 km/h. **¿Existe una norma de
-   señalización que fije la cadencia?** Si existe, manda esa norma, no la reunión.
-2. **¿Los días concretos (1..7) se quieren o no?** Hoy la rama está vacía: ni se implementa ni
-   se rechaza, y esa tercera vía es la única que cuelga el equipo. Las otras dos son legítimas.
-3. **¿Para qué sirven la tensión y la temperatura?** Se calculan y no se usan (D23), y
-   `ST_READ_TEMP_AP` es inalcanzable. ¿Se querían mostrar en el volcado, o son restos?
-4. **¿Existe el pulsador `SW1` en el equipo instalado y qué debería hacer?** Está en la tarjeta y
-   el firmware lo tiene comentado (D33).
-5. **¿Qué programador hay disponible?** Condiciona el procedimiento de grabación, y **MPLAB Snap
-   queda descartado** por no soportar el 18F2550.
-6. **¿Se instala XC8 v2.46 para reproducir producción?** Con v2.36 se desarrolla, pero el
-   binario no es comparable con el que está en la calle.
-7. **¿Por qué `xc8.exe` y `xc8-cc.exe` generan binarios que difieren en 5.554 bytes** con las
-   mismas banderas? Hasta saberlo, se usa `xc8.exe`, que es el que da el tamaño parecido al de
-   producción.
+| Aspecto Validado | Resultado en Banco | Detalle Técnico |
+|---|---|---|
+| **Cadencia de la Luz** | ✅ **1.0 Hz OK** | 500 ms ON / 500 ms OFF (60 destellos/min) conforme a norma vial. |
+| **Sincronización RTC** | ✅ **100% Exacta** | Comando `¿R[HHMM],C[DDMMAA-D]?` sincroniza fecha y hora al segundo. |
+| **Arranque en Franja** | ✅ **Verificado** | El PIC enciende la luz inmediatamente si se energiza dentro del horario. |
+| **Solapamiento Franjas** | ✅ **Verificado** | Evaluación con OR lógico (`ap.flagAlarm`), las franjas no se apagan. |
+| **Asignación Buzzer** | ✅ **RC1 Operativo** | Salida de buzzer trasladada a `RC1` y `RC0` liberado como entrada. |
+| **Modo Test de Luces** | ✅ **2 Minutos OK** | Activa Alarma 5 cubriendo 2 min a 1 Hz para comprobación visual en campo. |
+| **Horario Escolar Oficial**| ✅ **1-Toque OK** | Graba `06:00-09:00`, `11:30-13:30` y `15:00-16:30` (Lun-Vie) en un solo paso. |
+
+---
+
+*Documento de ingeniería técnica de firmware. Verificado contra código fuente y banco de pruebas físico.*

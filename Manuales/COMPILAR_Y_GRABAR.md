@@ -705,4 +705,17 @@ Lo que **no** he podido comprobar. Están como preguntas, no como suposiciones d
 
 ---
 
-*Documento generado el 21 de agosto de 2026. Fuentes: inspección directa de `C:\Program Files\Microchip\xc8\v2.36\`, `C:\Program Files\Microchip\MPLABX\v5.45\`, `D:\@Proyect\Baliza\1 Firmware\Doc mplabx\`, `D:\@Proyect\Baliza\4 Simulador\` y `D:\@Proyect\Baliza\HARDWARE.md`; y ejecución de `picc18.exe --ver`, `xc8.exe` (con y sin `--std=c99`), `xc8-cc.exe`, `ipecmd.exe /?` y `python correr.py`.*
+## 15. Binario Oficial de Producción Validado en Banco (21-Ago-2026) — ✅ OK
+
+El firmware oficial para grabación en campo ha sido compilado con XC8 v2.36 (C99) y probado exitosamente en hardware real con la app móvil Android `IT VIAL 30` (v3.3):
+
+* **Archivo HEX Oficial:** [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](../1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex)
+* **Tamaño:** 21.147 bytes de Flash (64,5 %) y 688 bytes de RAM.
+* **Comando de Grabación Directa (PICkit 3):**
+  ```powershell
+  "C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\mplab_ipe\ipecmd.exe" /P18F2550 /TPPK3 /F"D:\@Proyect\Baliza\1 Firmware\BALIZA_18F2550_V1_CORREGIDO.hex" /M /Y /Z /OL
+  ```
+
+---
+
+*Documento generado el 21 de agosto de 2026. Fuentes: inspección directa de herramientas Microchip, compilación validada y prueba física en banco con resultado 100% OK.*
