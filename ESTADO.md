@@ -35,18 +35,21 @@ MIDIERON: 37 comprobaciones   ok: 37   FALLA: 0
 | `T6` | Buzzer remapeado a `RC1` (`LATC1`) y `RC0` configurado como entrada para el pulsador de prueba (4 comprobaciones nuevas) |
 | `C` / `C2` | Cadencia oficial de **1.0 Hz (500 ms ON / 500 ms OFF)** programada en `Cluster.c` con guarda de inclusión en `Cluster.h` |
 
-⚠️ **Tres cosas que quedaron a medias y hay que cerrar:**
+✅ **Los tres cabos que quedaban a medias están cerrados y verificados en el código:**
 
-1. **`Alarma.c` implementa los días concretos y `Serial.c` los rechaza.** `isAlarmActive()` tiene
-   la rama para `dayAlar` de 1 a 7, pero `Serial.c` no los graba nunca. O sea: código que no
-   puede ejecutarse, y un escenario (`D2`) que afirma lo contrario de lo que hace el módulo de
-   alarma. **Hace falta decidir**: se implementan de verdad o se quita el código muerto.
-2. **`ST_CHECK_HOUR1..5` y `ST_CHECK_ALARM1..5` siguen vivos y siguen escribiendo
-   `ap.flagAlarm`** por igualdad exacta de minuto, compitiendo con el OR nuevo. Hay **dos
-   escritores del mismo flag**. El nuevo recalcula cada ~200 ms y gana en la práctica, pero
-   queda una ventana en la que el viejo puede apagar la luz. `isAlarmActive()` los sustituye:
-   deberían borrarse.
-3. **La cadencia sigue sin tocarse**, a propósito, porque sigue sin decidirse.
+1. **Los días concretos (1..7) se rechazan en los dos extremos, y coinciden.** `Serial.c` solo
+   graba la alarma si `ulDayAlarm` está entre 8 y 10; `isAlarmActive()` devuelve 0 para
+   cualquier `dayAlar` que no sea `DIAR`/`SEMA`/`FINS`. No queda código muerto ni rama sin
+   salida, y `D2` mide justo eso. **La decisión tomada fue rechazar, no implementar** — si algún
+   día se quieren días concretos, hay que tocar los dos extremos y la app (ROADMAP 2.2).
+2. **`ST_CHECK_HOUR1..5` y `ST_CHECK_ALARM1..5` están eliminados** (commit `77245f9`). Ya no hay
+   dos escritores de `ap.flagAlarm`: el único es el OR de las cinco en `ST_CHECK_ALL_ALA`.
+3. **La cadencia está programada**: `CLUSTER_TIME_ON_TICKS` / `CLUSTER_TIME_OFF_TICKS` = 50
+   ticks × 10 ms en `Cluster.h:23-24`, es decir 500 ms / 500 ms.
+
+⚠️ **Y lo que sigue abierto no se cierra desde el escritorio:** ningún pin se ha medido contra su
+carga, y **el Bluetooth sigue bloqueando la verificación en campo de todo lo anterior**
+(ROADMAP 0.1).
 
 ## Compilación — resuelta y verificada
 
@@ -138,7 +141,7 @@ validación módulo a módulo: [`Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`](Manual
 
 | decisión | especificación | estado |
 |---|---|---|
-| Cadencia del parpadeo | **500 ms ON / 500 ms OFF** (1.0 Hz, 60 destellos/min, parpadeo uniforme) | **APROBADO POR EL FUNCIONAL (21-ago-2026)**. Basado en Norma Vial Oficial (Mintransporte / MUTCD / ITE). Pendiente de programar en `Cluster.c` |
+| Cadencia del parpadeo | **500 ms ON / 500 ms OFF** (1.0 Hz, 60 destellos/min, parpadeo uniforme) | **APROBADO POR EL FUNCIONAL (21-ago-2026)** y **ya programado** (`Cluster.h:23-24`), verde en los escenarios C y C2. Basado en Norma Vial Oficial (Mintransporte / MUTCD / ITE). **Falta verlo parpadear en un equipo real** |
 | Nombre de los módulos | `BAL-NNN-D`, 9 caracteres (p. ej. `BAL-014-N`) | **propuesta**. Prefijo para agrupar en la lista del móvil, correlativo de instalación, y letra de sentido para dos señales enfrentadas |
 | PIN de emparejamiento | `2130` | **propuesta** |
 | Versión de XC8 | v2.46 para reproducir producción | **sin decidir**. Hoy hay v2.36 |

@@ -20,7 +20,7 @@ Este proyecto se ataca en tres tiempos, y no se salta ninguno:
 **1. Primero el simulador.** Sin él, cada comprobación cuesta ir a la señal, coger el
 programador y esperar a que den las 6:00 de la mañana. Con él, una franja horaria entera se
 prueba en un segundo y **se puede hacer que sean las 6:00 cuando convenga**. Está hecho:
-`4 Simulador/`, 33 comprobaciones. Nada de lo que viene después se arregla sin que antes exista
+`4 Simulador/`, 37 comprobaciones. Nada de lo que viene después se arregla sin que antes exista
 el escenario que lo mide.
 
 **2. Después, las restricciones del hardware.** La tarjeta **ya está fabricada, montada y
@@ -119,7 +119,7 @@ Todo lo de esta fase tiene el mismo síntoma para el conductor: **la señal dice
 otra**. Van en este orden porque el primero es el que más veces va a pasar.
 
 ### 1.1 · La luz no enciende si el equipo arranca dentro de una franja
-`Alarma.c` · escenario **D1** · 🔴
+`Alarma.c` · escenario **D1** · ✅ **arreglado y verde en simulador** (falta verlo en un equipo)
 
 Las alarmas se comparan por **igualdad exacta**: `rtc.hor == hourInit && rtc.min == minInit`.
 Si ese minuto exacto pasa mientras el equipo está apagado, no vuelve hasta el día siguiente.
@@ -132,11 +132,12 @@ raro: es lo normal.
 de la franja?**». Se evalúa en cada vuelta contra la hora actual, y el estado de la luz pasa a
 ser una consecuencia de la hora, no de haber pillado un instante.
 
-- [ ] Reescribir la comparación como pertenencia a un intervalo.
-- [ ] El escenario D1 tiene que ponerse verde **y** C y C2 seguir verdes.
+- [x] Reescribir la comparación como pertenencia a un intervalo. `isAlarmActive()` en
+      `Alarma.c`, con el caso de franja que cruza medianoche resuelto.
+- [x] El escenario D1 tiene que ponerse verde **y** C y C2 seguir verdes.
 
 ### 1.2 · Dos franjas que se solapan se apagan entre ellas
-`Alarma.c` · escenario **D6** · 🔴
+`Alarma.c` · escenario **D6** · ✅ **arreglado y verde en simulador**
 
 Las cinco alarmas comparten **un solo** `ap.flagAlarm`. No hay cuenta de cuántas franjas están
 abiertas: la primera que llega a su hora de fin apaga la luz, aunque otra siga dentro.
@@ -145,8 +146,12 @@ abiertas: la primera que llega a su hora de fin apaga la luz, aunque otra siga d
 ahora?», el solape deja de ser un caso especial. Por eso 1.1 va antes: hacerlos por separado es
 escribir dos veces la misma lógica.
 
+**Hecho así:** `ap.flagAlarm` se recalcula en `ST_CHECK_ALL_ALA` como **OR de las cinco**
+llamadas a `isAlarmActive()`, y los estados `ST_CHECK_HOUR1..5` / `ST_CHECK_ALARM1..5` que
+escribían ese mismo flag por igualdad de minuto **se eliminaron** — ya no hay dos escritores.
+
 ### 1.3 — El parpadeo no es el que se definió
-`Cluster.c` — escenario **C** — 🟡
+`Cluster.c` — escenario **C** — ✅ **programado y verde en simulador** (falta verlo parpadear)
 
 **Decisión Funcional Aprobada (21-ago-2026):**
 
@@ -174,7 +179,7 @@ mala cadencia sigue avisando, y una luz apagada no avisa de nada.
 ## Fase 2 — Lo que rompe el equipo desde fuera
 
 ### 2.1 · Una trama malformada tumba el firmware
-`Serial.c:449` · escenario **D5** · 🔴
+`Serial.c:449` · escenario **D5** · ✅ **arreglado y verde en simulador**
 
 `extraerValue()` llama a `strstr()` y **no comprueba si devolvió NULL**, y después copia en un
 `char buffer[4]` hasta encontrar el carácter final, **sin límite**. Una trama a la que le falte
@@ -186,12 +191,13 @@ ha previsto, en un poste, hasta que alguien pase por delante y lo note.
 
 No hace falta mala fe: basta con que el Bluetooth pierda unos bytes a mitad de trama.
 
-- [ ] Comprobar el `NULL` de `strstr()` en `extraerValue()` y en `extraerFrame()`.
-- [ ] Acotar la copia al tamaño del destino.
-- [ ] Rechazar la trama entera si no está completa, en vez de interpretar lo que haya.
+- [x] Comprobar el `NULL` de `strstr()` en `extraerValue()` y en `extraerFrame()`.
+- [x] Acotar la copia al tamaño del destino, y `receiverUart1` con límite.
+- [x] Rechazar la trama entera si no está completa, en vez de interpretar lo que haya.
 
 ### 2.2 · Los días concretos: se tragan la orden, y cuelgan la tarea
-`Serial.c` y `Alarma.c` · escenarios **D2** y **D3** · 🔴
+`Serial.c` y `Alarma.c` · escenarios **D2** y **D3** · ✅ **decidido: se rechazan, en los dos
+extremos**
 
 Dos defectos encadenados en la misma función que no existe:
 
@@ -204,10 +210,16 @@ Dos defectos encadenados en la misma función que no existe:
 Hoy la app no puede mandar días concretos, así que el camino está cerrado por casualidad —
 pero un byte de EEPROM a medias, o un terminal serie cualquiera, lo abre.
 
-- [ ] **Decidir primero si la función se quiere o no.** Las dos salidas son legítimas: se
-      implementa, o se rechaza la trama explícitamente. Lo que no puede quedarse es la rama
-      vacía, que es la única opción que cuelga el equipo.
-- [ ] Sea cual sea la decisión, cerrar la rama sin salida de `Alarma.c`.
+- [x] **Decidir primero si la función se quiere o no.** **Decisión: se rechaza.** `Serial.c`
+      solo graba la alarma si el código de día está entre 8 y 10; fuera de ese rango no escribe
+      nada en EEPROM ni habilita la alarma.
+- [x] Sea cual sea la decisión, cerrar la rama sin salida de `Alarma.c`. `isAlarmActive()`
+      devuelve 0 para cualquier `dayAlar` que no sea `DIAR`/`SEMA`/`FINS`, y la tarea sigue
+      ciclando.
+
+> **Lo que queda como pendiente de producto, no de código:** si algún día se quieren días
+> concretos hay que tocar **los tres** extremos —app, `Serial.c` y `Alarma.c`— a la vez. Hoy
+> el equipo los rechaza de forma consistente y en silencio; la app no puede mandarlos.
 
 ---
 
@@ -216,16 +228,18 @@ pero un byte de EEPROM a medias, o un terminal serie cualquiera, lo abre.
 La tarjeta es fija. Estos dos se arreglan **en el firmware**.
 
 ### 3.1 · El buzzer está en el pin equivocado
-`Buzzer.h:24` · 🟡
+`Buzzer.h:24` · ✅ **arreglado y verde en simulador** (escenario **T6**, 4 comprobaciones)
 
 La placa tiene el buzzer en **RC1**. El firmware escribe en **RC0**, que en la tarjeta es la
 línea del pulsador con su resistencia de subida. En `Buzzer.c:162` está la línea correcta
 **comentada**: alguien lo supo y se deshizo.
 
-- [ ] Pasar el buzzer a RC1.
-- [ ] Escribir en el simulador un escenario que fije el pin, para que no vuelva a moverse.
-- [ ] Comprobar qué pasa con RC0 y el pulsador: si el firmware lo estaba forzando como salida,
-      hay que ver qué le hacía a esa entrada.
+- [x] Pasar el buzzer a RC1.
+- [x] Escribir en el simulador un escenario que fije el pin, para que no vuelva a moverse
+      (**T6**: `TRISC1` salida, `TRISC0` entrada, `LATC1` se activa, `LATC0` se queda en bajo).
+- [x] Comprobar qué pasa con RC0 y el pulsador: ahora `RC0` queda configurado **como entrada** y
+      el firmware no lo escribe.
+- [ ] **Oírlo sonar en un equipo real.** El simulador mide el pin, no el zumbador.
 
 ### 3.2 · La temperatura leída no es la temperatura
 `main.c` y `Aplicacion.c` · 🟡
@@ -279,13 +293,12 @@ No urge. Pero cada uno de estos multiplica el coste de todo lo de arriba.
       que además no se nota. Pasar a un array `srtAlarmas ala[5]` es la refactorización que
       abarata todas las demás. **Hacerla después de la fase 1**, no antes: primero se arregla
       con los escenarios en rojo vigilando, y luego se reordena con ellos en verde.
-- [ ] **`Cluster.h` no tiene guarda de inclusión.** Por eso el simulador no puede compilar en
-      unidad única. Tres líneas.
+- [x] **`Cluster.h` no tiene guarda de inclusión.** Hecho: `#ifndef CLUSTER_H`.
 - [ ] **Variables globales definidas dos veces sin `extern`** (`strAplicacion ap` en
       `Aplicacion.c` y `LedLive.c`; `srtAlarmas ala1..5` en `Serial.c` y `Alarma.c`). Funciona
       porque XC8 las fusiona. Un compilador más nuevo lo rechaza.
-- [ ] **`transmitUart1` manda un byte 0x00 de más** al final de cada línea (`Serial.c:59`, un
-      `<=` donde va un `<`). Escenario D4.
+- [x] **`transmitUart1` manda un byte 0x00 de más** al final de cada línea (`Serial.c:59`, un
+      `<=` donde va un `<`). Escenario D4. Arreglado y verde.
 - [ ] **`__delay_ms(4000)` dentro de una interrupción**, con dos `printf` al lado, en `main.c`.
       Cuatro segundos con el equipo parado.
 - [ ] **`EEpromWrite` reactiva las interrupciones incondicionalmente** al terminar, incluso si
