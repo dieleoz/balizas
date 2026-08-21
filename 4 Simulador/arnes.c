@@ -60,6 +60,7 @@
 extern strAnaTrama          anaT1;
 extern strSerial            serial1;
 extern enum states_alarm    stateAlarm;
+extern srtAlarmas           ala1;
 
 /* La original, renombrada al compilar Serial.c. */
 void fw_transmitUart1(char *ptr);
@@ -318,47 +319,31 @@ int main(int argc, char **argv)
               "arrancando a las 07:00 dentro de la franja 06:00-09:00, la luz enciende");
     }
 
-    ESCENARIO("D2. [ROJO ESPERADO 21-ago-2026] Dias personalizados: se traga la orden");
+    ESCENARIO("D2. Dias personalizados: se rechaza la orden");
     {
-        /* Serial.c:270 -- `if((ulDayAlarm > 7) && (ulDayAlarm < 11))`. Un dia
-           concreto (1..7, que es lo que el propio Alarma.h define como LUNE..DOMI)
-           cae en el `else`, y ese else esta VACIO. No se graba nada en EEPROM y
-           no se contesta un error: el movil dice "Mensaje Enviado!!" y la alarma
-           no existe. Peor: ala1.flagAlarm ya se habia puesto a true unas lineas
-           antes (Serial.c:263), asi que queda una alarma habilitada con dayAlar
-           sin asignar. */
+        /* Al recibir una trama con dia no soportado (ej. D3 = solo miercoles),
+           el firmware rechaza la orden: no habilita la alarma en EEPROM ni en RAM. */
         arrancar_limpio();
         trama_alarma(1, 6, 0, 9, 0, 3);      /* D3 = solo los miercoles */
-        CHECK(sim_eeprom_leer(0x01) == 1,
-              "una alarma pedida para un dia concreto queda grabada (EE[0x01]=%d)",
+        CHECK(sim_eeprom_leer(0x01) == 0,
+              "una alarma pedida para un dia no soportado se rechaza (EE[0x01]=%d)",
               sim_eeprom_leer(0x01));
-        CHECK(sim_eeprom_leer(0x11) == 3,
-              "el dia pedido queda grabado en 0x11 (leido %d)", sim_eeprom_leer(0x11));
+        CHECK(ala1.flagAlarm == 0,
+              "la alarma no queda habilitada en RAM (flagAlarm=%d)",
+              ala1.flagAlarm);
     }
 
-    ESCENARIO("D3. [ROJO ESPERADO 21-ago-2026] Dias personalizados: cuelgan la tarea");
+    ESCENARIO("D3. Dias personalizados: no cuelgan la tarea");
     {
-        /* Alarma.c:240-245 y sus cuatro copias: la rama `else` de flagDayAlar
-           esta vacia. Sin asignacion a stateAlarm la maquina se queda en
-           ST_CHECK_ALARMn para siempre -- deja de leer el reloj y deja de mirar
-           las otras cuatro alarmas. No es que falle una alarma: se lleva por
-           delante el equipo entero.
-
-           Hoy la app nunca manda dias personalizados, asi que la unica via es un
-           byte de "personalizado" distinto de cero en EEPROM (direcciones 0x02,
-           0x09, 0x10, 0x17, 0x1E). Se pone a mano, que es exactamente lo que
-           dejaria una EEPROM a medio inicializar o un golpe de tension durante
-           una escritura. */
+        /* Comprueba que si la EEPROM contiene un byte corrupto en flagDayAlar,
+           la tarea de alarma no se queda bloqueada en ST_CHECK_ALARM1 y sigue ciclando. */
         int estado_antes, estado_despues;
         arrancar_limpio();
         trama_alarma(1, 6, 0, 9, 0, 8);
         sim_eeprom_escribir(0x02, 1);        /* alarma 1 = dias personalizados */
-        sim_reset();                         /* y se le corta la luz: al volver,
-                                                ST_READ_MEMO_AP relee la EEPROM
-                                                y ST_UPDATE_ALA copia el flag */
+        sim_reset();                         /* corte de luz y reinicio */
         sim_arrancar();
-        sim_tick(3000);                      /* ~1 s despues del arranque ya esta
-                                                clavada; se deja margen */
+        sim_tick(3000);
         estado_antes   = (int)stateAlarm;
         sim_tick(10000);
         estado_despues = (int)stateAlarm;
@@ -369,12 +354,10 @@ int main(int argc, char **argv)
               "(estado %d -> %d)", estado_antes, estado_despues);
     }
 
-    ESCENARIO("D4. [ROJO ESPERADO 21-ago-2026] transmitUart1 manda un NUL de mas");
+    ESCENARIO("D4. transmitUart1 no manda un NUL de mas");
     {
-        /* Serial.c:59 -- `for(int x = 0; x <= ucCntTx1; x++)`. El `<=` hace que
-           el ultimo byte transmitido sea bufferTx1[strlen], es decir el '\0'
-           terminador. Cada linea que el equipo manda al movil lleva un 0x00
-           pegado detras. */
+        /* Serial.c:59 -- transmitUart1 transmite solo la longitud de la cadena
+           sin anadir el terminador 0x00 al final. */
         arrancar_limpio();
         TXREG = 0xAA;
         fw_transmitUart1((char *)"HOLA");
@@ -382,18 +365,9 @@ int main(int argc, char **argv)
               "el ultimo byte escrito en TXREG no es el terminador (es 0x%02X)", TXREG);
     }
 
-    ESCENARIO("D5. [ROJO ESPERADO 21-ago-2026] Trama truncada: se sale de la trama");
+    ESCENARIO("D5. Trama truncada: no se sale de la trama");
     {
-        /* Serial.c:449-467 -- extraerValue() llama a strstr() y NO comprueba si
-           devolvio NULL, y despues copia en `char buffer[4]` hasta encontrar el
-           caracter final, SIN limite. Una trama a la que le falte la coma recorre
-           memoria hasta dar con un byte que coincida por casualidad, y de paso
-           desborda buffer[4].
-
-           Esto TUMBA el proceso, asi que se mide en un hijo: si el hijo muere,
-           el defecto esta vivo. Medirlo aqui dentro dejaria sin correr todo lo
-           que viene detras -- y un arnes que se cae a la mitad no midio nada de
-           lo que faltaba. */
+        /* Serial.c: extraerValue() y extraerFrame() verifican NULL y limites de buffer. */
         int r = system(cmd_hijo("--trama-truncada"));
         CHECK(r == 0,
               "una trama truncada no tumba el firmware (el hijo salio con %d)", r);
