@@ -42,7 +42,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="BALIZA ITVIAL"
+                    android:text="BALIZA IT VIAL 30"
                     android:textColor="#D32F2F"
                     android:textSize="20sp"
                     android:textStyle="bold"
@@ -51,7 +51,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Versión v3.1 · Control y Diagnóstico"
+                    android:text="Versión v3.2 · Control y Diagnóstico"
                     android:textColor="#546E7A"
                     android:textSize="12sp"
                     android:gravity="center"
