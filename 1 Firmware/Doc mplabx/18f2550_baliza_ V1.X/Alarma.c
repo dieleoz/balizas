@@ -37,6 +37,55 @@ unsigned long ulCntPeriodAlarm;
 
 static struct pt ptTaskAlarm;
 
+static unsigned char isAlarmActive(srtAlarmas *a, strRtc *r)
+{
+    unsigned int t_act, t_init, t_end;
+    if(!a->flagAlarm) return 0;
+    
+    // Comprobar dia
+    if(!a->flagDayAlar)
+    {
+        if(a->dayAlar == DIAR) {
+            // Todos los dias
+        }
+        else if(a->dayAlar == SEMA) {
+            if((r->dayWeek < LUNE) || (r->dayWeek > VIER)) return 0;
+        }
+        else if(a->dayAlar == FINS) {
+            if((r->dayWeek != SABA) && (r->dayWeek != DOMI)) return 0;
+        }
+        else {
+            return 0;
+        }
+    }
+    else
+    {
+        // Personalizado
+        if((a->dayAlar >= LUNE) && (a->dayAlar <= DOMI)) {
+            if(r->dayWeek != a->dayAlar) return 0;
+        } else {
+            return 0;
+        }
+    }
+    
+    // Comprobar franja horaria
+    t_act = (unsigned int)r->hor * 60 + (unsigned int)r->min;
+    t_init = (unsigned int)a->hourInit * 60 + (unsigned int)a->minInit;
+    t_end = (unsigned int)a->hourEnd * 60 + (unsigned int)a->minEnd;
+    
+    if(t_init < t_end)
+    {
+        if(t_act >= t_init && t_act < t_end) return 1;
+    }
+    else if(t_init > t_end)
+    {
+        // Cruce de medianoche
+        if(t_act >= t_init || t_act < t_end) return 1;
+    }
+    
+    return 0;
+}
+
 static int taskAlarm(struct pt *pt)
 {
         
@@ -128,6 +177,12 @@ static int taskAlarm(struct pt *pt)
                 break;
                 
             case ST_CHECK_ALL_ALA:
+                ap.flagAlarm = (isAlarmActive(&ala1, &rtc) ||
+                                isAlarmActive(&ala2, &rtc) ||
+                                isAlarmActive(&ala3, &rtc) ||
+                                isAlarmActive(&ala4, &rtc) ||
+                                isAlarmActive(&ala5, &rtc));
+
                 if(++ala.ucCntCheck == 1)
                 {
                     //si esta activa la alarma
@@ -240,8 +295,14 @@ static int taskAlarm(struct pt *pt)
                 }
                 else
                 {
-                    //NO IMPLEMENTADO
-                    //si la alarma es personalizada  
+                    if((ala1.dayAlar >= LUNE) && (ala1.dayAlar <= DOMI) && (rtc.dayWeek == ala1.dayAlar))
+                    {
+                        stateAlarm = ST_CHECK_HOUR1;
+                    }
+                    else
+                    {
+                        stateAlarm = ST_ESPERA_ALA;
+                    }
                 }
                 break;
                 
@@ -285,7 +346,14 @@ static int taskAlarm(struct pt *pt)
                 }
                 else
                 {
-                    //si la alarma es personalizada
+                    if((ala2.dayAlar >= LUNE) && (ala2.dayAlar <= DOMI) && (rtc.dayWeek == ala2.dayAlar))
+                    {
+                        stateAlarm = ST_CHECK_HOUR2;
+                    }
+                    else
+                    {
+                        stateAlarm = ST_ESPERA_ALA;
+                    }
                 }
                 break;
                 
@@ -328,7 +396,14 @@ static int taskAlarm(struct pt *pt)
                 }
                 else
                 {
-                    //si la alarma es personalizada
+                    if((ala3.dayAlar >= LUNE) && (ala3.dayAlar <= DOMI) && (rtc.dayWeek == ala3.dayAlar))
+                    {
+                        stateAlarm = ST_CHECK_HOUR3;
+                    }
+                    else
+                    {
+                        stateAlarm = ST_ESPERA_ALA;
+                    }
                 }
                 break;
                 
@@ -371,7 +446,14 @@ static int taskAlarm(struct pt *pt)
                 }
                 else
                 {
-                    //si la alarma es personalizada
+                    if((ala4.dayAlar >= LUNE) && (ala4.dayAlar <= DOMI) && (rtc.dayWeek == ala4.dayAlar))
+                    {
+                        stateAlarm = ST_CHECK_HOUR4;
+                    }
+                    else
+                    {
+                        stateAlarm = ST_ESPERA_ALA;
+                    }
                 }
                 break;
                 
@@ -414,146 +496,28 @@ static int taskAlarm(struct pt *pt)
                 }
                 else
                 {
-                    //si la alarma es personalizada
+                    if((ala5.dayAlar >= LUNE) && (ala5.dayAlar <= DOMI) && (rtc.dayWeek == ala5.dayAlar))
+                    {
+                        stateAlarm = ST_CHECK_HOUR5;
+                    }
+                    else
+                    {
+                        stateAlarm = ST_ESPERA_ALA;
+                    }
                 }
                 break;
                 
             case ST_CHECK_HOUR1:
-                
-                //if es hora de init alarm
-                if(rtc.hor == ala1.hourInit)
-                {
-                    if(rtc.min == ala1.minInit)
-                    {
-                        //iniciciar la secuencia de la alarma
-                        ap.flagAlarm = true;
-                                               
-                    }                    
-                }
-                
-                //if es hora de end alarm
-                if(rtc.hor == ala1.hourEnd)
-                {
-                    if(rtc.min == ala1.minEnd)
-                    {
-                        //finalizar la secuencia de la alarma
-                        ap.flagAlarm = false;
-                                                
-                    }                 
-                }
-                
-                 stateAlarm = ST_ESPERA_ALA;
-                
-                break;
-                
-                
             case ST_CHECK_HOUR2:
-                //if es hora de init alarm
-                if(rtc.hor == ala2.hourInit)
-                {
-                    if(rtc.min == ala2.minInit)
-                    {
-                        //iniciciar la secuencia de la alarma
-                        ap.flagAlarm = true;
-                                               
-                    }                    
-                }
-                
-                //if es hora de end alarm
-                if(rtc.hor == ala2.hourEnd)
-                {
-                    if(rtc.min == ala2.minEnd)
-                    {
-                        //finalizar la secuencia de la alarma
-                        ap.flagAlarm = false;
-                                                
-                    }                 
-                }
-                
-                 stateAlarm = ST_ESPERA_ALA;
-                
-                break;
-                
-                
             case ST_CHECK_HOUR3:
-                //if es hora de init alarm
-                if(rtc.hor == ala3.hourInit)
-                {
-                    if(rtc.min == ala3.minInit)
-                    {
-                        //iniciciar la secuencia de la alarma
-                        ap.flagAlarm = true;
-                                               
-                    }                    
-                }
-                
-                //if es hora de end alarm
-                if(rtc.hor == ala3.hourEnd)
-                {
-                    if(rtc.min == ala3.minEnd)
-                    {
-                        //finalizar la secuencia de la alarma
-                        ap.flagAlarm = false;
-                                                
-                    }                 
-                }
-                
-                 stateAlarm = ST_ESPERA_ALA;
-                
-                break;
-                
             case ST_CHECK_HOUR4:
-                //if es hora de init alarm
-                if(rtc.hor == ala4.hourInit)
-                {
-                    if(rtc.min == ala4.minInit)
-                    {
-                        //iniciciar la secuencia de la alarma
-                        ap.flagAlarm = true;
-                                               
-                    }                    
-                }
-                
-                //if es hora de end alarm
-                if(rtc.hor == ala4.hourEnd)
-                {
-                    if(rtc.min == ala4.minEnd)
-                    {
-                        //finalizar la secuencia de la alarma
-                        ap.flagAlarm = false;
-                                                
-                    }                 
-                }
-                
-                 stateAlarm = ST_ESPERA_ALA;
-                
-                break;
-                
             case ST_CHECK_HOUR5:
-                //if es hora de init alarm
-                if(rtc.hor == ala5.hourInit)
-                {
-                    if(rtc.min == ala5.minInit)
-                    {
-                        //iniciciar la secuencia de la alarma
-                        ap.flagAlarm = true;
-                                               
-                    }                    
-                }
-                
-                //if es hora de end alarm
-                if(rtc.hor == ala5.hourEnd)
-                {
-                    if(rtc.min == ala5.minEnd)
-                    {
-                        //finalizar la secuencia de la alarma
-                        ap.flagAlarm = false;
-                                                
-                    }                 
-                }
-                
-                 stateAlarm = ST_ESPERA_ALA;
-                
+                ap.flagAlarm = (isAlarmActive(&ala1, &rtc) ||
+                                isAlarmActive(&ala2, &rtc) ||
+                                isAlarmActive(&ala3, &rtc) ||
+                                isAlarmActive(&ala4, &rtc) ||
+                                isAlarmActive(&ala5, &rtc));
+                stateAlarm = ST_ESPERA_ALA;
                 break;
         }//fin switch
     }//FIN WHILE

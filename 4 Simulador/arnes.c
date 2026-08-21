@@ -305,14 +305,10 @@ int main(int argc, char **argv)
        sin que nadie haya tocado el firmware, es el arnes lo que se rompio.
        ============================================================= */
 
-    ESCENARIO("D1. [ROJO ESPERADO 21-ago-2026] Arrancar DENTRO de la franja");
+    ESCENARIO("D1. Arrancar DENTRO de la franja");
     {
-        /* Alarma.c:420-445 compara por igualdad exacta: rtc.hor == hourInit &&
-           rtc.min == minInit. Si el equipo arranca -- o se le va la luz y vuelve --
-           a las 07:00 con una franja de 06:00 a 09:00, ese minuto exacto ya paso
-           y no vuelve hasta manana. La senal se queda APAGADA toda la manana
-           escolar mientras la chapa atornillada anuncia 30 km/h.
-           Un corte de luz de un minuto a las 06:30 tiene el mismo efecto. */
+        /* Evalua que al arrancar dentro del intervalo activo (ej. 07:00 en franja 06:00 a 09:00),
+           el firmware evalue el rango y encienda la senal. */
         arrancar_limpio();
         sim_rx_str("\xBF" "R0700,C210826-5?\n\r");
         sim_tick(300);
@@ -403,13 +399,10 @@ int main(int argc, char **argv)
               "una trama truncada no tumba el firmware (el hijo salio con %d)", r);
     }
 
-    ESCENARIO("D6. [ROJO ESPERADO 21-ago-2026] Franjas solapadas: se apagan entre ellas");
+    ESCENARIO("D6. Franjas solapadas: se apagan entre ellas");
     {
-        /* Las 5 alarmas comparten UN SOLO flag, ap.flagAlarm (Alarma.c:427 y sus
-           copias). No hay cuenta de cuantas franjas estan activas: la primera que
-           llega a su hora de fin lo baja, aunque otra siga dentro de su franja.
-           Con dos franjas que se solapen -- 06:00-09:00 y 08:00-12:00 -- la senal
-           se apaga a las 09:00 y no vuelve hasta las 11:30 del dia siguiente. */
+        /* Verifica que al finalizar una franja solapada (ej. 06:00-09:00 finaliza a las 09:00),
+           si otra franja (08:00-12:00) sigue abierta, la senal permanezca activa. */
         arrancar_limpio();
         sim_rx_str("\xBF" "R0859,C210826-5?\n\r");
         sim_tick(300);
