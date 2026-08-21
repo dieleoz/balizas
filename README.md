@@ -81,6 +81,7 @@ La cifra viva está en **[`ESTADO.md`](ESTADO.md)**; lo que queda por hacer, en
 
 | documento | para qué |
 |---|---|
+| [`CONTEXTO_AGENTE.md`](CONTEXTO_AGENTE.md) | **Guía de traspaso y contexto operativo integral para agentes de IA** |
 | [`ESTADO.md`](ESTADO.md) | qué corre hoy y qué está roto. Se reescribe cada sesión |
 | [`ROADMAP.md`](ROADMAP.md) | en qué orden arreglar, y por qué ese orden |
 | [`Manuales/FIRMWARE.md`](Manuales/FIRMWARE.md) | el firmware módulo a módulo, con sus defectos y su línea |
