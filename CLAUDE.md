@@ -227,6 +227,7 @@ Y el agente `firmware-pic` para los cambios en el firmware del PIC.
 ## Si falta una definición, no la inventes
 
 Se pregunta. Buena parte de lo que hoy se da por sabido viene de una reunión, no de un
-documento: la cadencia de 2 s / 2 s del parpadeo es un ejemplo, y merece confirmarse antes de
-programarla. **Un requisito que nadie revisó gobernando una señal escolar es peor que un
+documento. La cadencia del parpadeo fue el caso: se dijo 2 s / 2 s en una reunion, y al
+preguntar resulto ser 1 Hz -- 500 ms / 500 ms -- por norma de senalizacion. Preguntar costo una
+linea; programarlo mal habria costado volver a grabar todas las senales. **Un requisito que nadie revisó gobernando una señal escolar es peor que un
 pendiente abierto.**

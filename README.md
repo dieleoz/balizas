@@ -49,17 +49,32 @@ flowchart LR
 
 ## Estado hoy
 
-**El equipo no hace lo que se definió.** El simulador mide 33 comprobaciones y **9 están en
-rojo**, todas por defectos reales y localizados. Las tres que más pesan:
+**El simulador pasa entero: 33 → 37 comprobaciones, las 37 en verde.** Los defectos que hacían
+que la señal mintiera están arreglados y **verificados por inyección de defecto** — se rompió
+cada arreglo a mano y el arnés lo cazó.
 
-| | qué pasa | dónde |
+| | qué se arregló | dónde |
 |---|---|---|
-| 🔴 | **La luz no parpadea a la cadencia que debe.** Hace ráfagas de 5 destellos de 50 ms. La norma vial citada pide **500 ms encendida / 500 ms apagada** (≈1 Hz); la reunión había dicho 2 s / 2 s. Las tres cifras difieren y la decisión está **pendiente** | `Cluster.c` |
-| 🔴 | **Si el equipo arranca dentro de una franja, la luz no enciende.** Un corte de luz a las 06:30 deja la señal apagada hasta el día siguiente, con el colegio abierto | `Alarma.c` |
-| 🔴 | **El buzzer está en el pin equivocado.** La tarjeta lo tiene en `RC1`; el firmware ataca `RC0`, que en la placa es el pulsador | `Buzzer.h:24` vs [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md) |
+| ✅ | **La luz parpadea a 1 Hz**: 500 ms encendida, 500 ms apagada. Cadencia confirmada por el funcional el 21-ago-2026, y es la que piden los manuales de señalización para zona escolar (50–60 destellos/min) | `Cluster.c` |
+| ✅ | **Arrancar dentro de una franja ya enciende la luz.** Se evalúa pertenencia al intervalo en vez de igualdad exacta de minuto, así que un corte de luz a las 06:30 ya no deja la señal apagada toda la mañana | `Alarma.c` |
+| ✅ | **Las franjas solapadas ya no se apagan entre ellas**: `ap.flagAlarm` es el OR de las cinco alarmas | `Alarma.c` |
+| ✅ | **Una trama malformada ya no tumba el firmware**: `strstr()` comprobado contra `NULL` y copias acotadas | `Serial.c` |
+| ✅ | **El buzzer está en RC1**, que es donde lo tiene la tarjeta, y RC0 vuelve a ser entrada del pulsador | `Buzzer.h` / `Buzzer.c` |
 
-La cifra viva y la lista completa están en **[`ESTADO.md`](ESTADO.md)**. El orden en que hay
-que arreglarlo, en **[`ROADMAP.md`](ROADMAP.md)**.
+Compila con XC8 en **21.147 de 32.768 bytes (64,5 %)** y 688 de 2.048 de datos.
+
+> **Y sigue sin ser entregable.** Verde en el simulador significa que un modelo de PC no
+> encuentra nada. **Ningún pin se ha comprobado todavía contra su carga**, el DS1307 no se ha
+> probado sin alimentación, y no hay registro de qué señal lleva qué horario. Lo que corresponde
+> mandar es un encargo de medida, no una versión.
+
+**Lo que sigue abierto:** el enlace Bluetooth. El módulo **está sano** —se comprobó con una
+prueba de bucle el 21-ago: es un **JDY-31**, empareja con `1234` y devuelve el eco—, así que el
+problema está en la tarjeta o en la app. Falta montarlo y ver si llega el banner
+`BALIZA ALARMA V1.0`. Detalle en [`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md).
+
+La cifra viva está en **[`ESTADO.md`](ESTADO.md)**; lo que queda por hacer, en
+**[`ROADMAP.md`](ROADMAP.md)**.
 
 > **La tarjeta ya está fabricada y es un dato fijo.** Cuando el firmware y la placa no
 > coincidan, se cambia el firmware. No se rediseña el hardware.
