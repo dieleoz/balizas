@@ -37,9 +37,11 @@ Punto de entrada: **[README.md](README.md)**. Qué falta y en qué orden:
 **[ROADMAP.md](ROADMAP.md)**. En qué quedó la última sesión y las cifras del día:
 **[ESTADO.md](ESTADO.md)**.
 
-**Lo primero que desbloquea todo lo demás es el Bluetooth** (ROADMAP 0.1): mientras no haya un
-módulo que empareje, no se puede programar un horario, ni leer un volcado, ni verificar en
-campo ninguno de los arreglos.
+**El Bluetooth ya no bloquea** (ROADMAP 0.1): el **SIG0109A funciona** — verificado el
+21-ago-2026 con un `¿L?` que devolvió el volcado legible. El *«no lo reconoce»* era buscarlo por
+el nombre equivocado, no una avería. Lo que queda vivo de ahí es un riesgo, no un fallo: el
+`RXD` de 3,3 V del módulo está atacado con **5 V sin adaptación**, y eso mata módulos a las
+semanas — **1 kΩ en serie en `MCU_TX`**, en el arnés, no en la PCB.
 
 ## Las cinco reglas que no se rompen
 

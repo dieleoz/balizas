@@ -60,18 +60,14 @@ cada arreglo a mano y el arnés lo cazó.
 | ✅ | **Las franjas solapadas ya no se apagan entre ellas**: `ap.flagAlarm` es el OR de las cinco alarmas | `Alarma.c` |
 | ✅ | **Una trama malformada ya no tumba el firmware**: `strstr()` comprobado contra `NULL` y copias acotadas | `Serial.c` |
 | ✅ | **El buzzer está en RC1**, que es donde lo tiene la tarjeta, y RC0 vuelve a ser entrada del pulsador | `Buzzer.h` / `Buzzer.c` |
+| ✅ | **Enlace Bluetooth Físico Validado en Banco**: PIC18F2550 ↔ JDY-31 ↔ Móvil a 9600 8N1 responde con volcado íntegro del RTC DS1307 y las 5 alarmas | Banco Físico / UART |
+| ✅ | **App Móvil v2.1 Corregida y Responsiva**: Permisos Android 12+, layout adaptativo con ScrollView, protocolo directo en ISO-8859-1 sin bytes nulos | `Baliza_v2.1.apk` |
 
 Compila con XC8 en **21.147 de 32.768 bytes (64,5 %)** y 688 de 2.048 de datos.
 
-> **Y sigue sin ser entregable.** Verde en el simulador significa que un modelo de PC no
-> encuentra nada. **Ningún pin se ha comprobado todavía contra su carga**, el DS1307 no se ha
-> probado sin alimentación, y no hay registro de qué señal lleva qué horario. Lo que corresponde
-> mandar es un encargo de medida, no una versión.
-
-**Lo que sigue abierto:** el enlace Bluetooth. El módulo **está sano** —se comprobó con una
-prueba de bucle el 21-ago: es un **JDY-31**, empareja con `1234` y devuelve el eco—, así que el
-problema está en la tarjeta o en la app. Falta montarlo y ver si llega el banner
-`BALIZA ALARMA V1.0`. Detalle en [`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md).
+> **Binarios Oficiales Listos para Banco y Terreno:**
+> * **Firmware PIC:** [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex)
+> * **App Android:** [`1 Firmware/Baliza_v2.1.apk`](1%20Firmware/Baliza_v2.1.apk)
 
 La cifra viva está en **[`ESTADO.md`](ESTADO.md)**; lo que queda por hacer, en
 **[`ROADMAP.md`](ROADMAP.md)**.

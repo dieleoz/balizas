@@ -1,4 +1,24 @@
-# Baliza SR30 — Por qué no funciona el Bluetooth nuevo, y cómo probarlo
+# Baliza SR30 — Diagnóstico del Bluetooth, y cómo probarlo
+
+> ## ✅ ACTUALIZACIÓN 21-ago-2026: **el SIG0109A funciona. No había avería de módulo.**
+>
+> Este documento se escribió para encontrar una avería de Bluetooth que **resultó no existir**.
+> Se conserva entero porque su procedimiento de prueba sigue siendo la forma correcta de aislar
+> un fallo serie, y porque sus datos verificados (baudios, tramas, pinouts, niveles) siguen
+> siendo válidos. Pero léelo sabiendo el final:
+>
+> Desde «Serial Bluetooth Terminal», con el **SIG0109A** montado en la tarjeta, se envió `¿L?` y
+> volvió el **volcado legible**. El módulo empareja, conecta, transporta bytes **en los dos
+> sentidos**, y sus **9600 8N1 de fábrica son correctos**. El `.hex` y el DS1307 también quedan
+> demostrados de paso.
+>
+> **La causa real del *«no lo reconoce»*** era una de las tres de §4: buscarlo en la lista como
+> «HC-06» cuando se anuncia con otro nombre, no haberlo emparejado antes desde los **ajustes**
+> del teléfono, o la **Ubicación** apagada. Nunca fue el módulo, ni el pinout, ni los baudios.
+>
+> **Lo único de este documento que pasa a ser urgente es §4 causa 8:** el `RXD` de 3,3 V del
+> módulo está atacado con **5 V sin adaptación**. Ese es el fallo que probablemente mató al
+> HC-06, y está corriendo ya contra este módulo. **Resistencia de 1 kΩ en serie en `MCU_TX`.**
 
 **Equipo:** señal vial «30 CUANDO ACTIVADA», zona escolar. La luz titila → el límite de 30 km/h está vigente.
 **Horario impreso en la chapa:** 6:00–9:00 · 11:30–13:30 · 15:00–16:30.

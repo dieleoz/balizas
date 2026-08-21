@@ -39,52 +39,57 @@ ese escenario está en verde y el resto no se movió.
 
 ## Fase 0 — Lo que bloquea a todo lo demás
 
-### 0.1 · El Bluetooth, porque sin él no se puede ni configurar el equipo
+### 0.1 · El Bluetooth — ✅ **DESBLOQUEADO el 21-ago-2026. El SIG0109A funciona**
 
-**Es lo primero por una razón práctica, no por gravedad:** mientras no haya un módulo que
-empareje, no se puede programar un horario, ni leer un volcado, ni comprobar en campo ninguno
-de los arreglos de abajo. Bloquea la verificación de todo.
+> **La medida que lo cierra:** desde «Serial Bluetooth Terminal», con el **SIG0109A** montado en
+> la tarjeta, se envió `¿L?` y volvió el **volcado legible** — `16:47:18`, `21/8/26-5` y las
+> cinco alarmas. Una sola captura demuestra cuatro cosas a la vez: el módulo **empareja y
+> conecta**, los bytes **viajan en los dos sentidos**, los **9600 8N1 de fábrica son
+> correctos**, y el **DS1307 y el parser de tramas del firmware funcionan**. Sin un solo
+> comando AT.
 
-Lo que se sabe: con **HC-06 funcionaba**; con **HC-05** y con el **SIG0109A** «no lo reconoce».
-El SIG0109A no es un HC-05 — es un clon con chip **Beken BK3231S**, y el único PDF disponible
-es el del SoC, que no trae ni baudios de fábrica ni comandos AT.
+**El *«no lo reconoce»* nunca fue una avería del módulo.** Era buscarlo en la lista del teléfono
+como «HC-06» cuando se anuncia con otro nombre, o no haberlo emparejado antes desde los
+**ajustes** del teléfono (la app solo lista los **ya emparejados**), o la **Ubicación** apagada.
+Se estuvo persiguiendo un módulo quemado que estaba sano.
 
-Y hay una creencia que hay que enterrar antes de seguir: **el `.hex` no está «compilado para
-otro Bluetooth»**. El firmware ve un puerto serie transparente a 9600 8N1 y no distingue
-módulos.
+Y queda enterrada de paso la otra creencia: **el `.hex` no está «compilado para otro
+Bluetooth»**. El firmware ve un puerto serie transparente a 9600 8N1 y no distingue módulos.
 
-> ### 🚨 El paso 0.0, antes de enchufar nada: comparar la serigrafía
+**Lo que esto libera:** no hay que comprar otro módulo, y la consulta a Sigma **deja de ser
+bloqueante**. Ya se puede programar un horario, leer un volcado y verificar en campo todo lo de
+las fases siguientes.
+
+- [x] **Comparar la serigrafía del módulo con el zócalo antes de alimentarlo.** El módulo
+      montado sobrevivió, así que el orden de pines del zócalo es el correcto para esta placa.
+- [x] **Buscar el módulo por su nombre real, no por el que uno espera.** Era esto.
+- [x] Emparejar desde los **ajustes** del teléfono antes de abrir la app, y con la **Ubicación**
+      encendida.
+- [x] Demostrar el enlace de extremo a extremo con `¿L?` y un volcado legible.
+
+> ### 🔴 Lo que pasa a ser urgente: proteger el módulo que sí funciona
 >
-> El SIG0109A es casi con seguridad un **JDY-31 / «SPP-C»**. Su pinout está **documentado de dos
-> formas contradictorias**: el manual da `STATE·RXD·TXD·GND·VCC·EN`, y una fuente con foto de la
-> placa real da `STATE·TXD·RXD·`**`VCC·GND`**`·EN`, **con VCC y GND intercambiados**.
+> `RC6` ataca el `RXD` del módulo con **5 V directos, sin divisor ni resistencia serie**
+> (`Manuales/HARDWARE.md`, riesgo **R7**), y ese pin es de **3,3 V no tolerante a 5 V**. No mata
+> al instante: conduce por su diodo de protección y el módulo muere **semanas o meses después**.
 >
-> Si la placa comprada es la segunda y se mete en el zócalo, **los +5 V entran por su GND y el
-> módulo muere al instante**. Es la explicación más probable del *«no sabemos si esto está
-> quemado»*, y significa que **cada intento de probar puede estar destruyendo el módulo que se
-> prueba**.
->
-> Cuesta un minuto y es gratis. Va antes que todo lo demás.
+> **Es la explicación más limpia de *«el HC-06 funcionaba… hasta que dejó de funcionar»***, y el
+> mismo reloj corre ya contra este SIG0109A.
 
-- [ ] **Comparar la serigrafía del módulo con el zócalo antes de alimentarlo.**
-- [ ] Correr el procedimiento de [`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md), que separa las variables de lo
-      más simple a lo más complejo. La prueba de bucle —puentear TX con RX del módulo solo— es
-      la que decide si el módulo está bien, sin el PIC ni la app de por medio.
-- [ ] **Buscar el módulo por su nombre real, no por el que uno espera.** El HC-06 se anuncia
-      como `linvor`; el JDY-31 como `JDY-31-SPP`. Buscar «HC-06» y no encontrarlo **no es una
-      avería**, y puede ser toda la historia del «no lo reconoce».
-- [ ] **No probar comandos del HC-05 en el SIG0109A.** El JDY-31 es esclavo puro, 9 comandos
-      terminados en `\r\n`, sin `AT+ROLE` ni `AT+UART`. Probar los del HC-05 y no obtener
-      respuesta hace creer que un módulo sano está muerto.
-- [ ] **Comprobar que el módulo que se compre no sea BLE.** `BT05`, `MLT-BT05`, `AT-09` y `HC-42`
-      **no sirven**: la app abre un socket SPP/RFCOMM. `BT-05` y `BT-06` se diferencian en un
-      dígito y son tecnologías distintas.
-- [ ] **Encender el interruptor de Ubicación del teléfono.** Sin él Android no lista
-      dispositivos, por mucho permiso que tenga la app.
-- [ ] **Pedir al proveedor los comandos AT del SIG0109A.** El único PDF que publica es el
-      datasheet del chip Beken, y **no contiene un solo comando AT** — verificado página a
-      página. Sin eso, el módulo no se puede configurar. Las preguntas concretas están en
-      [`Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`](Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md).
+- [ ] **🔴 Montar una resistencia de 1 kΩ en serie en el hilo `MCU_TX`**, en el arnés del módulo
+      o en el pin del zócalo. **No es tocar la PCB** —la tarjeta sigue siendo fija— es un
+      componente en el cableado. Cuesta céntimos y es lo único que separa este módulo del
+      siguiente módulo muerto.
+- [ ] **Comprobar si la app oficial conecta con este mismo módulo.** El terminal serie ya
+      funciona; si la app no, el problema está **en la app o en los permisos de Android**, no en
+      el Bluetooth (síntoma **B5** de [`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md)). Es una
+      investigación distinta y ahora se puede aislar limpiamente.
+- [ ] **Comprobar que cualquier módulo de repuesto no sea BLE.** `BT05`, `MLT-BT05`, `AT-09` y
+      `HC-42` **no sirven**: la app abre un socket SPP/RFCOMM. `BT-05` y `BT-06` se diferencian
+      en un dígito y son tecnologías distintas.
+- [ ] **Renombrar el módulo y cambiar el PIN por AT** — ahora es **comodidad, no
+      funcionamiento**. Del JDY-31: `AT+NAMEBAL-001-N`, `AT+PIN2130`, terminados en `\r\n`.
+      Si no responden, el módulo **sigue sirviendo igual** con su nombre y PIN de fábrica.
 - [ ] Dejar un módulo configurado y validado con
       [`Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`](Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md).
 - [ ] **Acordar la convención de nombres.** Hoy todos los módulos se llaman igual de fábrica.

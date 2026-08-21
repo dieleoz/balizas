@@ -56,8 +56,9 @@ calendario en un `char[10]` escribiendo 8. Los huecos quedan a `\0` y `String.va
 manda por el aire. La trama real de poner en hora **lleva bytes nulos intercalados**.
 
 El firmware sobrevive porque `Serial.c:120-127` los **filtra** al copiar el buffer. O sea: el
-firmware tiene un parche para un defecto de la app, y no esta escrito en ningun sitio salvo
-aqui. **Quien «limpie» ese bucle por parecerle redundante rompe el equipo.** El escenario
+firmware tenía un parche para un defecto de la app. En la **App v2.1 (`Baliza_v2.1.apk`)**,
+`MainActivity2.java` fue corregido usando `SimpleDateFormat` y `ISO-8859-1` directo, enviando
+la trama limpia sin bytes nulos y con codificación exacta. El escenario
 **B4** del simulador lo sujeta.
 
 ## 4. Como se comprueba una trama de verdad

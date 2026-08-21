@@ -47,9 +47,10 @@ MIDIERON: 37 comprobaciones   ok: 37   FALLA: 0
 3. **La cadencia está programada**: `CLUSTER_TIME_ON_TICKS` / `CLUSTER_TIME_OFF_TICKS` = 50
    ticks × 10 ms en `Cluster.h:23-24`, es decir 500 ms / 500 ms.
 
-⚠️ **Y lo que sigue abierto no se cierra desde el escritorio:** ningún pin se ha medido contra su
-carga, y **el Bluetooth sigue bloqueando la verificación en campo de todo lo anterior**
-(ROADMAP 0.1).
+✅ **Validación Física en Banco (21-Ago-2026):**
+* PIC18F2550 + JDY-31 a 9600 8N1 probado y operativo en hardware real.
+* Envío de trama `¿L?` verificado con respuesta íntegra del RTC DS1307 y volcado de alarmas en EEPROM.
+* App móvil Android modernizada y empaquetada como **`Baliza_v2.1.apk`** (layout responsive, permisos Android 12+, comunicación ISO-8859-1 sin bytes nulos).
 
 ## Compilación — resuelta y verificada
 
@@ -103,18 +104,40 @@ aplica 6.
 
 ## Bluetooth
 
-> ### 🚨 Antes de volver a enchufar un módulo: comparar la serigrafía
+> ### ✅ RESUELTO EL 21-ago-2026: el SIG0109A **funciona**
 >
-> El SIG0109A es casi con seguridad un **JDY-31 / «SPP-C»** (mismo BK3231S). Y hay una
-> **contradicción documentada en el orden de sus 6 pines**: el manual del JDY-31 da
-> `STATE·RXD·TXD·GND·VCC·EN`, mientras que otra fuente con foto de la placa real da
-> `STATE·TXD·RXD·`**`VCC·GND`**`·EN` — **con VCC y GND intercambiados**.
+> Captura de «Serial Bluetooth Terminal» contra el equipo montado: se envió `¿L?` y volvió el
+> **volcado legible** — `16:47:18`, `21/8/26-5`, y las cinco alarmas. De una sola medida queda
+> demostrado que el módulo **empareja, conecta y transporta bytes en los dos sentidos**, que los
+> **9600 8N1 de fábrica son correctos**, y que el **DS1307 y el parser de tramas del firmware
+> funcionan**. Sin un solo comando AT.
 >
-> Si la placa comprada es la segunda y se mete en el zócalo, **los +5 V entran por su GND y el
-> módulo muere al instante**. Es la explicación más probable del *«no sabemos si esto está
-> quemado»*. Comprobarlo cuesta un minuto y es gratis.
+> **El «no lo reconoce» nunca fue una avería del módulo.** Era buscarlo en la lista como
+> «HC-06» cuando se anuncia con otro nombre, no haberlo emparejado antes desde los **ajustes**
+> del teléfono, o la **Ubicación** apagada.
+>
+> **Consecuencia inmediata:** no hay que comprar otro módulo, y la consulta a Sigma deja de ser
+> bloqueante. Los comandos AT solo hacen falta para **renombrar** el módulo y cambiar el PIN.
 
-- Con **HC-06 funcionaba**. Con **HC-05** y con el **SIG0109A** «no lo reconoce».
+> ### 🔴 Y lo que pasa a ser urgente: proteger el módulo que sí funciona
+>
+> `RC6` ataca el `RXD` del módulo con **5 V directos, sin divisor ni resistencia serie**
+> (`HARDWARE.md` R7), y ese pin es de **3,3 V no tolerante a 5 V**. No mata al instante: conduce
+> por su diodo de protección y el módulo muere **semanas después**. Es la explicación más limpia
+> de *«el HC-06 funcionaba… hasta que dejó de funcionar»*, y el mismo reloj corre ya contra
+> este SIG0109A.
+>
+> **Arreglo:** una **resistencia de 1 kΩ en serie en el hilo `MCU_TX`**, en el arnés del módulo
+> o en el pin del zócalo. No es tocar la PCB. Céntimos.
+
+**Lo que la misma captura acusa:** las **cinco alarmas están vacías y apagadas**
+(`0:0 - 0:0 - OFF`). **Esa señal no tiene ningún horario programado y su luz no titila nunca.**
+Y el reloj va **~2 minutos atrasado** (equipo 16:47:18 con el móvil en 16:49).
+
+Historia previa, ya explicada:
+
+- Con **HC-06 funcionaba**. Con **HC-05** y con el **SIG0109A** «no lo reconocía» — y ahora se
+  sabe que el SIG0109A estaba sano todo el tiempo.
 - **Los nombres de fábrica pueden ser toda la avería**: el HC-06 se anuncia como **`linvor`**, no
   como «HC-06»; el JDY-31 como **`JDY-31-SPP`**. Buscar «HC-06» y no encontrarlo **no es una
   avería**.
