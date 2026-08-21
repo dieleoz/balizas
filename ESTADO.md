@@ -14,29 +14,26 @@ compilado con **XC8 v2.46** (según el `.map` de `dist/default/debug/`).
 ## Simulador
 
 ```
-python "4 Simulador/correr.py"     ->  FALLA (1)
-MIDIERON: 37 comprobaciones   ok: 35   FALLA: 2
+python "4 Simulador/correr.py"     ->  PASS (0)
+MIDIERON: 37 comprobaciones   ok: 37   FALLA: 0
 ```
 
-**Medido desde limpio** (`obj/` y `arnes.exe` recompilados).
+**Medido desde limpio** (`obj/` y `arnes.exe` recompilados de cero). **Todos los escenarios en verde (100%).**
 
-Los **2 rojos que quedan son exactamente los dos del escenario `C`**: la duración del pulso
-encendido y la del apagado. La decisión funcional **ya fue confirmada por el responsable funcional**
-(Norma Vial Oficial 1 Hz: 500 ms ON / 500 ms OFF) y queda pendiente de programar en `Cluster.c`.
+### Lo que se arregló y cerró el 21-ago-2026
 
-### Lo que se arregló el 21-ago-2026
-
-`Alarma.c`, `Serial.c` y `Buzzer.h`/`Buzzer.c` fueron modificados y los arreglos están **verificados**:
+`Alarma.c`, `Serial.c`, `Cluster.c`/`Cluster.h` y `Buzzer.h`/`Buzzer.c` fueron modificados y los arreglos están **verificados**:
 
 | escenario | qué se arregló |
 |---|---|
 | `D1` | La nueva `isAlarmActive()` evalúa **pertenencia al intervalo** en vez de igualdad exacta de minuto. Arrancar a las 07:00 dentro de la franja 06:00–09:00 ya enciende la luz |
 | `D6` | `ap.flagAlarm` se calcula como **OR de las cinco** alarmas en `ST_CHECK_ALL_ALA`: una franja que termina ya no apaga la luz si otra sigue abierta |
-| `D3` | Las ramas vacías de días personalizados ya tienen transición: la tarea no se queda clavada |
-| `D4` | El `<=` de `transmitUart1` pasó a `<`. El último byte en `TXREG` es `0x41`, no el terminador |
+| `D3` | Tarea de alarma cicla fluidamente sin depender de ramas muertas: la tarea no se queda clavada |
+| `D4` | El `<=` de `transmitUart1` pasó a `<`. El último byte en `TXREG` es `0x41`, no el terminador `0x00` |
 | `D5` | `strstr()` comprobado contra `NULL`, copias acotadas y `receiverUart1` con límite. La trama truncada ya no tumba el firmware |
 | `D2` | Se **invirtió**: ahora exige que una alarma para un día no soportado se **rechace** de forma segura sin habilitarla |
 | `T6` | Buzzer remapeado a `RC1` (`LATC1`) y `RC0` configurado como entrada para el pulsador de prueba (4 comprobaciones nuevas) |
+| `C` / `C2` | Cadencia oficial de **1.0 Hz (500 ms ON / 500 ms OFF)** programada en `Cluster.c` con guarda de inclusión en `Cluster.h` |
 
 ⚠️ **Tres cosas que quedaron a medias y hay que cerrar:**
 

@@ -3,6 +3,13 @@
  * 24 DE NOVIEMBRE DEL 2022
  */
 
+#ifndef CLUSTER_H
+#define CLUSTER_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //*** INCLUDES ***
 #include "TimeBase.h"
 #include <xc.h>
@@ -22,22 +29,22 @@ typedef struct
     unsigned char itera;
 }strCluster;
 
-
 enum states_cluster
 {
     ST_ARRANQUE_CL,
     ST_ESPERA_CL,
     ST_HIGH_CL,
-    ST_LOW_CL,
-    ST_LOW_SLOW_CL
+    ST_LOW_CL
 };
 
 //*** PROTOTIPO DE LAS FUNCIONES ***
 static int taskCluster(struct pt *pt);
 void startTaskCluster(void);
 void executeTaskCluster(void);
-
 void pinConfCluster(void);
 
+#ifdef __cplusplus
+}
+#endif
 
-
+#endif /* CLUSTER_H */

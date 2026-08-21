@@ -1,15 +1,13 @@
 /**
- * 
+ * ING. FREIMAN PARGA
+ * 24 DE NOVIEMBRE DEL 2022
+ * Modificado: 21-ago-2026 - Cadencia 1.0 Hz (500 ms ON / 500 ms OFF)
  */
-
 
 #include "Cluster.h"
 #include "Aplicacion.h"
 #include "main.h"
 #include "Buzzer.h"
-
-
-
 
 //*** ESTRUCTURAS EXTERNAS ***
 extern strAplicacion ap;
@@ -20,7 +18,7 @@ strCluster cl;
 //*******************
 
 //*** ENUM ***
-enum states_cluster  stateCluster;
+enum states_cluster stateCluster;
 //************
 
 unsigned long ulCntPeriodCluster;
@@ -46,7 +44,7 @@ static int taskCluster(struct pt *pt)
                 if(cl.flagEvento)
                 {
                     ON_CLUSTER;
-                    oneBeep();
+                    cl.uiCnt = 0;
                     stateCluster = ST_HIGH_CL;
                 }
                 else
@@ -55,9 +53,9 @@ static int taskCluster(struct pt *pt)
                 }
                 break;
                 
-                
             case ST_HIGH_CL:
-                if(++cl.uiCnt >= 5)
+                // 50 x 10 ms = 500 ms ON
+                if(++cl.uiCnt >= 50)
                 {
                     cl.uiCnt = 0;
                     OFF_CLUSTER;
@@ -66,52 +64,37 @@ static int taskCluster(struct pt *pt)
                 break;
                 
             case ST_LOW_CL:
-                if(++cl.uiCnt >= 5)
-                {
-                    cl.uiCnt = 0;
-                    
-                    if(++cl.itera >= 5)
-                    {
-                        cl.itera = 0;
-                        stateCluster = ST_LOW_SLOW_CL;
-                    }
-                    else
-                    {
-                        ON_CLUSTER;
-                        stateCluster = ST_HIGH_CL;
-                    }                    
-                }
-                break;
-                
-            case ST_LOW_SLOW_CL:
+                // 50 x 10 ms = 500 ms OFF
                 if(++cl.uiCnt >= 50)
                 {
                     cl.uiCnt = 0;
-                    
-                    cl.flagEvento = false;
-                    stateCluster = ST_ESPERA_CL;
+                    if(cl.flagEvento)
+                    {
+                        ON_CLUSTER;
+                        stateCluster = ST_HIGH_CL;
+                    }
+                    else
+                    {
+                        stateCluster = ST_ESPERA_CL;
+                    }                    
                 }
                 break;
-        }//fin switch
-    }//FIN WHILE
+        }
+    }
     PT_END(pt);
 }
 
 void startTaskCluster(void)
 {
-        PT_INIT(&ptTaskCluster);
+    PT_INIT(&ptTaskCluster);
 }
+
 void executeTaskCluster(void)
 {
     taskCluster(&ptTaskCluster);
 }
 
-
-
 void pinConfCluster(void)
 {
     TRISCbits.TRISC2 = 0;
-
-
-
 }

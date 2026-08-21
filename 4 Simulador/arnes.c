@@ -62,7 +62,6 @@ extern strAnaTrama          anaT1;
 extern strSerial            serial1;
 extern enum states_alarm    stateAlarm;
 extern srtAlarmas           ala1;
-extern srtAlarmas           ala1;
 
 /* La original, renombrada al compilar Serial.c. */
 void fw_transmitUart1(char *ptr);
@@ -142,7 +141,7 @@ static const char *cmd_hijo(const char *arg)
 static int hijo_trama_truncada(void)
 {
     arrancar_limpio();
-    sim_rx_str("¿" "A3");            /* sin coma y sin fin de trama */
+    sim_rx_str("\xBF" "A3");            /* sin coma y sin fin de trama */
     sim_tick(500);
     /* Si llega hasta aqui, no se cayo. Queda comprobar que ademas no se invento
        un numero de alarma imposible al salirse de la trama. */
@@ -363,9 +362,7 @@ int main(int argc, char **argv)
         estado_antes   = (int)stateAlarm;
         sim_tick(10000);
         estado_despues = (int)stateAlarm;
-        CHECK(!(estado_antes == estado_despues &&
-                estado_antes >= (int)ST_CHECK_ALARM1 &&
-                estado_antes <= (int)ST_CHECK_ALARM5),
+        CHECK(estado_antes != estado_despues || estado_despues == ST_ESPERA_ALA,
               "con dias personalizados la tarea de alarma sigue avanzando "
               "(estado %d -> %d)", estado_antes, estado_despues);
     }

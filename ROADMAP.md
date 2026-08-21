@@ -163,8 +163,8 @@ escribir dos veces la misma lógica.
 > *Fuente / Alineación:* Reunión técnica *"Pulsos y frecuencia — especificaciones técnicas"* (21-ago-2026, Diego Zúñiga / Funcional) confirmando 1 Hz continuo y uniforme durante el horario programado.
 
 - [x] **Confirmar la cadencia con el funcional:** **APROBADA (1 Hz — 500 ms ON / 500 ms OFF).**
-- [ ] Cambiar `Cluster.c` a la cadencia aprobada de 500 ms ON / 500 ms OFF.
-- [ ] **Ajustar el escenario C** en `arnes.c` para verificar 500 ms ± 10% (450 ms a 550 ms).
+- [x] Cambiar `Cluster.c` a la cadencia aprobada de 500 ms ON / 500 ms OFF.
+- [x] **Ajustar el escenario C** en `arnes.c` para verificar 500 ms ± 10% (450 ms a 550 ms). (Verificado: 500 ms ON / 500 ms OFF, PASS).
 
 Es la única parte del equipo que ve el conductor, y va detrás de 1.1 solo porque una luz con
 mala cadencia sigue avisando, y una luz apagada no avisa de nada.
