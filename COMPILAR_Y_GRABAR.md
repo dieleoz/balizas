@@ -90,11 +90,192 @@ D:\@Proyect\Baliza\6 Sw pic\MPLABX-v5.45-windows-installer.exe
 
 **No lo actualices.** Ver §0 y §10.
 
-### 2.2 MPLAB XC8 v2.46 — FALTA, hay que instalarlo
+### 2.2 MPLAB XC8 — ✅ v2.36 YA INSTALADA
 
-**MPLAB X no trae compilador.** Es un IDE: gestiona proyectos, habla con los programadores y depura, pero el que convierte `.c` en código de PIC es XC8, que se instala **aparte** y se descarga **aparte**. Por eso `C:\Program Files\Microchip\` sólo tiene `MPLABX`.
+**MPLAB X no trae compilador.** Es un IDE: gestiona proyectos, habla con los programadores y depura, pero el que convierte `.c` en código de PIC es XC8, que se instala **aparte** y se descarga **aparte**.
 
-**Instala la v2.46, no la última.** Tres razones:
+**Estado actual, comprobado el 21-ago-2026:**
+
+```
+C:\Program Files\Microchip\xc8\v2.36\
+    bin\xc8.exe          ← driver clásico. ES EL QUE FUNCIONA
+    bin\xc8-cc.exe       ← driver nuevo. Ver §2.6, hoy falla con este dispositivo
+    bin\xc8-ar.exe
+    pic\bin\picc18.exe   ← compilador de PIC18 propiamente dicho
+```
+
+Verificación:
+
+```powershell
+& "C:\Program Files\Microchip\xc8\v2.36\pic\bin\picc18.exe" --ver
+# Microchip MPLAB XC8 C Compiler V2.36
+# Build date: Jan 27 2022
+# Part Support Version: 2.36
+```
+
+**Nada que instalar para poder compilar.** Si hiciera falta reinstalarlo, el instalador está guardado en `D:\@Proyect\Baliza\6 Sw pic\xc8-v2.36-full-install-windows-x64-installer.exe`.
+
+> **Si alguna vez hay que reinstalarlo, dos cosas:**
+> - **La instalación pide permisos de administrador.** **La tiene que lanzar el usuario a mano**, haciendo doble clic sobre el instalador. No se puede automatizar desde una sesión sin privilegios.
+> - En el asistente, marca las casillas de **añadir XC8 al `PATH`** y de **integrar con MPLAB X** (*Update MPLAB X…*). Sin la primera, los comandos de §5 exigen escribir la ruta completa. Sin la segunda, XC8 no aparecerá en la lista de compiladores al crear el proyecto (§3).
+
+---
+
+### 2.3 ✅ El comando que compila — probado y funcionando
+
+```powershell
+cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
+
+& "C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" `
+    --chip=18f2550 `
+    --std=c99 `
+    --outdir=<carpeta_de_salida> `
+    main.c Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c `
+    EEprom.c I2C.c LedLive.c Serial.c TimeBase.c
+```
+
+**Resultado: código de salida 0.** Genera **`main.hex`** en la carpeta de salida (60 044 bytes en la prueba).
+
+**Resumen de memoria real que imprime** — guárdalo como referencia para saber si un cambio futuro se pasó de sitio:
+
+```
+Memory Summary:
+    Program space        used  533Dh ( 21309) of  8000h bytes   ( 65.0%)
+    Data space           used   2AFh (   687) of   800h bytes   ( 33.5%)
+    Configuration bits   used     7h (     7) of     7h words   (100.0%)
+    EEPROM space         used     0h (     0) of   100h bytes   (  0.0%)
+    ID Location space    used     0h (     0) of     8h bytes   (  0.0%)
+```
+
+**Quedan libres unos 11 000 bytes de flash y 1 361 bytes de RAM.** Si un cambio hace que «Program space» pase del 90 %, párate y revisa qué has metido.
+
+> **Fíjate en que `UART.h` no aparece en la lista de ficheros.** Es correcto: `UART.h` **no es una cabecera normal, contiene el código de las funciones** y se incluye desde `main.c`. Si lo añades a la línea de comandos, obtendrás errores de símbolo duplicado.
+
+#### Avisos que salen y NO son fallos
+
+La compilación imprime bastante ruido. **Todo esto es esperado. No lo arregles.**
+
+| Aviso | Dónde | Por qué es normal |
+|---|---|---|
+| `(228) illegal character (0xBF)` | `Serial.c:148` | Es el **delimitador de inicio de trama** del protocolo. Es intencionado. Ver `MANUAL_FUNCIONAL_BLUETOOTH.md` §8 |
+| `(359) illegal conversion between pointer types` | `Serial.c:184` y `:189` | Conversiones entre `char*` y `unsigned char*` del código original |
+| `non-reentrant function … has been duplicated by the compiler` | `_vfprintf`, `_dtoa`, `_stoa`, `_pad`, `_UART_write`, `_putch`, `_strlen`, `_fputc`… | Ver abajo |
+
+**Sobre la duplicación de funciones**, que es la lista más larga y la más llamativa: el PIC18 no tiene pila de datos, así que XC8 asigna las variables locales en direcciones fijas. Si una función se llama **desde dos grafos de llamada distintos** —por ejemplo desde el programa principal **y desde una interrupción**— el compilador no puede compartir esas direcciones y **genera dos copias del código**.
+
+Aquí pasa porque se usa `printf`/`sprintf` desde varios sitios, y porque `UART_write` se llama tanto desde la aplicación como desde la interrupción de `main.c`. **Esa duplicación es una de las razones de que el programa ocupe el 65 % de la flash.** Es un coste conocido y aceptado, no un error.
+
+---
+
+### 2.4 ⚠️ `--std=c99` NO ES OPCIONAL — el hallazgo principal
+
+> ### Sin `--std=c99`, el firmware NO COMPILA
+>
+> El driver `xc8.exe` compila en **C90** por defecto. En C90 el código falla.
+
+**Comprobado.** Ejecutando el mismo comando de §2.3 **sin** la bandera `--std=c99`:
+
+```
+DS1307.c
+DS1307.c: escribirRTC()
+    66:	const uint8_t rtc_datos[7]={hor, min, seg, dia, mes, ano, diaSe};
+	                               ^ (188) constant expression required
+	 (188) constant expression required ^
+	      (188) constant expression required ^
+	           (188) constant expression required ^
+	                (188) constant expression required ^
+	                     (188) constant expression required ^
+	                            (188) constant expression required ^
+(908) exit status = 1
+```
+
+**Código de salida: 1. No se genera `.hex`.**
+
+**Qué pasa exactamente.** La línea 66 de `DS1307.c` declara un array `const` **local**, inicializado con los **parámetros de la función**:
+
+```c
+const uint8_t rtc_datos[7] = {hor, min, seg, dia, mes, ano, diaSe};
+```
+
+En **C90**, los inicializadores de un array deben ser *expresiones constantes* conocidas en tiempo de compilación. Los parámetros de una función no lo son. En **C99** esto es perfectamente legal.
+
+> ### La conclusión, y es importante
+>
+> **El proyecto original estaba configurado en C99.** No es que el código esté mal: es que se está compilando con el estándar equivocado.
+>
+> **NO TOQUES `DS1307.c`.** La tentación de «arreglar» esa línea desmontando el array es un error: cambiaría código probado que hoy funciona en las señales instaladas, para resolver un problema que se resuelve con una bandera.
+>
+> **La solución es compilar en C99.** Nada más.
+
+**Al recrear el proyecto en MPLAB X (§3), hay que ponerlo a mano:**
+
+`Project Properties` → `XC8 Global Options` (o `XC8 Compiler`) → **`C standard` → `C99`**
+
+**Si no lo haces, te encontrarás ese error 188 y creerás que el código está roto.** No lo está.
+
+*Esto encaja con lo que ya decía el `.lst` de producción (§1.1): el proyecto original se compiló con XC8 v2.46 en licencia Free, y en C99.*
+
+---
+
+### 2.5 ⚠️ Discrepancia de versión: producción es v2.46, aquí hay v2.36
+
+**Los dos datos, ambos verificados:**
+
+| | Versión | Cómo se sabe |
+|---|---|---|
+| **Firmware de producción** | **XC8 v2.46** | El `.map` de `dist\default\debug\` dice literalmente «Microchip MPLAB XC8 Compiler **V2.46**» y todas sus rutas internas apuntan a `C:\Program Files\Microchip\xc8\v2.46\` |
+| **Instalado hoy** | **XC8 v2.36** | `picc18.exe --ver` |
+
+**Por qué se bajó la v2.36:** por compatibilidad con MPLAB X 5.45, que es la versión del IDE instalada y la que el usuario no quiere actualizar.
+
+**Qué significa esto en la práctica:**
+
+- ✅ **La v2.36 sirve perfectamente para compilar y para seguir desarrollando.** Está probado (§2.3).
+- ❌ **Pero el `.hex` que salga NO será comparable con `18f2550_baliza__V1.X.production.hex`.** Lo generó otra versión del compilador, así que cambian el tamaño, la disposición en memoria y posiblemente los tiempos del código generado. **Una comparación byte a byte (§7.3) no tiene sentido entre versiones distintas.**
+
+**Recomendación razonada — elige según lo que quieras hacer:**
+
+| Si tu objetivo es… | Entonces… |
+|---|---|
+| **Reproducir y comparar** con lo que hay instalado en las señales | **Instala la v2.46.** Es la única forma de que una diferencia en el `.hex` signifique «lo cambié yo» y no «cambió el compilador» |
+| **Sólo seguir desarrollando** y grabar firmware nuevo | **La v2.36 vale y basta.** Deja escrito en el proyecto con qué versión se compiló |
+
+> ### 📌 La versión del compilador es un dato del entregable
+>
+> **Ahora mismo sólo se sabe con qué se compiló producción por casualidad, leyendo un fichero de mapa que casualmente sobrevivió.** Eso no puede volver a pasar.
+>
+> **A partir de ahora, junto a cada `.hex` que se entregue tiene que quedar anotado:**
+> - la **versión exacta de XC8** (`picc18.exe --ver`),
+> - el **tipo de licencia** (Free o PRO),
+> - las **banderas de compilación** usadas (como mínimo `--chip` y `--std`),
+> - la **fecha** de compilación.
+>
+> **Las banderas importan tanto como la versión.** Prueba de ello: para este mismo código se han medido **21 640 bytes** (66,0 %, del `memoryfile.xml` original), **21 309 bytes** (65,0 %, la compilación de hoy — cifras que casan bien) y **26 863 bytes** (82,0 %, otra compilación de esta misma sesión con banderas distintas). **El mismo código fuente, tres tamaños.** Sin anotar las banderas, ese número no significa nada.
+
+---
+
+### 2.6 El driver `xc8-cc.exe` hoy no funciona con este dispositivo
+
+XC8 trae **dos** drivers. El clásico (`xc8.exe`) y el nuevo (`xc8-cc.exe`). **Usa el clásico.**
+
+```powershell
+# ✅ FUNCIONA
+& "C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" --chip=18f2550 --std=c99 ...
+
+# ❌ FALLA
+& "C:\Program Files\Microchip\xc8\v2.36\bin\xc8-cc.exe" -mcpu=18F2550 ...
+# (2043) target device was not recognized
+```
+
+**Y el dispositivo sí está soportado** — existen `pic\dat\cfgdata\18f2550.cfgdata`, `pic\dat\ini\18f2550.ini` y `pic\include\proc\pic18f2550.h`. Así que el fallo es de invocación, no de soporte.
+
+**No se ha averiguado la forma correcta de llamar a `xc8-cc` para este dispositivo.** Queda en §10 como pregunta abierta. **Mientras tanto, `xc8.exe` es el camino bueno y está probado.**
+
+---
+
+### 2.7 Si algún día se instala la v2.46 — por qué esa y no la última
+
+**Tres razones:**
 
 1. **Para poder comparar.** El `.hex` que hay hoy en producción salió de XC8 v2.46 en modo Free. Si compilas con otra versión, el binario nuevo se diferenciará del viejo por dos motivos mezclados —tus cambios y el cambio de compilador— y ya no podrás saber cuál de los dos causó qué. Con la misma versión, cualquier diferencia en el `.hex` es **tuya**.
 2. **Porque cambia el tamaño y los tiempos.** Otra versión de XC8 genera otro código: otro tamaño en flash, otro número de ciclos por función, otro reparto de bancos de RAM. En un 18F2550 al 66 % de la flash (§4.2) eso importa. Y en un firmware que temporiza con Timer0 y protothreads, un cambio de ciclos puede mover comportamientos.
@@ -109,12 +290,14 @@ D:\@Proyect\Baliza\6 Sw pic\MPLABX-v5.45-windows-installer.exe
 
 **Dónde instalarlo:** deja la ruta por defecto, `C:\Program Files\Microchip\xc8\v2.46\`, que es exactamente donde estaba antes según el `.map`. Marca la casilla que añade XC8 al `PATH` si quieres usar la línea de comandos (§5).
 
-**Comprueba después de instalar:**
+**Comprueba después de instalar** — usa `picc18.exe`, que es el que da la versión de forma fiable:
 
 ```powershell
 dir "C:\Program Files\Microchip\xc8\v2.46\bin"
-& "C:\Program Files\Microchip\xc8\v2.46\bin\xc8-cc.exe" --version
+& "C:\Program Files\Microchip\xc8\v2.46\pic\bin\picc18.exe" --ver
 ```
+
+**Y compila con el driver clásico y C99**, igual que en §2.3, cambiando `v2.36` por `v2.46` en la ruta. **Las dos versiones pueden convivir instaladas a la vez** en carpetas distintas; lo que decide cuál usas es la ruta que escribas en el comando.
 
 ---
 
@@ -534,8 +717,11 @@ Y compara también el **resumen de memoria** (§4.3) contra los 21 640 / 564 byt
 | Síntoma | Causa | Solución |
 |---|---|---|
 | **`File → Open Project` no ofrece la carpeta del firmware; sale sin el icono de proyecto** | **No hay `nbproject\`.** Comprobado: no existe en ninguna parte de `D:\@Proyect\Baliza` | Crear el proyecto desde cero, §3. No hay atajo |
-| **En `New Project → Select Compiler` la lista sale vacía o sin XC8** | **XC8 no está instalado** (comprobado: no existe `C:\Program Files\Microchip\xc8`). O lo instalaste con MPLAB X abierto y el IDE no lo ha visto | Instala XC8 v2.46 (§2.2), cierra y reabre MPLAB X. Si aun así no sale: `Tools → Options → Embedded → Build Tools → Scan for Build Tools` |
-| **Compila pero el binario sale muy distinto del de producción** | Versión de XC8 distinta de la 2.46, o licencia PRO en vez de Free | §2.2. El de producción salió de **v2.46 en modo Free** (`...debug.lst`) |
+| **`(188) constant expression required` en `DS1307.c:66`** | **Falta `--std=c99`.** El driver `xc8.exe` compila en C90 por defecto, y en C90 ese array `const` local inicializado con parámetros es ilegal | **Añade `--std=c99`** al comando, o pon `C standard = C99` en las propiedades del proyecto. **NO toques `DS1307.c`.** Ver **§2.4** |
+| **En `New Project → Select Compiler` la lista sale vacía o sin XC8** | XC8 **sí está instalado** (v2.36, comprobado). Si no aparece, es que lo instalaste con MPLAB X abierto y el IDE no lo ha visto, o no marcaste la integración con MPLAB X en el asistente | Cierra y reabre MPLAB X. Si aun así no sale: `Tools → Options → Embedded → Build Tools → Scan for Build Tools`, y añade a mano `C:\Program Files\Microchip\xc8\v2.36\bin` |
+| **`(2043) target device was not recognized` con `xc8-cc.exe`** | El driver nuevo no acepta este dispositivo tal como se le invoca, aunque el soporte está presente en disco | **Usa el driver clásico `xc8.exe --chip=18f2550`.** Ver §2.6 |
+| **Compila pero el binario sale muy distinto del de producción** | **Lo instalado es v2.36 y producción se hizo con v2.46.** También puede ser licencia PRO en vez de Free, o banderas distintas | **Es lo esperado, no un fallo.** Ver **§2.5**. Para comparar byte a byte hace falta la **v2.46 en modo Free** con las mismas banderas |
+| **Avisos `(228) illegal character (0xBF)` y `non-reentrant function … duplicated`** | Son **normales**. El `0xBF` es el delimitador de trama del protocolo; la duplicación la provoca llamar a `printf`/`UART_write` desde el programa y desde una interrupción | **No los arregles.** Ver §2.3 |
 | **El comando de línea de órdenes falla con «no se encuentra la ruta» o parte la orden por la mitad** | **Espacios en las rutas.** `Program Files`, `1 Firmware`, `Doc mplabx`, y sobre todo **`18f2550_baliza_ V1.X` tiene un espacio antes de `V1.X`** | Entrecomilla **todas** las rutas, siempre. En PowerShell usa el operador de llamada: `& "C:\...\xc8-cc.exe"` |
 | **Avisos `unknown pragma` o `unrecognized #pragma config`** | `main.h` tiene **58 `#pragma config`** (líneas 12–73), que son directivas **de XC8**. Cualquier otro compilador —gcc, un analizador, un editor con IntelliSense— no los entiende | Con XC8 no pasa: son suyos y deben aplicarse. Con gcc, el simulador ya los silencia (`-Wno-unknown-pragmas` en `correr.py`). **Si XC8 te avisa de un `#pragma config`, no lo ignores**: significa que ese bit no se está grabando y el micro arrancará con el valor por defecto (otro oscilador, watchdog activo...) |
 | **Errores de «redefinición» de `strCluster`, `states_cluster`, `PERIOD_CLUSTER`...** | **`Cluster.h` NO tiene guarda de inclusión.** Comprobado: no empieza con `#ifndef CLUSTER_H` ni lleva `#pragma once`; empieza directamente con el comentario de cabecera y los `#include` (ver el fichero). Lo incluyen **tres** fuentes: `Cluster.c:6`, `Aplicacion.c:27` y `main.c:19`. Además está `static int taskCluster(struct pt *pt);` declarada en la cabecera, que es otra rareza | Hoy **no da problemas** porque cada `.c` se compila por separado y ninguno la incluye dos veces por caminos distintos. **Empezará a darlos** en cuanto: (a) alguien añada `#include "Cluster.h"` a otra cabecera que ya se incluya, creando una inclusión doble indirecta; (b) alguien intente una compilación en unidad única (`#include` de los `.c`) — el arnés del simulador **no puede hacerlo por esta razón exacta**, y lo dice en la cabecera de `arnes.c`; (c) alguien active la generación de código omnisciente. **Lo correcto es ponerle la guarda.** `EEprom.h` y `UART.h` tampoco la tienen, y les pasa lo mismo |
@@ -550,14 +736,28 @@ Y compara también el **resumen de memoria** (§4.3) contra los 21 640 / 564 byt
 
 ## 9. Procedimiento resumido — una página
 
-### Preparar (una sola vez)
+### Compilar HOY, sin IDE — 30 segundos
 
-1. Descargar **XC8 v2.46** del archivo de versiones de Microchip. Instalar en `C:\Program Files\Microchip\xc8\v2.46`. Dejarlo en modo **Free**.
+**Esto ya funciona. No hay que instalar nada.**
+
+```powershell
+cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
+& "C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" --chip=18f2550 --std=c99 --outdir=.\salida `
+    main.c Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c EEprom.c I2C.c LedLive.c Serial.c TimeBase.c
+```
+
+Genera `salida\main.hex`. Debe terminar con `Program space used … ( 65.0%)` y **código de salida 0**.
+**`--std=c99` es obligatorio** (§2.4). El `.hex` **no** es comparable con el de producción (§2.5).
+
+### Preparar el IDE (una sola vez)
+
+1. **XC8 ya está instalado (v2.36).** Nada que descargar. *(Sólo si quieres reproducir producción byte a byte: descarga e instala además **XC8 v2.46** del archivo de versiones de Microchip, en modo **Free**. Pueden convivir las dos. Ver §2.5 y §2.7.)*
 2. Abrir `C:\Program Files\Microchip\MPLABX\v5.45\mplab_platform\bin\mplab_ide64.exe`.
 3. `File → New Project → Microchip Embedded → Standalone Project`.
 4. Device: **`PIC18F2550`**.
 5. Tool: el programador (**no Snap**). Si no hay, `Simulator`.
-6. Compiler: **`XC8 (v2.46)`**.
+6. Compiler: **`XC8 (v2.36)`** — o `v2.46` si la instalaste.
+6b. **`Project Properties → XC8 Global Options → C standard → C99`.** **Sin esto no compila** (§2.4).
 7. Name: `18f2550_baliza_ V1.X` · Location: `D:\@Proyect\Baliza\1 Firmware\Doc mplabx` · Encoding: **`windows-1252`**.
 8. `Source Files → Add Existing Item`: los 11 `.c`. **`Store path as: Auto`, NUNCA `Copy`.**
 9. `Header Files → Add Existing Item`: los 12 `.h`. Luego `Add Existing Items from Folders` → **`Rtos\`**.
@@ -599,13 +799,16 @@ Cosas que **no** he podido comprobar en esta máquina. Están aquí como pregunt
 
 2. **¿Por qué exactamente fallan las versiones nuevas de MPLAB X con sus programadores?** La hipótesis que encaja es que Microchip retiró el soporte de PICkit 3 / ICD 3 / REAL ICE en las versiones posteriores a la 5.45, y que el usuario tiene una de esas. **No lo he podido verificar sin acceso a las notas de versión de Microchip.** Lo que sí está verificado es que **esta** instalación sí los soporta para el PIC18F2550 (`docs\Device Support.htm`). **Pregunta: ¿el programador es uno de los tres retirados?** Si lo es, queda cerrado el asunto y no hay que volver a plantear actualizar.
 
-3. **¿Cómo se llama exactamente el ejecutable de XC8 v2.46 y qué opción usa para el dispositivo?** No lo puedo comprobar: XC8 no está instalado, y los artefactos de la compilación antigua (`.p1`, `.i`, `.map`, `.lst`) no registran el nombre del driver, sólo el del compilador y el del ensamblador. La documentación de XC8 v2.x describe `bin\xc8-cc.exe` (con `-mcpu=18F2550`) y el heredado `bin\xc8.exe` (con `--chip=18F2550`). **Comprobar tras instalar** con `dir "C:\Program Files\Microchip\xc8\v2.46\bin"` y `xc8-cc.exe --help`, y corregir §5.1 con lo que salga.
+3. ~~**¿Cómo se llama el ejecutable de XC8 y qué opción usa para el dispositivo?**~~ ✅ **RESUELTO el 21-ago-2026.** El driver que funciona es **`bin\xc8.exe` con `--chip=18f2550`**, y hace falta **`--std=c99`**. Probado, código de salida 0. Ver §2.3.
+   **Queda una pregunta derivada:** **¿por qué `xc8-cc.exe -mcpu=18F2550` falla con `(2043) target device was not recognized`,** si el soporte del dispositivo está presente en disco (`pic\dat\cfgdata\18f2550.cfgdata`, `pic\dat\ini\18f2550.ini`, `pic\include\proc\pic18f2550.h`)? ¿Es cuestión de mayúsculas en el argumento, de que `xc8-cc` exija además `-mdfp=` apuntando al *device family pack*, o de que este dispositivo sólo esté soportado por el driver clásico en la v2.36? **Mientras no se aclare, usa `xc8.exe`.** Ver §2.6.
 
-4. **La URL y el nombre del instalador de XC8 v2.46.** No tengo red desde aquí. Sé que Microchip publica un archivo de versiones antiguas en la página del compilador XC8, pero **no puedo confirmar la dirección ni el nombre del fichero**. Búscalo como «MPLAB XC8 Compiler → Downloads Archive → v2.46, Windows».
+4. **La URL y el nombre del instalador de XC8 v2.46**, por si se decide instalarla para reproducir producción (§2.5). Búscalo como «MPLAB XC8 Compiler → Downloads Archive → v2.46, Windows». *(Ya no bloquea nada: con la v2.36 se compila y se desarrolla sin problema.)*
+
+4b. **¿Con qué banderas exactas se compiló producción?** Se sabe la versión (**v2.46**) y la licencia (**Free**, `Og1`) por el `.map` y el `.lst`, pero **no las banderas completas** — en particular si llevaba `--std=c99` explícito o lo heredaba de la configuración del proyecto. **Importa:** para el mismo código se han medido 21 640, 21 309 y 26 863 bytes según versión y banderas. **Sin las banderas no se puede reproducir el binario.** Ver el recuadro de §2.5.
 
 5. **La sintaxis exacta de `prjMakefilesGenerator.bat`.** El `.bat` existe (verificado, es un lanzador de `..\lib\PrjMakefilesGenerator.jar`), pero no imprime ayuda y no hay proyecto sobre el que probarlo. La forma `<ruta del proyecto>@<configuración>` es la documentada por Microchip. **Confirmar cuando exista el proyecto**, y de paso mirar dentro de `nbproject\` cómo se llama realmente el makefile generado (se espera `Makefile-default.mk`).
 
-6. **¿Se puede reproducir bit a bit el `.hex` de producción?** No hay forma de saberlo hasta instalar XC8 v2.46 y compilar el código sin modificar. Merece la pena hacerlo **antes** de tocar nada: si el `.hex` recién compilado sale idéntico al de producción, queda demostrado que la reconstrucción del proyecto es correcta y que a partir de ahí toda diferencia es tuya. Si sale distinto, hay que averiguar por qué **antes** de empezar a modificar, no después.
+6. **¿Se puede reproducir bit a bit el `.hex` de producción?** **Con la v2.36 que hay instalada, no** — es otra versión de compilador y el binario sale necesariamente distinto (§2.5). La pregunta sigue abierta **para la v2.46**: haría falta instalarla, compilar el código sin modificar y comparar. Merece la pena hacerlo **antes** de tocar nada: si sale idéntico, queda demostrado que la reconstrucción del proyecto es correcta y que a partir de ahí toda diferencia es tuya. Si sale distinto, hay que averiguar por qué **antes** de modificar, no después. **Depende también de 4b** (las banderas).
 
 7. **¿Qué contiene la EEPROM del PIC en la tarjeta que está montada?** Las alarmas programadas viven ahí. Antes de grabar convendría leerla (`ipecmd ... /GE0-FF`) y guardarla, para poder restaurarla si algo sale mal. No se puede hacer desde aquí: hace falta la tarjeta y el programador.
 

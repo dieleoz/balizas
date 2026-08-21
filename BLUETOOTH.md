@@ -188,6 +188,33 @@ Sigma Electrónica lo vende literalmente como **«Módulo Bluetooth posible reem
 
 **Traducción práctica:** todo lo que se sepa de configurar un HC-05 por AT **puede no aplicar** a este módulo. Si hay que cambiarle los baudios, hace falta **su** manual, no el del HC-05.
 
+### 3.2 El PDF que tienen NO es el que hace falta — leído y confirmado
+
+El único documento disponible es `D:\@Proyect\Baliza\5 HW bluetooth\BK3231_ARM968E-S.pdf`.
+
+**Qué es realmente:** «BK3231 Bluetooth HID SoC — Datasheet — Preliminary Specification», Beken Corporation, **29 páginas**, fechado **Sep-2014** (metadatos del PDF: creado 2015-07-07, título original `Microsoft Word - Technical Description.doc`).
+
+Es la **hoja de datos del chip pelado**, escrita para quien diseña una placa alrededor del BK3231. **No es el manual del módulo SIG0109A.** Su índice lo dice todo (p. 2):
+
+> 1 General Description · 2 Features · 3 Pin Information · 4 Memory Organization · 5 Interrupt and Clock Unit · 6 MFC · 7 GPIO · 8 ADC · 9 UART · 10 I2C-SMBus · 11 SPI · 12 PWM Timer · 13 Watch dog · 14 Electrical Specifications · 15 Package Information · 16 Application Schematic · 17 Order Information
+
+**Lo que se buscó en él, y NO está — confirmado con búsqueda de texto sobre el PDF completo:**
+
+| Lo que hace falta para configurar el módulo | ¿Está en el PDF? | Comprobación |
+|---|---|---|
+| **Baudios por defecto** | ❌ **NO** | La única mención a baudios es la fórmula del registro del periférico UART, p. 17: `Baud rate = UART_CLK/(UART_CLK_DIV+1)`, con `UART_CLK_DIV` en `0x0[20:8]`. Eso configura el periférico **desde el firmware del chip**; no dice a qué velocidad arranca un módulo comercial. No aparece «9600», ni «38400», ni «115200» en ninguna página |
+| **Comandos AT** | ❌ **NO** | Cero apariciones de «AT+», «AT command» o «command set» en las 29 páginas. Es lógico: los comandos AT los implementa el **firmware del módulo**, no el silicio |
+| **Pinout de la placa del módulo** | ❌ **NO** | La sección 3 «Pin Information» describe los encapsulados **QFN 7×7 de 56 pines** y **QFN 4×4 de 32 pines** del chip (pines `VDDPA`, `VDDSPI`, `VDDDSP`, `XTALN`, `RFP`, `VCCRF`…). Nada que ver con los 6 pines de una placa portadora |
+| **PIN de emparejamiento** | ❌ **NO** | Cero apariciones de «pairing», «PIN code», «passkey» o «1234» |
+| **Nombre Bluetooth por defecto** | ❌ **NO** | — |
+| **Perfil SPP garantizado** | ⚠️ **A MEDIAS** | p. 3: «*It integrates … Bluetooth HID profile*» y «*HID v1.0, and other light profile **by request***». El SPP se menciona como posibilidad («*it is also possible for other Bluetooth application such as SPP controller*»), **no** como característica estándar del chip |
+| **Alimentación del módulo** | ⚠️ **DEL CHIP, NO DEL MÓDULO** | Tabla 2: `VCC` operativo **2,0 – 3,0 – 3,6 V**. Ese es el **SoC**. La ficha de Sigma dice **3,6–6 V** para el **módulo**, luego el módulo lleva su propio regulador |
+| **Tolerancia a 5 V en RXD** | ❌ **NO** | Tabla 2 da `VIH` con máximo `VCC+0,3 V` para los pines del **chip**. Sobre lo que hay en el pin RXD **de la placa** no dice nada |
+
+> **🔴 Esta es la razón exacta por la que están atascados.** Tienen la hoja de datos de un microcontrolador ARM968E-S, y lo que necesitan es una hoja de dos páginas que diga «arranca a X baudios, el PIN es Y, se le habla con estos comandos AT y los pines van en este orden». **Ese documento no lo tienen, y sin él no se puede configurar el módulo a ciegas: hay que medirlo (Prueba 2) o pedírselo a Sigma (§9, pregunta 1).**
+
+---
+
 ### 3.3 ⭐ La pista más útil: el SIG0109A es casi seguro un JDY-31 (o «SPP-C»)
 
 Los módulos BK3231S vendidos como reemplazo de HC-05/HC-06 corresponden a la familia comercial **JDY-31 / JDY-30 / «SPP-C»**. La identificación chip↔modelo procede de **terceros**, no de Sigma:
@@ -223,31 +250,6 @@ Los módulos BK3231S vendidos como reemplazo de HC-05/HC-06 corresponden a la fa
 Las dos fuentes discrepan en **dos permutaciones a la vez**: `RXD`↔`TXD` **y `GND`↔`VCC`**. La segunda es letal: si la placa real lleva el orden que reporta Currey y se inserta en este zócalo, **los +5 V entran por el pin GND del módulo y la masa por su VCC**. Muerte instantánea.
 
 > **🔴 NO INSERTAR EL SIG0109A HASTA HABER COMPARADO SU SERIGRAFÍA, PIN A PIN, CON EL ZÓCALO.** Es gratis, tarda un minuto, y es la diferencia entre un módulo vivo y uno muerto. Ver §4, causa 6, y §6 Prueba 0, paso 2.
-
-### 3.2 El PDF que tienen NO es el que hace falta — leído y confirmado
-
-El único documento disponible es `D:\@Proyect\Baliza\5 HW bluetooth\BK3231_ARM968E-S.pdf`.
-
-**Qué es realmente:** «BK3231 Bluetooth HID SoC — Datasheet — Preliminary Specification», Beken Corporation, **29 páginas**, fechado **Sep-2014** (metadatos del PDF: creado 2015-07-07, título original `Microsoft Word - Technical Description.doc`).
-
-Es la **hoja de datos del chip pelado**, escrita para quien diseña una placa alrededor del BK3231. **No es el manual del módulo SIG0109A.** Su índice lo dice todo (p. 2):
-
-> 1 General Description · 2 Features · 3 Pin Information · 4 Memory Organization · 5 Interrupt and Clock Unit · 6 MFC · 7 GPIO · 8 ADC · 9 UART · 10 I2C-SMBus · 11 SPI · 12 PWM Timer · 13 Watch dog · 14 Electrical Specifications · 15 Package Information · 16 Application Schematic · 17 Order Information
-
-**Lo que se buscó en él, y NO está — confirmado con búsqueda de texto sobre el PDF completo:**
-
-| Lo que hace falta para configurar el módulo | ¿Está en el PDF? | Comprobación |
-|---|---|---|
-| **Baudios por defecto** | ❌ **NO** | La única mención a baudios es la fórmula del registro del periférico UART, p. 17: `Baud rate = UART_CLK/(UART_CLK_DIV+1)`, con `UART_CLK_DIV` en `0x0[20:8]`. Eso configura el periférico **desde el firmware del chip**; no dice a qué velocidad arranca un módulo comercial. No aparece «9600», ni «38400», ni «115200» en ninguna página |
-| **Comandos AT** | ❌ **NO** | Cero apariciones de «AT+», «AT command» o «command set» en las 29 páginas. Es lógico: los comandos AT los implementa el **firmware del módulo**, no el silicio |
-| **Pinout de la placa del módulo** | ❌ **NO** | La sección 3 «Pin Information» describe los encapsulados **QFN 7×7 de 56 pines** y **QFN 4×4 de 32 pines** del chip (pines `VDDPA`, `VDDSPI`, `VDDDSP`, `XTALN`, `RFP`, `VCCRF`…). Nada que ver con los 6 pines de una placa portadora |
-| **PIN de emparejamiento** | ❌ **NO** | Cero apariciones de «pairing», «PIN code», «passkey» o «1234» |
-| **Nombre Bluetooth por defecto** | ❌ **NO** | — |
-| **Perfil SPP garantizado** | ⚠️ **A MEDIAS** | p. 3: «*It integrates … Bluetooth HID profile*» y «*HID v1.0, and other light profile **by request***». El SPP se menciona como posibilidad («*it is also possible for other Bluetooth application such as SPP controller*»), **no** como característica estándar del chip |
-| **Alimentación del módulo** | ⚠️ **DEL CHIP, NO DEL MÓDULO** | Tabla 2: `VCC` operativo **2,0 – 3,0 – 3,6 V**. Ese es el **SoC**. La ficha de Sigma dice **3,6–6 V** para el **módulo**, luego el módulo lleva su propio regulador |
-| **Tolerancia a 5 V en RXD** | ❌ **NO** | Tabla 2 da `VIH` con máximo `VCC+0,3 V` para los pines del **chip**. Sobre lo que hay en el pin RXD **de la placa** no dice nada |
-
-> **🔴 Esta es la razón exacta por la que están atascados.** Tienen la hoja de datos de un microcontrolador ARM968E-S, y lo que necesitan es una hoja de dos páginas que diga «arranca a X baudios, el PIN es Y, se le habla con estos comandos AT y los pines van en este orden». **Ese documento no lo tienen, y sin él no se puede configurar el módulo a ciegas: hay que medirlo (Prueba 2) o pedírselo a Sigma (§9, pregunta 1).**
 
 ---
 
@@ -582,7 +584,15 @@ Curiosamente, **la app ya tiene la variante insegura escrita** — `createInsecu
    - Con **todos los demás teléfonos apagados** o con el Bluetooth desactivado.
    - Esperar **hasta 2 minutos completos**.
 7. **Emparejar.** PIN a probar, en este orden: **`1234`**, luego **`0000`**.
-   - Anotar **el nombre exacto** con el que aparece. **Puede no llamarse «HC-06».** Un HC-05 suele anunciarse como `HC-05`; el SIG0109A, con lo que le haya puesto el fabricante. **Buscar «HC-06» y no encontrarlo NO significa que el módulo esté mal.**
+   - Anotar **el nombre exacto** con el que aparece. **Puede no llamarse «HC-06».** Nombres de fábrica documentados:
+
+     | Módulo | Nombre de fábrica | Fuente |
+     |---|---|---|
+     | HC-06 | **`linvor`** | datasheet Wavesen («*ID: linvor*») |
+     | HC-05 | **`HC-05`** o **`H-C-2010-06-01`** (tras `AT+ORGL`) | manual ITead |
+     | SIG0109A, si es un JDY-31 | **`JDY-31-SPP`** | manual JDY-31 |
+
+   - **Buscar «HC-06» y no encontrarlo NO significa que el módulo esté mal.** Es, muy probablemente, todo el «no lo reconoce».
 8. Anotar la **dirección MAC** que muestra el teléfono. Servirá para identificarlo entre varios.
 
 **Resultado y qué significa:**
@@ -989,17 +999,18 @@ Redactadas como preguntas concretas y accionables. Ninguna es una suposición: s
 
 ### A pedir a Sigma Electrónica (soporte técnico, sobre el SIG0109A)
 
-1. **¿Cuál es el orden exacto de los 6 pines de la placa del SIG0109A?** Se necesita la secuencia literal de un extremo al otro. La tarjeta tiene el zócalo cableado como `STATE · RXD · TXD · GND · VCC · EN` a 2,54 mm. **Si no coincide, el módulo se destruye al insertarlo.** — *Es la pregunta más urgente de todo el documento: bloquea cualquier prueba con este módulo.*
-2. **¿A qué velocidad de UART arranca el SIG0109A de fábrica?** ¿9600 8N1? La ficha del producto no lo indica y el `BK3231_ARM968E-S.pdf` es la hoja del SoC, no la del módulo (§3.2).
-3. **¿Qué juego de comandos AT acepta, y cómo se entra en modo comando?** ¿Hace falta un pin a nivel alto, como el KEY del HC-05, o se aceptan comandos en línea, como en el HC-06? ¿Terminados en CR+LF o sin terminador? Se necesita **el manual del módulo, no la hoja del chip**.
-4. **¿Cuál es el PIN de emparejamiento por defecto y el nombre Bluetooth por defecto?**
-5. **¿El pin RXD del módulo tolera 5 V?** ¿Lleva la placa divisor o resistencia serie hacia el SoC? El BK3231 admite `VIH` máximo `VCC+0,3 V` con `VCC ≤ 3,6 V` (`BK3231_ARM968E-S.pdf`, Tabla 2). **En esta tarjeta el pin `MCU_TX` del PIC ataca ese RXD directamente a 5 V, sin adaptación** (`HARDWARE.md` riesgo R7). Si el módulo no es tolerante, hay que intercalar una resistencia serie de 1 kΩ en el cableado del módulo.
-6. **¿El SIG0109A expone el perfil SPP de forma estándar?** El SoC BK3231 se describe como un chip **HID**, con SPP «*by request*» (`BK3231_ARM968E-S.pdf`, p. 3). La app abre el UUID `00001101-0000-1000-8000-00805F9B34FB` (`MainActivity2.java:42`) y **no funcionará con un módulo que sólo exponga HID**.
-7. **¿Es esclavo puro, o tiene rol configurable?** Si es configurable, ¿cómo sale de fábrica?
+1. **¿Cuál es el orden exacto de los 6 pines de la placa del SIG0109A?** Se necesita la secuencia literal de un extremo al otro. La tarjeta tiene el zócalo cableado como `STATE · RXD · TXD · GND · VCC · EN` a 2,54 mm. **Hay una contradicción documentada** (§3.3): el manual del JDY-31 da ese mismo orden, pero una fuente de terceros con foto de la placa real da `STATE · TXD · RXD · **VCC · GND** · EN`, con **VCC y GND intercambiados**. **Si es el segundo, el módulo se destruye al insertarlo.** — *Es la pregunta más urgente de todo el documento: bloquea cualquier prueba con este módulo, y se puede responder en un minuto mirando la serigrafía.*
+1b. **¿El SIG0109A es un JDY-31 (alias «SPP-C») reetiquetado?** Coincide con él en chip (BK3231S), versión Bluetooth (3.0) y alimentación (3,6–6 V), pero **Sigma no publica el modelo**. Si Sigma lo confirma, **el manual del JDY-31 responde por sí solo las preguntas 2, 3, 4 y 7** (§3.3). La forma barata de comprobarlo sin preguntar a nadie: enviar `AT+VERSION\r\n` a 9600 y ver si contesta `+VERSION=JDY-31-…` (§6, Prueba 2, método B).
+2. **¿A qué velocidad de UART arranca el SIG0109A de fábrica?** La ficha del producto no lo indica y el `BK3231_ARM968E-S.pdf` es la hoja del SoC, no la del módulo (§3.2). *(Si es un JDY-31: 9600 — pero eso hay que confirmarlo, no darlo por hecho.)*
+3. **¿Qué juego de comandos AT acepta, y cómo se entra en modo comando?** ¿Hace falta un pin a nivel alto, como el KEY del HC-05, o se aceptan comandos en línea? ¿Terminados en CR+LF o sin terminador? Se necesita **el manual del módulo, no la hoja del chip**. *(Si es un JDY-31: 9 comandos, con `\r\n`, sin modo separado.)*
+4. **¿Cuál es el PIN de emparejamiento por defecto y el nombre Bluetooth por defecto?** *(Si es un JDY-31: PIN `1234`, nombre `JDY-31-SPP`.)*
+5. **¿El pin RXD del módulo tolera 5 V?** ¿Lleva la placa divisor o resistencia serie hacia el SoC? El BK3231 admite `VIH` máximo `VCC+0,3 V` con `VCC ≤ 3,6 V` (`BK3231_ARM968E-S.pdf`, Tabla 2), y para el JDY-31 las fuentes de terceros dicen explícitamente que **RX y TX siguen siendo de 3,3 V** pese a que VCC acepte 5 V. **En esta tarjeta el pin `MCU_TX` del PIC ataca ese RXD directamente a 5 V, sin adaptación** (`HARDWARE.md` riesgo R7). **Mientras no haya respuesta, asumir que NO tolera 5 V** y poner la resistencia serie de 1 kΩ (pregunta 13).
+6. **¿El SIG0109A expone el perfil SPP de forma estándar?** El SoC BK3231 se describe como un chip **HID**, con SPP «*by request*» (`BK3231_ARM968E-S.pdf`, p. 3). La app abre el UUID `00001101-0000-1000-8000-00805F9B34FB` (`MainActivity2.java:42`) y **no funcionará con un módulo que sólo exponga HID**. *(El JDY-31 sí es SPP; Sigma también dice SPP en la ficha. Riesgo bajo, pero conviene cerrarlo.)*
+7. **¿Es esclavo puro, o tiene rol configurable?** *(Si es un JDY-31: esclavo puro, sin `AT+ROLE` — y entonces la causa 3 de §4 no le aplica.)*
 
 ### A medir en el taller
 
-8. **¿A qué velocidad está realmente el HC-05 que tienen?** → **Prueba 2, método A**. Es el dato que decide si el problema es de baudios o de otra cosa, y no cuesta más de 15 minutos.
+8. **¿A qué velocidad está realmente el HC-05 que tienen?** → **Prueba 2, método A**. Es el dato que decide si el problema es de baudios o de otra cosa, y no cuesta más de 15 minutos. **Sospechar de 38400**: es lo que dice el manual oficial del HC-05 como valor de fábrica, aunque las placas del mercado suelan venir a 9600 (§3).
 9. **¿Cuál es el rol del HC-05 (`AT+ROLE?`)?** → **Prueba 2, método B**, con el USB-TTL y el pin KEY a alto. Un `1` explicaría por sí solo que el teléfono no lo vea.
 10. **¿El módulo HC-06 que funcionaba sigue vivo?** → **Prueba 0**. Si sigue vivo, es la referencia contra la que comparar todo lo demás, y además permite dejar la baliza operativa hoy mismo mientras se resuelve el resto.
 11. **¿Qué versión de Android tiene el teléfono que se usa en campo, y qué APK tiene instalado?** El APK del repositorio (`app/release/Baliza.apk`) es `targetSdk 30` y funciona en cualquier versión (§5.3). **Si el teléfono tiene instalada una recompilación posterior con `targetSdk ≥ 31`, la app se cerrará sola.** Verificar en Ajustes → Aplicaciones → Baliza → versión, y contrastar con la `versionName 1.0` / `versionCode 1` del APK del repositorio.
@@ -1017,9 +1028,11 @@ Redactadas como preguntas concretas y accionables. Ninguna es una suposición: s
 **Regla 1:** El módulo tiene que estar a **9600 8N1**. Si no, no hay nada que hacer.
 **Regla 2:** El emparejamiento se hace **desde los ajustes del teléfono**, nunca desde la app.
 **Regla 3:** La app **sólo lista lo ya emparejado**. Si no está emparejado, no aparece.
-**Regla 4:** Antes de enchufar un módulo nuevo, **comparar el orden de sus 6 pines** con `STATE · RXD · TXD · GND · VCC · EN`.
+**Regla 4:** Antes de enchufar un módulo nuevo, **comparar el orden de sus 6 pines** con `STATE · RXD · TXD · GND · VCC · EN`. Hay fuentes que dan `VCC` y `GND` intercambiados: si es el caso, **se quema**.
 **Regla 5:** Las tramas se mandan **de golpe**, no letra a letra.
 **Regla 6:** Recompilar el firmware **no arregla nada**.
+**Regla 7:** El módulo **no se llama «HC-06»**. De fábrica: HC-06 → `linvor`; HC-05 → `HC-05`; SIG0109A → probablemente `JDY-31-SPP`. Buscar el nombre viejo y no encontrarlo no es una avería.
+**Regla 8:** Para buscar por Bluetooth, el teléfono necesita la **Ubicación ENCENDIDA**, no sólo el permiso concedido.
 
 **Orden de las pruebas:** 0 (módulo solo) → 1 (loopback) → 2 (baudios) → 3 (en la tarjeta) → 4 (con la app). **En ese orden, sin saltarse ninguna.**
 

@@ -7,7 +7,59 @@
 
 ---
 
+## 🔴 PASO 0 — ANTES DE ALIMENTAR NADA: COMPARA LA SERIGRAFÍA CON EL ZÓCALO
+
+> ### Esto va primero porque puede destruir el módulo en el instante en que le des tensión.
+> **Tarda un minuto. Es gratis. Hazlo con TODOS los módulos, y muy especialmente con el SIG0109A.**
+
+**Hay una contradicción documentada en el orden de los 6 pines del módulo SIG0109A**, y una de las dos versiones **mata el módulo al enchufarlo** en el zócalo de esta tarjeta.
+
+| Fuente | Orden de los 6 pines |
+|---|---|
+| Tabla del manual del JDY-31 **[DS]** | `STATE · RXD · TXD · **GND · VCC** · EN` |
+| Martyn Currey, **foto de la placa real** **[M]** | `STATE · TXD · RXD · **VCC · GND** · EN` |
+| **Zócalo `U2` de la baliza** (`balizaSR30.kicad_pcb`) | `STATE · RXD · TXD · **GND · VCC** · EN` |
+
+**Las dos fuentes discrepan en dos permutaciones a la vez: `RXD`↔`TXD` y — lo grave — `GND`↔`VCC`.**
+
+> **Si la placa que has comprado lleva el orden de la segunda fila y la insertas en el zócalo, los +5 V entran por el pin `GND` del módulo y la masa por su `VCC`. Muerte instantánea, sin aviso y sin humo.**
+>
+> **Esto explicaría por sí solo un módulo que «no se sabe si está quemado».**
+
+### Lo que tienes que hacer, con el módulo en la mano y sin alimentar
+
+- [ ] **0.1** Coge el módulo y **lee la serigrafía de sus 6 pines**, de un extremo al otro. Anótala en un papel tal cual está escrita.
+- [ ] **0.2** Compárala pin a pin con la del zócalo `U2`: `1=STATE · 2=RXD · 3=TXD · 4=GND · 5=VCC · 6=EN`.
+- [ ] **0.3** **Fíjate especialmente en las posiciones 4 y 5.**
+
+| Lo que lees en el módulo | Qué significa | Qué hacer |
+|---|---|---|
+| Posición 4 = `GND`, posición 5 = `VCC` | **Coincide con el zócalo** | ✅ Se puede insertar |
+| Posición 4 = `VCC`, posición 5 = `GND` | **INVERTIDO. Insertarlo lo destruye** | ⛔ **NO LO INSERTES.** Aparta el módulo y avisa al responsable |
+| No se lee la serigrafía | No se puede verificar | ⛔ **NO LO INSERTES.** Ver P20 en §11 |
+
+- [ ] **0.4** **Si hay la menor duda, no lo enchufes.** Verifica primero con el multímetro en modo continuidad, con el módulo fuera y sin alimentar, a qué pin del módulo llega la masa de su propio regulador.
+- [ ] **0.5** **Haz una foto de las dos caras del módulo** antes de montarlo. Si luego falla, la foto es la única prueba de qué se montó.
+
+> **Este paso también aplica al HC-05 y al HC-06.** Su orden habitual es distinto entre sí y entre fabricantes. **Nunca supongas el pinout: léelo.**
+
+*Fuentes: [manual JDY-31 (PDF)](https://adastra-soft.com/wp-content/uploads/2021/06/JDY-31_manual_2.pdf) · [Martyn Currey — JDY-31](https://www.martyncurrey.com/jdy-31-spp-bluetooth-module/) · `balizaSR30.kicad_pcb` · análisis completo en `BLUETOOTH.md` §3.3.*
+
+---
+
 ## Antes de empezar — lee esto
+
+> ### Cómo leer las marcas de procedencia
+>
+> Igual que en `BLUETOOTH.md`, cada dato de este manual lleva una marca:
+>
+> | Marca | Significa |
+> |---|---|
+> | **[DS]** | Hoja de datos o manual del fabricante. **Dato firme.** |
+> | **[M]** | Lo que se observa habitualmente en el mercado. **NO es especificación** — es orientación para empezar a probar |
+> | **[?]** | **No confirmado.** Va a §11 «Preguntas abiertas» |
+>
+> **Los HC-05 y HC-06 se venden desde hace quince años por decenas de fabricantes sin especificación común.** Lo marcado **[M]** hay que **comprobarlo en el ejemplar que tengas delante**, no darlo por bueno.
 
 Este documento **no diagnostica averías**. Configura módulos y los valida. Si un módulo no pasa la validación, este documento te dice cómo apartarlo, no por qué falla.
 
@@ -85,12 +137,32 @@ Mira la **placa portadora** (la placa azul o negra con los pines), no el módulo
 | **Serigrafía de la placa portadora** | `ZS-040`, `JY-MCU`, `HC-06` | `ZS-040`, `HC-05` | `SIG0109A` o sin marca |
 | **Chip / etiqueta del módulo metálico** | `HC-06`, `BC417` | `HC-05`, `BC417` | **`BK3231`** o **`BK3231S`** (Beken) |
 | **Color de placa típico** | Azul | Azul | Azul o negro |
-| **Nombre Bluetooth de fábrica** | `HC-06` o `linvor`, según firmware | `HC-05` | Depende del firmware. Si es tipo JDY-31: `JDY-31-SPP` — **no confirmado para el SIG0109A** (P2) |
-| **Velocidad de fábrica (datos)** | 9600 | 9600 | 9600 en toda la familia BK3231 conocida — **no confirmado para el SIG0109A** (P2) |
-| **PIN de fábrica** | `1234` | `1234` | `1234` en toda la familia BK3231 conocida — **no confirmado** (P2) |
+| **Nombre Bluetooth de fábrica** | **`linvor`** **[DS]** (o `HC-06` en firmware `hc01.com` **[M]**) | `HC-05` **[M]** | **`JDY-31-SPP`** si es un JDY-31 **[DS]** — **[?]** para el SIG0109A (P2) |
+| **Velocidad de fábrica (datos)** | **9600 N81** **[DS]** | ⚠️ **El manual oficial dice 38400** **[DS]**; las placas ZS-040 del mercado suelen venir a **9600** **[M]**. **Hay que medirlo** | **9600** si es un JDY-31 **[DS]** — **[?]** para el SIG0109A (P2) |
+| **PIN de fábrica** | `1234` **[DS]** | ⚠️ **El manual se contradice: `0000` en portada, `1234` en `AT+PSWD`** **[DS]**. **Prueba los dos** | `1234` si es un JDY-31 **[DS]** — **[?]** (P2) |
 
-> **El nombre de fábrica del HC-06 depende del firmware:** los antiguos (linvor) se llaman **`linvor`**; los `hc01.com` se llaman **`HC-06`**. Las dos cosas son normales.
-> *Fuente: [Manual oficial Wavesen](https://www.electronicoscaldas.com/datasheet/HC-Serial-Bluetooth-Products-User-Instructional-Manual_Wavesen.pdf) (tabla comparativa: HC-06 → «Bluetooth name: linvor»); [Martyn Currey — HC-06 hc01.comV2.0](https://www.martyncurrey.com/hc-06-hc01-comv2-0/).*
+> ### ⚠️ Los nombres de fábrica NO son los que la gente espera — y eso parece una avería
+>
+> **Éste es probablemente el origen del «el móvil no lo reconoce».**
+>
+> | Módulo | Se anuncia como | **NO** se llama |
+> |---|---|---|
+> | **HC-06** | **`linvor`** **[DS]** | ~~`HC-06`~~ (salvo firmware `hc01.com`) |
+> | **JDY-31 / SIG0109A** | **`JDY-31-SPP`** **[DS]** | ~~`HC-06`~~, ~~`HC-05`~~ |
+> | HC-05 | `HC-05` **[M]** | — |
+>
+> **Buscar «HC-06» en la lista del móvil y no encontrarlo NO es una avería.** El módulo puede estar perfectamente y anunciarse como `linvor` o `JDY-31-SPP`.
+> **Antes de dar un módulo por muerto, mira TODOS los nombres que aparezcan en la lista del móvil, no sólo el que esperabas.**
+>
+> *Fuentes: [Product Data Sheet HC-06, Wavesen Rev 2.2](https://www.electronicoscaldas.com/datasheet/HC-06_Wavesen.pdf) — «Bluetooth name: linvor»; [manual JDY-31 (PDF)](https://adastra-soft.com/wp-content/uploads/2021/06/JDY-31_manual_2.pdf); [Martyn Currey — HC-06 hc01.comV2.0](https://www.martyncurrey.com/hc-06-hc01-comv2-0/).*
+
+> ### ⚠️ La velocidad de fábrica del HC-05: circulan dos valores
+>
+> - Su **manual oficial** dice **38400** de fábrica, y `AT+ORGL` restaura «*Baud 38400bits/s*» **[DS]**.
+> - Las **placas ZS-040** que se venden hoy suelen venir a **9600** en modo datos **[M]**.
+>
+> **Los dos valores son creíbles. No supongas ninguno: mídelo** con el barrido de §3.4.
+> *(El HC-06 y el JDY-31 sí salen a 9600 de fábrica **[DS]**, que ya es la velocidad del PIC.)*
 
 ### 2.1.1 ⛔ Módulos que NO sirven — aunque se los vendan como equivalentes
 
@@ -318,9 +390,45 @@ Hay dos formas. La del botón es la que funciona siempre.
 
    > **Pista útil:** el propio Sigma vende aparte el **JDY-31** (<https://www.sigmaelectronica.net/producto/jdy-31/>), con chip «BK3231 Beken» y «Bluetooth 2.0/3.0 SPP». El manual del JDY-31 especifica *«with backplane: 3.6-6V»*, **exactamente los mismos 3,6–6 V** que anuncia el SIG0109A, y la palabra «Proto» de la descripción sugiere placa de adaptación. **Es razonable sospechar que el SIG0109A es un JDY-31 o equivalente, pero es una sospecha, no un dato.** Confirmarlo es parte de la pregunta P4.
 
+### 3.3.A ⭐ Si se confirma que es un JDY-31, el problema está resuelto
+
+**Los módulos BK3231S vendidos como reemplazo de HC-05/HC-06 son la familia comercial JDY-31 / JDY-30 / «SPP-C».** El SIG0109A **coincide con el JDY-31 en las tres cosas que Sigma sí publica**: chip BK3231S, Bluetooth 3.0 y alimentación 3,6–6 V. **Pero Sigma no publica el modelo, así que la equivalencia NO está confirmada** (P4/P1b).
+
+**Si se confirma**, hay manual de fabricante y todo lo siguiente es **[DS]**:
+
+| Dato | Valor según el manual del JDY-31 | Qué significa aquí |
+|---|---|---|
+| **Baudios de fábrica** | **9600** | ✅ **Ya coincide con el PIC.** Puede que no haya ni que tocarlos |
+| **PIN por defecto** | **`1234`** | ✅ Es el primero que hay que probar |
+| **Nombre por defecto** | **`JDY-31-SPP`** | ⚠️ **No se llama «HC-06»** |
+| **Rol** | **Sólo esclavo** | ✅ No hay modo maestro que pueda estar mal puesto |
+| **Modo AT** | **No hay modo separado.** Mismo UART, con la conexión Bluetooth cerrada | ✅ **No hace falta el pin `KEY`** — que en esta tarjeta está al aire |
+| **Terminador** | **`\r\n` obligatorio** | ⚠️ Al revés que el HC-06 |
+| **Respuestas** | `+OK`, `+NAME=…` | — |
+| `AT+VERSION` | `+VERSION=JDY-31-V1.2,Bluetooth V3.0` | **Es la forma de identificarlo con certeza** |
+| **Alimentación** | *«with backplane: 3,6–6 V (recomendado 5 V)»* | ✅ Los +5 V del zócalo son correctos **para la placa portadora** |
+| **Perfil** | Bluetooth 3.0 **SPP** | ✅ Compatible con el UUID `00001101-…` de la app |
+
+**Los 9 comandos — son todos los que tiene:**
+
+`AT+VERSION` · `AT+RESET` · `AT+DISC` · `AT+LADDR` · `AT+PIN` · `AT+BAUD` · `AT+NAME` · `AT+DEFAULT` · `AT+ENLOG`
+
+> ### ⛔ Los comandos del HC-05 NO funcionan en este módulo
+>
+> **`AT+ROLE` y `AT+UART` NO EXISTEN aquí.** Tampoco `AT+PSWD`, ni `AT+ORGL`, ni `AT+NAME?` con interrogante.
+>
+> **Esto importa muchísimo para no tirar módulos buenos:** si alguien coge un SIG0109A, le manda los comandos del HC-05 y no obtiene respuesta, **concluirá que el módulo está muerto**. No lo está: **le está hablando en un idioma que ese módulo no tiene**.
+>
+> **Antes de rechazar un módulo por «no responde», comprueba que le estás mandando los comandos de SU familia.** Y prueba siempre `AT+VERSION\r\n` a 9600 primero: es el que identifica qué tienes delante.
+
+**La velocidad se cambia con `AT+BAUD` + parámetro** (4=9600, 5=19200, 6=38400, 7=57600, 8=115200, 9=128000) **[DS]**. Para dejarlo en 9600: `AT+BAUD4\r\n`.
+
+*Fuentes: [manual JDY-31 V1.3 (PDF)](https://adastra-soft.com/wp-content/uploads/2021/06/JDY-31_manual_2.pdf) · [Martyn Currey — JDY-31/SPP-C es BK3231S y esclavo](https://www.martyncurrey.com/jdy-31-spp-bluetooth-module/) · [AdAstra-Soft — JDY-30 = BK3231, JDY-31 = BK3231S](https://adastra-soft.com/some-information-about-the-jdy-31-bluetooth-module/). Análisis completo en `BLUETOOTH.md` §3.3.*
+
 **Qué hacer mientras tanto:**
 
 - [ ] **3.3.1** **Aparta los módulos SIG0109A.** No los configures. No los montes. Márcalos como «PENDIENTE PROVEEDOR» y guárdalos separados.
+- [ ] **3.3.0** **Antes de nada, haz el PASO 0** (comparar serigrafía). Es el que evita quemarlo.
 - [ ] **3.3.2** Usa **HC-05 o HC-06** para los equipos que haya que dejar listos ahora.
 - [ ] **3.3.3** Que alguien haga a Sigma Electrónica las preguntas **P4** a **P9** de §11.
 
@@ -471,6 +579,14 @@ BAL-NNN-D
 | **HC-06** | `AT+PIN2130` *(sin `\r\n`)* | `OKsetPIN` |
 | **HC-05** | `AT+PSWD=2130` *(con `\r\n`)* | `OK` |
 | **SIG0109A** | **A determinar** — §3.3 | — |
+
+> ### ⚠️ El PIN de fábrica del HC-05: su propio manual se contradice
+>
+> - La **portada** del manual dice: *«Auto-pairing PINCODE: **"0000"** as default»* **[DS]**
+> - Pero la entrada de **`AT+PSWD`** dice *«(Default **1234**)»*, y **`AT+ORGL`** restaura *«pin code: **1234**»* **[DS]**
+>
+> **Los dos valores están en el mismo documento oficial.** Cuando emparejes un HC-05 que todavía tenga el PIN de fábrica, **prueba `1234` y, si falla, `0000`.** No es un fallo del módulo.
+> *(HC-06 y JDY-31: `1234` **[DS]**, sin ambigüedad.)*
 
 **Qué PIN poner: `2130` — ⚠️ PROPUESTA, PENDIENTE DE CONFIRMAR (P12).**
 
@@ -670,6 +786,18 @@ Marca cada casilla **sólo cuando hayas visto en pantalla exactamente lo que dic
 
 - [ ] **6.6.1** En el móvil, **elimina el emparejamiento anterior** con este módulo, si lo hiciste en 6.5. (Ajustes → Bluetooth → el dispositivo → «Olvidar»). Si no lo borras, Android te enseña el nombre **cacheado antiguo** y creerás que el renombrado falló.
 - [ ] **6.6.2** Alimenta el módulo (sin puente, modo datos).
+
+> ### ⚠️ ENCIENDE LA UBICACIÓN DEL MÓVIL — si no, Android no lista NADA
+>
+> **No basta con conceder el permiso de ubicación a la app.** El **interruptor general de Ubicación del teléfono tiene que estar ENCENDIDO**, o Android **no devuelve ningún dispositivo Bluetooth en el escaneo**, sin dar ningún error que lo explique.
+>
+> **Es un fallo mudo:** la búsqueda parece funcionar y simplemente no aparece nada. Se confunde con un módulo muerto.
+>
+> - [ ] **6.6.2b** Ajustes → **Ubicación** → **ACTIVADA**. (No «permiso de la app»: el **interruptor del sistema**.)
+> - [ ] **6.6.2c** Comprueba además que la app tiene concedido su permiso de ubicación.
+>
+> *Confirmado en el código de AOSP. Detalle completo en `BLUETOOTH.md`.*
+
 - [ ] **6.6.3** En el móvil, busca dispositivos Bluetooth nuevos.
 
 - [ ] **6.6.4** **Tienes que ver: el nombre nuevo exacto, por ejemplo `BAL-014-N`.**
@@ -677,9 +805,14 @@ Marca cada casilla **sólo cuando hayas visto en pantalla exactamente lo que dic
 | Lo que ves | Qué significa |
 |---|---|
 | `BAL-014-N` | ✅ Correcto |
-| `HC-06` / `HC-05` / `BT05` | **El renombrado NO se aplicó.** Vuelve a §5.1 |
+| **`linvor`** | **[DS]** Es un **HC-06 con su nombre de fábrica**. El renombrado no se aplicó. Vuelve a §5.1. **El módulo está bien** |
+| **`JDY-31-SPP`** | **[DS]** Es un **JDY-31/SIG0109A de fábrica**. El renombrado no se aplicó. **El módulo está bien** |
+| `HC-06` / `HC-05` | Nombre de fábrica. El renombrado no se aplicó. Vuelve a §5.1 |
+| `BT05` / `MLT-BT05` / `AT-09` | ⛔ **Es un módulo BLE. NO SIRVE.** Ver §2.1.1 y recházalo |
 | `BAL-014` (cortado) | Se truncó el nombre. Acorta y repite §5.1 |
-| No aparece nada | El módulo no anuncia. Comprueba alimentación y LED (§6.1) |
+| **No aparece nada** | **Comprueba PRIMERO que la Ubicación del móvil está encendida** (recuadro de arriba). Después, alimentación y LED (§6.1) |
+
+> **Antes de dar un módulo por muerto en este paso: lee TODOS los nombres de la lista.** El módulo bueno puede estar ahí con un nombre que no esperabas.
 
 - [ ] **6.6.5** Empareja. **Tienes que ver: te pide un PIN.** Introduce el de §5.2.
 - [ ] **6.6.6** **Tienes que ver: «Vinculado» / «Emparejado».**
@@ -820,12 +953,28 @@ Los números concretos dependen de la hora del reloj y de los horarios grabados.
 | **Releer velocidad** | *No se puede* → reabrir a 9600 y mandar `AT` | `AT+UART?` → `+UART:9600,0,0` |
 | **Volver a fábrica** | *No hay comando* | `AT+ORGL` → `OK` |
 
-**Los cuatro tropiezos, en una línea cada uno:**
+**Columna del SIG0109A — sólo si se confirma que es un JDY-31 [DS]. Ver §3.3.A:**
 
-1. **HC-06 sin `\r\n`, HC-05 con `\r\n`.** Confundirlos hace que no responda nada.
-2. **HC-05 en modo AT habla a 38400**, aunque sus datos estén a 9600. No está roto.
-3. **Al cambiar la velocidad, el módulo cambia al instante.** Reabre el terminal a la nueva.
-4. **HC-06: el PIN nuevo no vale hasta descargar el módulo** (puentea `VCC`–`GND` 20 s). §5.2.4.
+| | **JDY-31 / SIG0109A** |
+|---|---|
+| **Modo AT** | No hay modo separado. Basta con no estar conectado |
+| **¿Retorno de carro?** | **SÍ** (`\r\n`) |
+| **Comprobar que responde** | `AT+VERSION` → `+VERSION=JDY-31-V1.2,Bluetooth V3.0` |
+| **Poner nombre** | `AT+NAME…` → `+OK` |
+| **Poner PIN** | `AT+PIN…` → `+OK` |
+| **Poner 9600** | `AT+BAUD4` → `+OK` |
+| **NO EXISTEN** | ⛔ `AT+ROLE`, `AT+UART`, `AT+PSWD`, `AT+ORGL` |
+
+**Los ocho tropiezos, en una línea cada uno:**
+
+1. **🔴 Comprueba el pinout ANTES de alimentar.** `VCC`/`GND` invertidos matan el módulo al instante. **PASO 0.**
+2. **HC-06 sin `\r\n`; HC-05 y JDY-31 con `\r\n`.** Confundirlos hace que no responda nada.
+3. **HC-05 en modo AT habla a 38400**, aunque sus datos estén a 9600. No está roto.
+4. **Al cambiar la velocidad, el módulo cambia al instante.** Reabre el terminal a la nueva.
+5. **HC-06: el PIN nuevo no vale hasta descargar el módulo** (puentea `VCC`–`GND` 20 s). §5.2.4.
+6. **El HC-06 se llama `linvor` de fábrica; el JDY-31, `JDY-31-SPP`.** No encontrar «HC-06» **no** es una avería.
+7. **Enciende la Ubicación del móvil** o Android no lista ningún dispositivo, sin dar error.
+8. **Los comandos del HC-05 no existen en el JDY-31.** Que no conteste **no** significa que esté muerto.
 
 > **Después de `AT+ORGL` en un HC-05, no des por hecha ni la velocidad ni el nombre.** El documento oficial se contradice: `AT+ORGL` dice restaurar el puerto a **38400** y el nombre a `H-C-2010-06-01`, mientras que la entrada de `AT+UART` declara el defecto como **9600,0,0** y la de `AT+NAME` como `HC-05`. **Vuelve a consultarlos con `AT+UART?` y `AT+NAME?`.**
 
@@ -905,18 +1054,18 @@ Esto manda **los tres bytes exactos**, sin que ningún juego de caracteres los t
 
 **Lote nº: ________  ·  Fecha: ____ / ____ / ________  ·  Operario: _______________________**
 
-| # | Marca física / Nº serie | Familia (HC-06 / HC-05 / otro) | Señal destino | Nombre puesto | PIN | Vel. | 6.1 LED | 6.2 AT | 6.3 Nombre | 6.4 Vel. | 6.5 Bucle | 6.6 Móvil | 6.7 Saludo | 6.8 Volcado | **Resultado** | Fecha | Firma |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
-| 2 | | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
-| 3 | | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
-| 4 | | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
-| 5 | | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
-| 6 | | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
-| 7 | | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
-| 8 | | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
-| 9 | | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
-| 10 | | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
+| # | Marca física / Nº serie | Familia (HC-06 / HC-05 / JDY-31) | **P0 pinout** | Nombre de FÁBRICA | Señal destino | Nombre puesto | PIN | Vel. | 6.1 LED | 6.2 AT | 6.3 Nombre | 6.4 Vel. | 6.5 Bucle | 6.6 Móvil | 6.7 Saludo | 6.8 Volcado | **Resultado** | Fecha | Firma |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | | | | ☐ | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
+| 2 | | | | ☐ | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
+| 3 | | | | ☐ | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
+| 4 | | | | ☐ | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
+| 5 | | | | ☐ | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
+| 6 | | | | ☐ | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
+| 7 | | | | ☐ | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
+| 8 | | | | ☐ | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
+| 9 | | | | ☐ | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
+| 10 | | | | ☐ | | | | | 9600 | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ APTO ☐ NO | | |
 
 **Notas / incidencias:**
 
@@ -929,6 +1078,8 @@ _______________________________________________________________________
 ```
 
 **Cómo rellenar:**
+- **Paso 0 (pinout):** marca la casilla **sólo** tras comparar la serigrafía del módulo con el zócalo y confirmar que `GND` y `VCC` están en las posiciones 4 y 5. **Si no lo comprobaste, no sigas.**
+- **Nombre de fábrica:** anótalo **antes** de cambiarlo (`linvor`, `JDY-31-SPP`, `HC-05`…). Identifica la familia y sirve de prueba de que el módulo se anunciaba.
 - **Marca física / Nº serie:** los módulos no traen número de serie. **Pon tú una marca**: pega una etiqueta con un número correlativo del lote (`L3-07`) antes de empezar, y anótalo.
 - **Familia:** de §2.
 - **Vel.:** siempre `9600`. Si pone otra cosa, el módulo no está aceptado.
@@ -949,7 +1100,9 @@ _______________________________________________________________________
 | **LED apagado con 3,3 V correctos en `VCC`** | **Dañado** | **No** |
 | **No responde a ninguna de las 16 combinaciones de §3.4** | **Dañado** (o firmware desconocido) | **No** |
 | **Falla el bucle (§6.5): no devuelve nada o devuelve deformado** | **Dañado** — la radio no funciona en los dos sentidos | **No** |
-| **El móvil no lo ve nunca**, con LED parpadeando bien | **Dañado** — la radio no anuncia | **No** |
+| **El móvil no lo ve nunca**, con LED parpadeando bien | **Comprueba antes: (a) que la Ubicación del móvil está ENCENDIDA, (b) que no estás buscando un nombre equivocado** — el HC-06 se anuncia como `linvor` y el JDY-31 como `JDY-31-SPP`. Sólo si las dos cosas están bien: **dañado** | **Casi siempre sí** |
+| **No responde a los comandos, y es un SIG0109A / BK3231S** | **Casi seguro estás usando los comandos del HC-05, que en este módulo NO EXISTEN.** Prueba `AT+VERSION\r\n` a 9600 | **Sí.** §3.3.A |
+| **Murió nada más enchufarlo en la tarjeta** | **Sospecha de `VCC`/`GND` invertidos** (PASO 0). **Revisa el pinout del resto del lote ANTES de enchufar otro** | **No, pero salva a los siguientes** |
 | Se empareja pero **se desconecta solo** a los pocos segundos | **Dañado o alimentación insuficiente.** Prueba con otra fuente antes de rechazarlo | **Dudoso** |
 | Funciona en la mesa pero **falla montado en la tarjeta** | **No es el módulo.** Es montaje, orientación, el puente de 6.5.9 sin quitar, o alimentación | **Sí.** Vuelve a 6.7 |
 
@@ -997,6 +1150,8 @@ _______________________________________________________________________
 
 | # | Pregunta |
 |---|---|
+| **P20** | 🔴 **¿Cuál es el orden EXACTO de los 6 pines de la placa del SIG0109A?** Se necesita la secuencia literal de un extremo al otro. El zócalo de la tarjeta es `STATE · RXD · TXD · GND · VCC · EN`. **Hay una contradicción documentada:** el manual del JDY-31 da ese mismo orden, pero una fuente con foto de la placa real da `STATE · TXD · RXD · **VCC · GND** · EN`, **con `VCC` y `GND` intercambiados**. **Si es el segundo, el módulo se destruye al insertarlo.** — **Es la pregunta más urgente del documento. Bloquea cualquier prueba, y se responde en un minuto mirando la serigrafía** |
+| **P21** | **¿El SIG0109A es un JDY-31 (alias «SPP-C») reetiquetado?** Coincide en chip (BK3231S), versión Bluetooth (3.0) y alimentación (3,6–6 V), **pero Sigma no publica el modelo**. **Si lo confirman, el manual del JDY-31 responde por sí solo a P4, P6, P7 y P8.** Forma barata de comprobarlo sin preguntar: mandar `AT+VERSION\r\n` a 9600 y ver si contesta `+VERSION=JDY-31-…` |
 | **P4** | **¿Cuál es el juego de comandos AT del SIG0109A, y qué firmware lleva exactamente?** ¿Pueden facilitar el manual del **módulo**? El PDF que enlazan en la ficha (`BK3231_ARM968E-S.pdf`) es el datasheet del **chip** de Beken y **no contiene ni un solo comando AT** — verificado página a página. **Concretamente: ¿es firmware estilo JDY-31 (requiere `\r\n`) o estilo Bolutek/HC-06 (sin terminador)?** Son incompatibles entre sí. **Y ¿monta BK3231 o BK3231S?** La ficha dice «BK3231», el SKU sugiere otra cosa |
 | **P5** | **¿El módulo expone el perfil SPP sobre RFCOMM, con el UUID `00001101-0000-1000-8000-00805F9B34FB`?** Todo apunta a que sí (el BK3231 es Bluetooth clásico y sus módulos conocidos son SPP), **pero Sigma no lo declara en ninguna parte**. Nuestra app abre el socket con ese UUID exacto: si no expone SPP, no sirve |
 | **P6** | **¿Cuáles son los valores de fábrica?** Velocidad del puerto serie, nombre Bluetooth, PIN de emparejamiento |

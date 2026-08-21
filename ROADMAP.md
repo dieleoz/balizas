@@ -53,9 +53,38 @@ Y hay una creencia que hay que enterrar antes de seguir: **el `.hex` no está «
 otro Bluetooth»**. El firmware ve un puerto serie transparente a 9600 8N1 y no distingue
 módulos.
 
+> ### 🚨 El paso 0.0, antes de enchufar nada: comparar la serigrafía
+>
+> El SIG0109A es casi con seguridad un **JDY-31 / «SPP-C»**. Su pinout está **documentado de dos
+> formas contradictorias**: el manual da `STATE·RXD·TXD·GND·VCC·EN`, y una fuente con foto de la
+> placa real da `STATE·TXD·RXD·`**`VCC·GND`**`·EN`, **con VCC y GND intercambiados**.
+>
+> Si la placa comprada es la segunda y se mete en el zócalo, **los +5 V entran por su GND y el
+> módulo muere al instante**. Es la explicación más probable del *«no sabemos si esto está
+> quemado»*, y significa que **cada intento de probar puede estar destruyendo el módulo que se
+> prueba**.
+>
+> Cuesta un minuto y es gratis. Va antes que todo lo demás.
+
+- [ ] **Comparar la serigrafía del módulo con el zócalo antes de alimentarlo.**
 - [ ] Correr el procedimiento de [`BLUETOOTH.md`](BLUETOOTH.md), que separa las variables de lo
       más simple a lo más complejo. La prueba de bucle —puentear TX con RX del módulo solo— es
       la que decide si el módulo está bien, sin el PIC ni la app de por medio.
+- [ ] **Buscar el módulo por su nombre real, no por el que uno espera.** El HC-06 se anuncia
+      como `linvor`; el JDY-31 como `JDY-31-SPP`. Buscar «HC-06» y no encontrarlo **no es una
+      avería**, y puede ser toda la historia del «no lo reconoce».
+- [ ] **No probar comandos del HC-05 en el SIG0109A.** El JDY-31 es esclavo puro, 9 comandos
+      terminados en `\r\n`, sin `AT+ROLE` ni `AT+UART`. Probar los del HC-05 y no obtener
+      respuesta hace creer que un módulo sano está muerto.
+- [ ] **Comprobar que el módulo que se compre no sea BLE.** `BT05`, `MLT-BT05`, `AT-09` y `HC-42`
+      **no sirven**: la app abre un socket SPP/RFCOMM. `BT-05` y `BT-06` se diferencian en un
+      dígito y son tecnologías distintas.
+- [ ] **Encender el interruptor de Ubicación del teléfono.** Sin él Android no lista
+      dispositivos, por mucho permiso que tenga la app.
+- [ ] **Pedir al proveedor los comandos AT del SIG0109A.** El único PDF que publica es el
+      datasheet del chip Beken, y **no contiene un solo comando AT** — verificado página a
+      página. Sin eso, el módulo no se puede configurar. Las preguntas concretas están en
+      [`MANUAL_FUNCIONAL_BLUETOOTH.md`](MANUAL_FUNCIONAL_BLUETOOTH.md).
 - [ ] Dejar un módulo configurado y validado con
       [`MANUAL_FUNCIONAL_BLUETOOTH.md`](MANUAL_FUNCIONAL_BLUETOOTH.md).
 - [ ] **Acordar la convención de nombres.** Hoy todos los módulos se llaman igual de fábrica.
