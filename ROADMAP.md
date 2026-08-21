@@ -159,6 +159,8 @@ escribir dos veces la misma lógica.
 > **Decisión formal fijada por el funcional:** Se adopta el estándar de **Norma Vial Oficial (1 Hz)** con **parpadeo continuo y uniforme**: **0.5 s (500 ms) encendida / 0.5 s (500 ms) apagada** (60 destellos por minuto).
 >
 > A 30 km/h en zona escolar, 500 ms de apagado equivalen a solo 4.1 metros recorridos, garantizando que el conductor perciba siempre la señal activa al aproximarse al colegio.
+>
+> *Fuente / Alineación:* Reunión técnica *"Pulsos y frecuencia — especificaciones técnicas"* (21-ago-2026, Diego Zúñiga / Funcional) confirmando 1 Hz continuo y uniforme durante el horario programado.
 
 - [x] **Confirmar la cadencia con el funcional:** **APROBADA (1 Hz — 500 ms ON / 500 ms OFF).**
 - [ ] Cambiar `Cluster.c` a la cadencia aprobada de 500 ms ON / 500 ms OFF.
