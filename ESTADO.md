@@ -50,7 +50,8 @@ MIDIERON: 37 comprobaciones   ok: 37   FALLA: 0
 ✅ **Validación Física en Banco (21-Ago-2026):**
 * PIC18F2550 + JDY-31 a 9600 8N1 probado y operativo en hardware real.
 * Envío de trama `¿L?` verificado con respuesta íntegra del RTC DS1307 y volcado de alarmas en EEPROM.
-* App móvil Android modernizada y empaquetada como **`Baliza_v2.1.apk`** (layout responsive, permisos Android 12+, comunicación ISO-8859-1 sin bytes nulos).
+* **Sincronización RTC 100% Validada:** Ajuste de hora `¿R[HHMM],C[DDMMAA-D]?` probado en hardware real, fijando la hora del micro al segundo con la hora celular.
+* App móvil Android modernizada y empaquetada como **`Baliza_v2.5.apk`** (layout responsive, permisos Android 12+, comunicación ISO-8859-1, sesión persistente, auto-lectura al conectar, auto-verificación post-configuración y auto-reconexión transparente).
 
 ## Compilación — resuelta y verificada
 

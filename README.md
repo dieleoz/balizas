@@ -60,14 +60,14 @@ cada arreglo a mano y el arnés lo cazó.
 | ✅ | **Las franjas solapadas ya no se apagan entre ellas**: `ap.flagAlarm` es el OR de las cinco alarmas | `Alarma.c` |
 | ✅ | **Una trama malformada ya no tumba el firmware**: `strstr()` comprobado contra `NULL` y copias acotadas | `Serial.c` |
 | ✅ | **El buzzer está en RC1**, que es donde lo tiene la tarjeta, y RC0 vuelve a ser entrada del pulsador | `Buzzer.h` / `Buzzer.c` |
-| ✅ | **Enlace Bluetooth Físico Validado en Banco**: PIC18F2550 ↔ JDY-31 ↔ Móvil a 9600 8N1 responde con volcado íntegro del RTC DS1307 y las 5 alarmas | Banco Físico / UART |
-| ✅ | **App Móvil v2.1 Corregida y Responsiva**: Permisos Android 12+, layout adaptativo con ScrollView, protocolo directo en ISO-8859-1 sin bytes nulos | `Baliza_v2.1.apk` |
+| ✅ | **Sincronización RTC DS1307 Validada en Banco**: Comando `¿R[HHMM],C[DDMMAA-D]?` probado en hardware real con PIC18F2550 + JDY-31. Ajuste al segundo con la hora celular | Banco Físico / DS1307 |
+| ✅ | **App Móvil v2.5 Liberada**: Sesión persistente (sin desconexiones), auto-lectura al conectar, auto-verificación post-configuración y auto-reconexión transparente ante cortes de energía en la baliza | `Baliza_v2.5.apk` |
 
 Compila con XC8 en **21.147 de 32.768 bytes (64,5 %)** y 688 de 2.048 de datos.
 
 > **Binarios Oficiales Listos para Banco y Terreno:**
 > * **Firmware PIC:** [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex)
-> * **App Android:** [`1 Firmware/Baliza_v2.1.apk`](1%20Firmware/Baliza_v2.1.apk)
+> * **App Android:** [`1 Firmware/Baliza_v2.5.apk`](1%20Firmware/Baliza_v2.5.apk)
 
 La cifra viva está en **[`ESTADO.md`](ESTADO.md)**; lo que queda por hacer, en
 **[`ROADMAP.md`](ROADMAP.md)**.
