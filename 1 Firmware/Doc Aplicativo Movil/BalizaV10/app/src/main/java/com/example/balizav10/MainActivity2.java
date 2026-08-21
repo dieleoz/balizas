@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -54,6 +55,7 @@ public class MainActivity2 extends AppCompatActivity {
     String Date;
     //*************************
 
+    private ScrollView scrollViewOut;
     private TextView txtVoutput;
     private Button btnDevice;
     private Button btnRead;
@@ -83,6 +85,7 @@ public class MainActivity2 extends AppCompatActivity {
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
         //******************************************
 
+        scrollViewOut = (ScrollView)findViewById(R.id.idScrollViewOut);
         txtVoutput = (TextView)findViewById(R.id.idTxtViewOut);
         btnDevice = (Button)findViewById(R.id.idBtnDispositivo);
         btnRead = (Button)findViewById(R.id. idBtnLeer);
@@ -98,7 +101,7 @@ public class MainActivity2 extends AppCompatActivity {
 
 
         String [] sOptionNumAlarm = {"1", "2", "3", "4", "5"};
-        String [] sOptionHour = {"00", "01", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"};
+        String [] sOptionHour = {"00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"};
         String [] sOPtionMin = {"00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"};
         String [] sOPtionHorario = {"Diario", "Lun-Vie", "Sab-Dom"};
 
@@ -200,8 +203,8 @@ public class MainActivity2 extends AppCompatActivity {
                     sMinE = spMinEnd.getSelectedItem().toString();
                     sAlarmD = spHorario.getSelectedItem().toString();
 
-                    if(sAlarmD == "Diario")  sAlarmD = "8";
-                    else if(sAlarmD == "Lun-Vie") sAlarmD = "9";
+                    if("Diario".equals(sAlarmD))  sAlarmD = "8";
+                    else if("Lun-Vie".equals(sAlarmD)) sAlarmD = "9";
                     else sAlarmD = "10";
 
 
@@ -261,6 +264,14 @@ public class MainActivity2 extends AppCompatActivity {
         @Override
         public boolean handleMessage(Message msg) {
             txtVoutput.append(msg.getData().getString("msg"));
+            if (scrollViewOut != null) {
+                scrollViewOut.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        scrollViewOut.fullScroll(View.FOCUS_DOWN);
+                    }
+                });
+            }
             return true;
         }
     });
@@ -436,17 +447,48 @@ public class MainActivity2 extends AppCompatActivity {
                     else
                     {
                         out.println(sTramaLeer);        //se envia la trama para leer
-
                         out.flush();
-                        //mkmsg("Message sent...\n");
 
-                        mkmsg("Esperando Mensaje ...\n\r\n\r");
-                        TimeUnit.MILLISECONDS.sleep(6000);
-
+                        mkmsg("Esperando respuesta de la baliza...\n\r");
                         mmInStream = socket.getInputStream();
-                        numBytes = mmInStream.read(mmBuffer);
-                        String dato = new String(mmBuffer);
-                        mkmsg((dato + "\n"));
+                        byte[] buffer = new byte[512];
+                        StringBuilder sb = new StringBuilder();
+                        long startTime = System.currentTimeMillis();
+
+                        while (System.currentTimeMillis() - startTime < 3500)
+                        {
+                            if (mmInStream.available() > 0)
+                            {
+                                int read = mmInStream.read(buffer);
+                                if (read > 0)
+                                {
+                                    sb.append(new String(buffer, 0, read, "ISO-8859-1"));
+                                    if (sb.toString().contains("Temp:") || sb.toString().contains("Voltaje:") || sb.toString().contains("5 -"))
+                                    {
+                                        try { Thread.sleep(150); } catch (Exception ignored) {}
+                                        while (mmInStream.available() > 0)
+                                        {
+                                            int r = mmInStream.read(buffer);
+                                            if (r > 0) sb.append(new String(buffer, 0, r, "ISO-8859-1"));
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                try { Thread.sleep(40); } catch (Exception ignored) {}
+                            }
+                        }
+
+                        if (sb.length() > 0)
+                        {
+                            mkmsg(sb.toString() + "\n");
+                        }
+                        else
+                        {
+                            mkmsg("Sin respuesta de la baliza (verifique conexion y encendido)\n");
+                        }
                     }
 
                     //mkmsg("We are done, closing connection\n");

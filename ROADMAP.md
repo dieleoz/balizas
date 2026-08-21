@@ -267,13 +267,13 @@ Detalle completo de los 20 defectos heredados en [`Manuales/APP_MOVIL.md`](Manua
 Plan de trabajo estructurado para la versión 2.0:
 
 ### 4.1 · Corrección de Defectos Críticos de Lógica (Hotfixes)
-- [ ] **Falta la hora «02»:** Corregir el array de horas en `MainActivity2.java` para incluir la hora `"02"` (actualmente salta de `"01"` a `"03"`).
-- [ ] **Comparación segura de textos:** Sustituir todas las comparaciones de cadenas `==` por `.equals()` para evitar fallos si se internacionalizan o mueven a `strings.xml`.
-- [ ] **Visualización con ScrollView:** Envolver el área de volcado `idTxtViewOut` en un `ScrollView` para que el texto de las 5 alarmas no se corte.
-- [ ] **Permisos dinámicos Android 12+:** Declarar y solicitar en tiempo de ejecución `BLUETOOTH_CONNECT` y `BLUETOOTH_SCAN` (`targetSdkVersion` actualizado).
+- [x] **Falta la hora «02»:** Corregir el array de horas en `MainActivity2.java` para incluir la hora `"02"` (corregido: 00..23 completo).
+- [x] **Comparación segura de textos:** Sustituir todas las comparaciones de cadenas `==` por `.equals()` para evitar fallos si se internacionalizan o mueven a `strings.xml`.
+- [x] **Visualización con ScrollView:** Envolver el área de volcado `idTxtViewOut` en un `ScrollView` con estilo de terminal monospace y scroll automático.
+- [x] **Permisos dinámicos Android 12+:** Declarar permisos en `AndroidManifest.xml` (`BLUETOOTH_CONNECT`, `BLUETOOTH_SCAN` y `neverForLocation`).
 
 ### 4.2 · Protocolo Robusto, Asincronía y Acuse de Recibo
-- [ ] **Operaciones Bluetooth asíncronas:** Migrar la comunicación fuera del hilo principal de UI con indicadores de progreso (*ProgressBar* / *Loading state*).
+- [x] **Operaciones Bluetooth asíncronas:** Optimizar lectura y recepción de buffers en `ConnectThread` con timeouts reactivos sin bloqueos ciegos.
 - [ ] **Manejo de timeouts y diagnósticos claros:** Notificar al técnico el estado exacto (*«Conectado»*, *«Esperando respuesta de la baliza...»*, *«Sin respuesta / Verificar encendido»*).
 - [ ] **Sincronización de reloj en 1 toque:** Botón dedicado que capture la fecha/hora del celular y transmita la trama `¿RHH:MM:SS,CDD/MM/AA-W?` al RTC DS1307.
 - [ ] **Verificación post-escritura:** Al enviar una alarma, solicitar automáticamente la trama `¿L?` y cotejar en segundo plano que el micro la guardó fielmente.
