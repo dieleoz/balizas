@@ -93,7 +93,7 @@ static int taskBuzzer(struct pt *pt)
                 break;
              
             //========================================
-            //ESTADO QUE EJECUTA BEEPS SUCESIVOS HASTA UNA CANCELACIÓN
+            //ESTADO QUE EJECUTA BEEPS SUCESIVOS HASTA UNA CANCELACION
             //========================================
             case ST_ALARM_BUZZER:
                 if(++ucCntTimeBuzzer >= 5)
@@ -159,11 +159,6 @@ unsigned char endBeep(void)
 
 void pinConfBuzzer(void)
 {
-    //TRISCbits.TRISC1 = 0;
-    TRISCbits.TRISC0 = 0;
-
-
-
+    TRISCbits.TRISC1 = 0;
+    TRISCbits.TRISC0 = 1;
 }
-
-

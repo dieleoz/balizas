@@ -54,6 +54,7 @@
 #include "Serial.h"
 #include "Alarma.h"
 #include "Aplicacion.h"
+#include "Buzzer.h"
 #include "sim.h"
 
 /* Estado interno del firmware que algunos escenarios necesitan observar. */
@@ -281,11 +282,25 @@ int main(int argc, char **argv)
             int ciclo = sim_medir_cluster(30000, &on, &off);
             CHECK(ciclo, "despues de las 06:00 la luz parpadea");
 
-            /* Definicion del PO (21-ago-2026): 2 s encendida, 2 s apagada. */
-            CHECK(on >= 1800 && on <= 2200,
-                  "el pulso ENCENDIDO dura 2 s +-10%% (medido %lu ms)", on);
-            CHECK(off >= 1800 && off <= 2200,
-                  "el pulso APAGADO dura 2 s +-10%% (medido %lu ms)", off);
+            /* CADENCIA CONFIRMADA POR EL FUNCIONAL, 21-ago-2026: 1 Hz, o sea
+               500 ms encendida y 500 ms apagada, 60 destellos por minuto.
+               Es lo que piden los manuales de senalizacion para balizas de zona
+               escolar (50 a 60 destellos/min, con el tiempo encendido entre el
+               50 % y el 60 % del ciclo).
+
+               NO son los 2 s / 2 s que se dijeron en la reunion anterior: a
+               30 km/h, dos segundos apagada son 16,7 metros en los que un
+               conductor ve una senal apagada y deduce que no hay horario
+               escolar. Con 500 ms son 4,1 metros.
+
+               La tolerancia es del 10 %, que absorbe que el tick del firmware
+               no sea de 1 ms exactos sino de 1,024 (defecto D17 de
+               Manuales/FIRMWARE.md): 500 ms nominales salen 512 reales, que son
+               58,6 destellos/min y siguen dentro de norma. */
+            CHECK(on >= 450 && on <= 550,
+                  "el pulso ENCENDIDO dura 500 ms +-10%% (medido %lu ms)", on);
+            CHECK(off >= 450 && off <= 550,
+                  "el pulso APAGADO dura 500 ms +-10%% (medido %lu ms)", off);
         }
     }
 
@@ -391,6 +406,23 @@ int main(int argc, char **argv)
                   "a las 09:01, con la franja 08:00-12:00 abierta, la luz sigue "
                   "parpadeando");
         }
+    }
+
+    ESCENARIO("T6. Mapeo del buzzer en RC1 y RC0 como entrada");
+    {
+        /* Verifica que pinConfBuzzer configure RC1 como salida para el buzzer
+           y RC0 como entrada para el pulsador, y que el buzzer opere en LATC1. */
+        arrancar_limpio();
+        pinConfBuzzer();
+        CHECK(TRISCbits.TRISC1 == 0, "TRISC1 configurado como salida para el buzzer (0)");
+        CHECK(TRISCbits.TRISC0 == 1, "TRISC0 configurado como entrada para el pulsador (1)");
+
+        LATCbits.LATC1 = 0;
+        LATCbits.LATC0 = 0;
+        oneBeep();
+        sim_tick(15);
+        CHECK(LATCbits.LATC1 == 1, "el buzzer activa LATC1 (leido %d)", LATCbits.LATC1);
+        CHECK(LATCbits.LATC0 == 0, "LATC0 permanece en bajo (leido %d)", LATCbits.LATC0);
     }
 
     /* =============================================================

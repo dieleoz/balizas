@@ -62,7 +62,7 @@ void sim_rtc_saltar(long segundos);
 /* --- salidas ------------------------------------------------------------ */
 
 int sim_cluster(void);   /* LATC2: la luz de la senal. 1 = encendida */
-int sim_buzzer(void);    /* LATC0 */
+int sim_buzzer(void);    /* LATC1 */
 int sim_led_live(void);  /* LATA0 (ojo: en este firmware 0 = LED encendido) */
 
 /* --- EEPROM ------------------------------------------------------------- */

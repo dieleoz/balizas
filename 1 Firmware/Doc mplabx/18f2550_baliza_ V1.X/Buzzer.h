@@ -21,8 +21,8 @@ extern "C" {
 //*** DEFINICIONES ***
 #define PERIOD_BUZZER      10
     
-#define ON_BUZZER       LATCbits.LATC0 = 1
-#define OFF_BUZZER      LATCbits.LATC0 = 0
+#define ON_BUZZER       LATCbits.LATC1 = 1
+#define OFF_BUZZER      LATCbits.LATC1 = 0
  
 #define BUZZER_CANCEL_BEEP  0
 #define BUZZER_ONE_BEEP     1

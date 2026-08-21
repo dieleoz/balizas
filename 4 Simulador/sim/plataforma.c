@@ -385,7 +385,7 @@ void sim_tick(unsigned long n)
 }
 
 int sim_cluster(void)  { return LATCbits.LATC2; }
-int sim_buzzer(void)   { return LATCbits.LATC0; }
+int sim_buzzer(void)   { return LATCbits.LATC1; }
 int sim_led_live(void) { return LATAbits.LATA0; }
 
 unsigned long sim_arrancar(void)
