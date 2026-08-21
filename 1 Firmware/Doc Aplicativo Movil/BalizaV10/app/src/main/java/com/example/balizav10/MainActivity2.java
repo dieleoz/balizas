@@ -490,126 +490,146 @@ public class MainActivity2 extends AppCompatActivity {
 
     private void executeBluetoothTask()
     {
-        try
+        for (int retry = 0; retry < 2; retry++)
         {
-            mkmsg("Conectando con " + (device != null ? device.getName() : "Bluetooth") + "...\n");
-            BluetoothSocket socket = getOrCreateSocket(device);
-            OutputStream outStream = socket.getOutputStream();
-            InputStream inStream = socket.getInputStream();
-
-            mkmsg("✓ Sesion activa con la baliza\n");
-
-            // Purgar bytes residuales antes de transmitir
-            byte[] buffer = new byte[1024];
-            while (inStream.available() > 0)
+            try
             {
-                inStream.read(buffer);
-            }
+                mkmsg((retry > 0 ? "Reconectando con " : "Conectando con ") + (device != null ? device.getName() : "Bluetooth") + "...\n");
+                BluetoothSocket socket = getOrCreateSocket(device);
+                OutputStream outStream = socket.getOutputStream();
+                InputStream inStream = socket.getInputStream();
 
-            if (bReadConf)
-            {
-                // Enviar sincronización de reloj
-                mkmsg("1/2 Sincronizando reloj...\n");
-                outStream.write(sFrameHourCal.getBytes("ISO-8859-1"));
-                outStream.flush();
+                mkmsg("✓ Sesion activa con la baliza\n");
 
-                try { Thread.sleep(500); } catch (Exception ignored) {}
-
-                // Enviar configuración de alarma
-                mkmsg("2/2 Grabando alarma...\n");
-                outStream.write(sFrameConf.getBytes("ISO-8859-1"));
-                outStream.flush();
-
-                mkmsg("¡Configuracion enviada!\nLeyendo confirmacion de la baliza...\n\n");
-                try { Thread.sleep(400); } catch (Exception ignored) {}
-
-                // Auto-verificación: enviar ¿L? para mostrar cómo quedó la EEPROM
-                outStream.write("¿L?\r\n".getBytes("ISO-8859-1"));
-                outStream.flush();
-            }
-            else
-            {
-                mkmsg("Enviando comando ¿L?...\n");
-                outStream.write("¿L?\r\n".getBytes("ISO-8859-1"));
-                outStream.flush();
-            }
-
-            // Lectura con doble seguridad (espera reactiva)
-            StringBuilder sb = new StringBuilder();
-            long startTime = System.currentTimeMillis();
-
-            while (System.currentTimeMillis() - startTime < 3000)
-            {
-                if (inStream.available() > 0)
+                // Purgar bytes residuales antes de transmitir
+                byte[] buffer = new byte[1024];
+                while (inStream.available() > 0)
                 {
-                    int read = inStream.read(buffer);
-                    if (read > 0)
-                    {
-                        sb.append(new String(buffer, 0, read, "ISO-8859-1"));
-                        long readEnd = System.currentTimeMillis() + 800;
-                        while (System.currentTimeMillis() < readEnd)
-                        {
-                            if (inStream.available() > 0)
-                            {
-                                int extra = inStream.read(buffer);
-                                if (extra > 0)
-                                {
-                                    sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
-                                    readEnd = System.currentTimeMillis() + 300;
-                                }
-                            }
-                            try { Thread.sleep(25); } catch (Exception ignored) {}
-                        }
-                        break;
-                    }
+                    inStream.read(buffer);
                 }
-                try { Thread.sleep(30); } catch (Exception ignored) {}
-            }
 
-            if (sb.length() == 0)
-            {
-                // Fallback de lectura bloqueante si available() reportó 0
-                try
+                if (bReadConf)
                 {
-                    int read = inStream.read(buffer);
-                    if (read > 0)
+                    // Enviar sincronización de reloj
+                    mkmsg("1/2 Sincronizando reloj...\n");
+                    outStream.write(sFrameHourCal.getBytes("ISO-8859-1"));
+                    outStream.flush();
+
+                    try { Thread.sleep(500); } catch (Exception ignored) {}
+
+                    // Enviar configuración de alarma
+                    mkmsg("2/2 Grabando alarma...\n");
+                    outStream.write(sFrameConf.getBytes("ISO-8859-1"));
+                    outStream.flush();
+
+                    mkmsg("¡Configuracion enviada!\nLeyendo confirmacion de la baliza...\n\n");
+                    try { Thread.sleep(400); } catch (Exception ignored) {}
+
+                    // Auto-verificación: enviar ¿L? para mostrar cómo quedó la EEPROM
+                    outStream.write("¿L?\r\n".getBytes("ISO-8859-1"));
+                    outStream.flush();
+                }
+                else
+                {
+                    mkmsg("Enviando comando ¿L?...\n");
+                    outStream.write("¿L?\r\n".getBytes("ISO-8859-1"));
+                    outStream.flush();
+                }
+
+                // Lectura con doble seguridad (espera reactiva)
+                StringBuilder sb = new StringBuilder();
+                long startTime = System.currentTimeMillis();
+
+                while (System.currentTimeMillis() - startTime < 3000)
+                {
+                    if (inStream.available() > 0)
                     {
-                        sb.append(new String(buffer, 0, read, "ISO-8859-1"));
-                        long readEnd = System.currentTimeMillis() + 600;
-                        while (System.currentTimeMillis() < readEnd)
+                        int read = inStream.read(buffer);
+                        if (read > 0)
                         {
-                            if (inStream.available() > 0)
+                            sb.append(new String(buffer, 0, read, "ISO-8859-1"));
+                            long readEnd = System.currentTimeMillis() + 800;
+                            while (System.currentTimeMillis() < readEnd)
                             {
-                                int extra = inStream.read(buffer);
-                                if (extra > 0)
+                                if (inStream.available() > 0)
                                 {
-                                    sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
-                                    readEnd = System.currentTimeMillis() + 300;
+                                    int extra = inStream.read(buffer);
+                                    if (extra > 0)
+                                    {
+                                        sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
+                                        readEnd = System.currentTimeMillis() + 300;
+                                    }
                                 }
+                                try { Thread.sleep(25); } catch (Exception ignored) {}
                             }
-                            try { Thread.sleep(25); } catch (Exception ignored) {}
+                            break;
                         }
                     }
+                    try { Thread.sleep(30); } catch (Exception ignored) {}
                 }
-                catch (Exception ignored) {}
-            }
 
-            if (sb.length() > 0)
-            {
-                mkmsg("--- VOLCADO DE LA BALIZA ---\n" + sb.toString() + "\n----------------------------\n");
+                if (sb.length() == 0)
+                {
+                    // Fallback de lectura bloqueante si available() reportó 0
+                    try
+                    {
+                        int read = inStream.read(buffer);
+                        if (read > 0)
+                        {
+                            sb.append(new String(buffer, 0, read, "ISO-8859-1"));
+                            long readEnd = System.currentTimeMillis() + 600;
+                            while (System.currentTimeMillis() < readEnd)
+                            {
+                                if (inStream.available() > 0)
+                                {
+                                    int extra = inStream.read(buffer);
+                                    if (extra > 0)
+                                    {
+                                        sb.append(new String(buffer, 0, extra, "ISO-8859-1"));
+                                        readEnd = System.currentTimeMillis() + 300;
+                                    }
+                                }
+                                try { Thread.sleep(25); } catch (Exception ignored) {}
+                            }
+                        }
+                    }
+                    catch (Exception ignored) {}
+                }
+
+                if (sb.length() > 0)
+                {
+                    mkmsg("--- VOLCADO DE LA BALIZA ---\n" + sb.toString() + "\n----------------------------\n");
+                }
+                else
+                {
+                    mkmsg("Sin respuesta de la baliza.\nVerifique conexion y alimentacion.\n");
+                }
+
+                return; // Operación completada con éxito
             }
-            else
+            catch (IOException ioe)
             {
-                mkmsg("Sin respuesta de la baliza.\nVerifique conexion y alimentacion.\n");
+                if (globalSocket != null)
+                {
+                    try { globalSocket.close(); } catch (Exception ignored) {}
+                    globalSocket = null;
+                }
+                if (retry == 0)
+                {
+                    try { Thread.sleep(300); } catch (Exception ignored) {}
+                    continue; // Reintentar conectando desde cero
+                }
+                mkmsg("Error en comunicacion: " + ioe.getMessage() + "\n");
             }
-        }
-        catch (Exception e)
-        {
-            mkmsg("Error en comunicacion: " + e.getMessage() + "\n");
-            if (globalSocket != null)
+            catch (Exception e)
             {
-                try { globalSocket.close(); } catch (Exception ignored) {}
-                globalSocket = null;
+                mkmsg("Error: " + e.getMessage() + "\n");
+                if (globalSocket != null)
+                {
+                    try { globalSocket.close(); } catch (Exception ignored) {}
+                    globalSocket = null;
+                }
+                break;
             }
         }
     }
