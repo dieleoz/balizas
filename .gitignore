@@ -70,6 +70,19 @@ defmplabxtrace.log.inx
 # estaba corriendo en la calle.
 !1 Firmware/Doc mplabx/*.production.hex
 
+# EXCEPCION: el binario que se ENTREGA hoy y su mapa de memoria. El README y el
+# ROADMAP los enlazan por ruta; sin esta excepcion los dos enlaces se rompen
+# para todo el que clone, que es justo lo que paso el 22-ago-2026.
+!1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex
+!1 Firmware/BALIZA_18F2550_V1_CORREGIDO.map
+
+# EXCEPCION: el APK de campo vigente. La regla de arriba ignora "7 sw apk/"
+# entera porque ahi viven el JDK y el Android SDK (casi 750 MB). El instalador
+# son 5,8 MB y es EL entregable que se le pasa al tecnico: se versiona.
+!7 sw apk/
+7 sw apk/*
+!7 sw apk/Baliza_IT_VIAL_30_v3.4.apk
+
 
 # --- Estado local de MPLAB X ------------------------------------------------
 #
