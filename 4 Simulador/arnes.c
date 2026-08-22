@@ -158,6 +158,42 @@ int main(int argc, char **argv)
     if (argc > 1 && strcmp(argv[1], "--trama-truncada") == 0)
         return hijo_trama_truncada();
 
+    if (argc > 1 && strcmp(argv[1], "--interactivo") == 0)
+    {
+        arrancar_limpio();
+        printf("[SIM_LISTO]\n");
+        fflush(stdout);
+        char buffer[256];
+        while (fgets(buffer, sizeof(buffer), stdin))
+        {
+            size_t l = strlen(buffer);
+            while (l > 0 && (buffer[l-1] == '\r' || buffer[l-1] == '\n')) buffer[--l] = '\0';
+            if (l == 0) continue;
+            if (strcmp(buffer, "SALIR") == 0) break;
+
+            if (strncmp(buffer, "TICK ", 5) == 0)
+            {
+                unsigned long ms = strtoul(buffer + 5, NULL, 10);
+                if (ms == 0) ms = 100;
+                sim_tick(ms);
+            }
+            else
+            {
+                sim_tx_limpiar();
+                sim_rx_str(buffer);
+                sim_rx_str("\n\r");
+                sim_tick(250);
+            }
+
+            const char *resp = sim_tx();
+            printf("[TX_START]\n%s\n[TX_END]\n", resp ? resp : "");
+            printf("[LAMP]:%d\n", LATCbits.LATC2);
+            printf("[SIM_OK]\n");
+            fflush(stdout);
+        }
+        return 0;
+    }
+
     printf("===============================================================\n");
     printf(" ARNES DE LA BALIZA - firmware 18f2550_baliza_ V1.X\n");
     printf(" Senal vial \"30 CUANDO ACTIVADA\" - luz en LATC2\n");
