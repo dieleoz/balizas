@@ -370,11 +370,18 @@ Presione DISPOSITIVO para conectar.</div>
         </button>
       </div>
 
-      <!-- CHECKLIST DE MANTENIMIENTO CON FECHA DE VISITA -->
+      <!-- CHECKLIST DE MANTENIMIENTO CON MODO SUELO / POSTE -->
       <div class="card">
         <div class="card-header">
-          <span>Checklist Mantenimiento</span>
+          <span>Auditoría y Mantenimiento</span>
           <span id="lblFechaUltimaVisita" style="font-size:10px; color:#2563EB; font-weight:700;">Visita: 22/08/2026</span>
+        </div>
+        <div style="background:#EFF6FF; border:1px solid #BFDBFE; padding:6px 8px; border-radius:6px; margin-bottom:8px; font-size:10px; font-weight:700; color:#1E40AF; display:flex; justify-content:space-between; align-items:center;">
+          <span>Tipo de Inspección:</span>
+          <select id="selTipoVisita" style="font-size:10px; padding:2px 4px; border:1px solid #93C5FD; border-radius:4px; font-weight:700; background:#FFF; color:#1E40AF;" onchange="onCambioTipoVisita()">
+            <option value="SUELO">🚗 A Nivel de Suelo (Inalámbrico / Test)</option>
+            <option value="POSTE">🪜 Con Escalera (Mantenimiento Físico)</option>
+          </select>
         </div>
         <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
           <input type="checkbox" id="chkPanelSolar" checked /> 1. Panel solar limpio y fusible 12V verificado
@@ -449,13 +456,20 @@ Presione DISPOSITIVO para conectar.</div>
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:8px;">
           <label>Días</label>
           <select id="selDays">
             <option value="9">Lun-Vie (Lunes a Viernes)</option>
             <option value="8">Diario (Todos los días)</option>
             <option value="10">Sab-Dom (Fin de semana)</option>
           </select>
+        </div>
+
+        <button class="btn-full" onclick="cmdConfig()" style="background:#059669; font-size:12px;">
+          💾 GUARDAR / ENVIAR ESTA FRANJA (CONFIG)
+        </button>
+        <div id="badgeStatusManual" style="display:none; background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:8px; border-radius:6px; font-size:11px; font-weight:700; margin-top:8px; text-align:center; line-height:1.4;">
+          ✓ ¡Franja horaria grabada exitosamente en la EEPROM!
         </div>
       </div>
     </div>
@@ -644,7 +658,30 @@ Presione DISPOSITIVO para conectar.</div>
     const resp = await enviarTramaBackend(trama);
     log(`RX: ${resp.trim() || 'OK'}`);
     log(`✓ Alarma ${num} actualizada en la EEPROM.`);
+
+    const badge = document.getElementById('badgeStatusManual');
+    if (badge) {
+      badge.textContent = `✓ ¡Alarma ${num} grabada exitosamente en EEPROM! (${st === '1' ? 'Activa' : 'Inactiva'})`;
+      badge.style.display = 'block';
+      badge.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(() => { badge.style.display = 'none'; }, 6000);
+    }
     await cmdRead();
+  }
+
+  function onCambioTipoVisita() {
+    const tipo = document.getElementById('selTipoVisita').value;
+    if (tipo === 'SUELO') {
+      document.getElementById('chkPanelSolar').checked = false;
+      document.getElementById('chkPilaRTC').checked = false;
+      document.getElementById('chkBorneras').checked = false;
+      document.getElementById('chkTestLuz').checked = true;
+    } else {
+      document.getElementById('chkPanelSolar').checked = true;
+      document.getElementById('chkPilaRTC').checked = true;
+      document.getElementById('chkBorneras').checked = true;
+      document.getElementById('chkTestLuz').checked = true;
+    }
   }
 
   async function cmdGuardarNombre() {
