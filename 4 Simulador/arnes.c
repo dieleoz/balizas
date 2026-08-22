@@ -48,6 +48,15 @@
       la funcion ORIGINAL -- sin tocarle una linea -- pasa a llamarse
       fw_transmitUart1, y la envoltura de aqui abajo apunta la cadena y la llama.
       Los demas modulos siguen llamando a transmitUart1 sin enterarse.
+
+      PUNTO CIEGO QUE ESTO DEJA, y costo media tarde el 22-ago-2026: el -D
+      renombra la definicion Y TAMBIEN las llamadas que Serial.c se hace a si
+      mismo. Esas van directas a fw_transmitUart1 y NO pasan por la envoltura,
+      asi que sim_tx() no las ve. Hoy es exactamente UNA: el "OK_NAME" con el
+      que la baliza confirma que grabo el nombre (Serial.c:209). En el equipo
+      real ese eco SI sale por la UART. Si algun dia Serial.c transmite algo
+      mas desde dentro, tampoco se vera: comprobarlo antes de dar por bueno un
+      verde que dependa de lo que transmite Serial.c.
    --------------------------------------------------------------- */
 
 #include "xc.h"
@@ -623,26 +632,28 @@ int main(int argc, char **argv)
     }
 
     /* =============================================================
-       J. EL NOMBRE POR EL AIRE (OTA) CONTRA EL DESPACHADOR DE TRAMAS
+       J. EL NOMBRE POR EL AIRE (OTA) CONTRA EL DESPACHADOR
 
-       [ROJO ESPERADO 22-ago-2026] La app v3.4 anade "¿N<nombre>?" para grabar
-       el nombre del colegio en la EEPROM. El despachador de Serial.c decide que
-       comando es mirando UNA LETRA SUELTA con strstr(), sobre el buffer entero
-       y EN ESTE ORDEN:
+       Nacio en rojo el 22-ago-2026 y quedo en verde el mismo dia. Se conserva
+       como guardia de no-regresion, porque el defecto que medía era sutil y
+       volveria solo con que alguien "simplifique" el despachador.
 
-           1º strstr(buffer,"L") -> leer          (Serial.c:160)
-           2º strstr(buffer,"R") -> AJUSTAR RELOJ (Serial.c:166)
-           3º strstr(buffer,"N") -> nombre        (Serial.c:181)
-           4º strstr(buffer,"A") -> alarma        (Serial.c:192)
+       El fallo era este: Serial.c elegia comando con strstr() sobre el buffer
+       ENTERO, buscando "L", "R", "N" y "A" por ese orden. Pero el nombre viaja
+       DENTRO de la trama, asi que sus propias letras competian con los
+       identificadores:
 
-       El nombre viaja DENTRO del buffer, asi que sus propias letras compiten
-       con los identificadores de comando. Un nombre con una "L" mayuscula se
-       despacha como lectura y no se graba. Y uno con una "R" mayuscula entra
-       por la rama del reloj, que llama a escribirRTC() con lo que consiga
-       extraer del nombre: corrompe la hora de la baliza.
+         - "¿NCOLEGIO SAN JOSE?" lleva una L -> se despachaba como lectura y el
+           nombre no se grababa nunca.
+         - "¿NCARRERA 30 CON 45?" lleva una R y ninguna L -> entraba por la rama
+           del reloj y CORROMPIA LA HORA, de la que depende la franja escolar.
 
-       Esto importa mas que la mayoria de los rojos: de la hora del RTC depende
-       la franja horaria, o sea si la senal dice 30 km/h cuando toca.
+       Y el ejemplo que se usaba en las demos, "Col. San Jose - Km 4+200",
+       funcionaba por CASUALIDAD: no lleva ni L ni R mayusculas.
+
+       Arreglado despachando por el caracter pegado al delimitador 0xBF, que es
+       donde la app pone siempre el comando. J1 sigue siendo el control: si
+       alguien rompe el guardado, se cae el primero.
        ============================================================= */
     ESCENARIO("J. El nombre por el aire (OTA) contra el despachador");
     {
@@ -654,6 +665,10 @@ int main(int argc, char **argv)
         sim_tick(400);
         CHECK(sim_eeprom_leer(0x40) == 'C' && sim_eeprom_leer(0x41) == 'o',
               "un nombre sin L ni R mayusculas se graba en la EEPROM (0x40)");
+
+        /* NO se comprueba aqui el eco "OK_NAME": este arnes NO PUEDE VERLO.
+           Ver el punto 2 de la cabecera -- lo que transmite Serial.c desde
+           dentro de si mismo esquiva la envoltura. En el equipo real si sale. */
 
         /* J2: el mismo caso con una L mayuscula. Se lo come la rama de lectura. */
         arrancar_limpio();

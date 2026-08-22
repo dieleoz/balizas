@@ -59,7 +59,7 @@ certificado. De ahi salen otros dos binarios:
 
 | | Fichero | Tamano | SHA-256 (12) |
 |---|---|---|---|
-| Firmware | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex` | 49.068 B | `048856fc78e8` |
+| Firmware | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex` | 49.133 B | `889c0188914b` |
 | App | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk` | 3.869.517 B | `6ecc13944c69` |
 
 **Son la base de la proxima version, no una version.** Tres cosas tienen que pasar antes de

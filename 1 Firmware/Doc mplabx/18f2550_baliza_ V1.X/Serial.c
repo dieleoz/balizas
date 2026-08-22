@@ -157,13 +157,33 @@ static int taskAnalizaUart1(struct pt *pt)
                 break;
                 
             case ST_ANALYSIS_ANA1:
-                if(strstr(anaT1.bufferRx, (char*)ID_READ_DEV))
+            {
+                /* EL COMANDO ES EL CARACTER PEGADO AL DELIMITADOR, no una letra
+                   suelta en cualquier parte de la trama.
+
+                   Antes se despachaba con strstr() sobre el buffer entero
+                   buscando "L", "R", "N" y "A" por ese orden. Como el nombre del
+                   comando "N" viaja DENTRO de la trama, sus propias letras
+                   competian con los identificadores: un nombre con una L se
+                   despachaba como lectura y no se grababa, y uno con una R
+                   entraba por la rama del reloj y CORROMPIA LA HORA -- de la que
+                   depende la franja escolar. Medido el 22-ago-2026 (arnes, J).
+
+                   Buscar el caracter siguiente al 0xBF no cambia el protocolo:
+                   la app siempre manda el comando pegado al delimitador
+                   (MainActivity2.java: ¿L?, ¿R..., ¿N..., ¿A...). Y sigue
+                   funcionando si el 0xBF llega en UTF-8 (0xC2 0xBF), porque
+                   strstr() localiza el 0xBF venga como venga. */
+                char *ptrInicio = strstr(anaT1.bufferRx, (char*)INIT_FRAME);
+                char cmdChar = (ptrInicio != NULL) ? ptrInicio[1] : 0;
+
+                if(cmdChar == *(char*)ID_READ_DEV)
                 {
                     serial1.flagEventoRead = true;
                     stateAnaTrama1 = ST_ESPERA_ANA1;
                 }
                 //si actualiza la Hora-calendario
-                else if(strstr(anaT1.bufferRx, (char*)ID_RELOJ))
+                else if(cmdChar == *(char*)ID_RELOJ)
                 {
                     extraerFrame(anaT1.bufferRx, anaT1.buffer2, (char*) ID_RELOJ, (char*) ID_COMA);
                     extraerHora(anaT1.buffer2, (char*)&anaT1.hora, (char*)&anaT1.min);
@@ -178,7 +198,7 @@ static int taskAnalizaUart1(struct pt *pt)
                     stateAnaTrama1 = ST_ESPERA_ANA1;
                 }
                 //si hay configuracion de la alarma
-                else if(strstr(anaT1.bufferRx, "N"))
+                else if(cmdChar == 0x4E)  /* N de nombre */
                 {
                     extraerFrame(anaT1.bufferRx, anaT1.buffer2, (char*)"N", (char*)END_FRAME);
                     for(int i = 0; i < 30; i++) {
@@ -189,7 +209,7 @@ static int taskAnalizaUart1(struct pt *pt)
                     transmitUart1((char*)"\n\rOK_NAME\n\r");
                     stateAnaTrama1 = ST_ESPERA_ANA1;
                 }
-                else if(strstr(anaT1.bufferRx, (char*)ID_NUM_ALARM))
+                else if(cmdChar == *(char*)ID_NUM_ALARM)
                 {                    
                     //extraer el num alarm
                     anaT1.ucNumAlarm = extraerValue(anaT1.bufferRx, ID_NUM_ALARM, ID_COMA);
@@ -229,6 +249,7 @@ static int taskAnalizaUart1(struct pt *pt)
                 {
                     stateAnaTrama1 = ST_ESPERA_ANA1;
                 }
+            }
                 break;
                 
                 

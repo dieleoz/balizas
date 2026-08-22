@@ -164,32 +164,37 @@ def flujo_test_foco(b):
 def flujo_nombre_ota(b):
     """Nombre por el aire: MainActivity2.java:876 -> "¿N<nombre>?".
 
-    OJO CON EL ALCANCE: desde aqui NO se ve la EEPROM, asi que no se puede
-    comprobar si el nombre quedo grabado. Eso lo mide el arnes (bloque J), que
-    si lee 0x40. Aqui se comprueba el efecto que SI es visible y es el grave:
-    que grabar un nombre no destroce la hora de la baliza.
+    ALCANCE, y conviene leerlo antes de fiarse de estos verdes:
 
-    [ROJO ESPERADO 22-ago-2026] Serial.c despacha por letra suelta y en orden
-    (L, R, N, A) sobre el buffer entero, y el nombre viaja dentro."""
+    1) Desde aqui NO se ve la EEPROM, asi que no se puede comprobar que el
+       nombre quedara grabado. Eso lo mide el arnes (bloque J), que si lee 0x40.
+    2) Tampoco se ve el eco "OK_NAME": arnes.c compila Serial.c con
+       -DtransmitUart1=fw_transmitUart1, y las llamadas que Serial.c se hace a
+       si mismo esquivan la envoltura que captura la UART. En el equipo real ese
+       eco SI sale.
+
+    Lo que si se puede comprobar aqui, y era el defecto GRAVE: que grabar un
+    nombre no destroce la hora de la baliza. Arreglado el 22-ago-2026
+    despachando por el caracter pegado al delimitador."""
     print("\n-- 5. Nombre por el aire (OTA)")
 
-    # PRIMERO se demuestra que la rama del nombre se EJECUTA. Sin esto, los
-    # CHECK de abajo dan verde tambien cuando la trama se descarta entera --
-    # que es justo lo que pasaba el 22-ago-2026 y estuvo a punto de colarse.
-    eco = b.enviar(chr(0xBF) + "NCol. San Jose?")
-    procesada = "OK_NAME" in eco
-    check(procesada,
-          "la trama de nombre se procesa y responde OK_NAME")
+    # Control: nombre "afortunado", sin L ni R mayusculas. Antes tambien pasaba.
+    b.enviar(chr(0xBF) + "R0900,C210826-4?")
+    b.enviar(chr(0xBF) + "NCol. San Jose?")
+    check("9:0" in b.leer(),
+          "nombre sin L ni R mayusculas: la hora sigue en 09:00")
 
-    if not procesada:
-        print("         (sin OK_NAME no se puede afirmar nada del OTA desde aqui:")
-        print("          quien lo mide es el arnes, bloque J, que si lee la EEPROM)")
-        return
-
+    # El que corrompia el reloj: R mayuscula y ninguna L.
     b.enviar(chr(0xBF) + "R0900,C210826-4?")
     b.enviar(chr(0xBF) + "NCARRERA 30 CON 45?")
     check("9:0" in b.leer(),
           "nombre con R mayuscula: la hora NO se corrompe")
+
+    # El que se despachaba como lectura y perdia el nombre.
+    b.enviar(chr(0xBF) + "R0900,C210826-4?")
+    b.enviar(chr(0xBF) + "NCOLEGIO SAN JOSE?")
+    check("9:0" in b.leer(),
+          "nombre con L mayuscula: la hora sigue intacta")
 
 
 # ---------------------------------------------------------------- main
