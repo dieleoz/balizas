@@ -370,10 +370,11 @@ Presione DISPOSITIVO para conectar.</div>
         </button>
       </div>
 
-      <!-- CHECKLIST DE MANTENIMIENTO -->
+      <!-- CHECKLIST DE MANTENIMIENTO CON FECHA DE VISITA -->
       <div class="card">
         <div class="card-header">
-          <span>Checklist de Mantenimiento Preventivo</span>
+          <span>Checklist Mantenimiento</span>
+          <span id="lblFechaUltimaVisita" style="font-size:10px; color:#2563EB; font-weight:700;">Visita: 22/08/2026</span>
         </div>
         <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
           <input type="checkbox" id="chkPanelSolar" checked /> 1. Panel solar limpio y fusible 12V verificado
@@ -389,12 +390,16 @@ Presione DISPOSITIVO para conectar.</div>
         </label>
       </div>
 
-      <!-- 1-TOQUE -->
-      <div class="card">
+      <!-- 1-TOQUE CON FEEDBACK VISUAL INMEDIATO -->
+      <div class="card" id="card1Toque">
         <div class="card-header">Horario Escolar Oficial (1-Toque)</div>
-        <button class="btn-full btn-one-touch" onclick="cmdOneTouch()">
+        <button class="btn-full btn-one-touch" id="btn1Toque" onclick="cmdOneTouch()">
           ⚡ Programar Horario Escolar (1 Toque)
         </button>
+        <div id="badgeStatus1Toque" style="display:none; background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:8px; border-radius:6px; font-size:11px; font-weight:700; margin-top:8px; text-align:center; line-height:1.4;">
+          ✓ ¡Horario Escolar Grabado con Éxito en EEPROM!<br/>
+          <span style="font-size:10px; font-weight:600; color:#047857;">• 06:00 - 09:00  |  • 11:30 - 13:30  |  • 15:00 - 16:30 (L-V)</span>
+        </div>
       </div>
 
       <!-- TEST LUZ -->
@@ -610,6 +615,12 @@ Presione DISPOSITIVO para conectar.</div>
     await enviarTramaBackend(`\xBF\x41\x35\x2C\x45\x30\x2C\x3F\n\r`);
 
     log(`✓ Horario Escolar Oficial Grabado en EEPROM con éxito.`);
+    const badge = document.getElementById('badgeStatus1Toque');
+    if (badge) {
+      badge.style.display = 'block';
+      badge.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(() => { badge.style.display = 'none'; }, 8000);
+    }
     await cmdRead();
   }
 
