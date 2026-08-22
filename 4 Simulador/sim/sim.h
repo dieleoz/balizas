@@ -75,6 +75,15 @@ void          sim_eeprom_escribir(unsigned int addr, unsigned char dato);
 /* Fija el valor crudo (0..1023) que devolvera ADC_read() para ese canal. */
 void sim_adc_set(int canal, int valor);
 
+/* Si el canal esta habilitado como analogico segun el PCFG que dejo ADC_init(). */
+int sim_adc_canal_habilitado(int canal);
+
+/* Si en algun momento el firmware leyo un canal que su propio PCFG dejo digital. */
+int sim_adc_hubo_lectura_de_canal_deshabilitado(void);
+
+/* Cuantas veces pidio el firmware ese canal del ADC. */
+int sim_adc_lecturas(int canal);
+
 /* --- medida de la cadencia del cluster ---------------------------------- */
 
 /* Corre n ticks vigilando LATC2 y devuelve, por referencia, la duracion en ms

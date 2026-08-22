@@ -52,18 +52,36 @@ horario programado coincide con la chapa atornillada. El simulador no puede sust
 
 ## Defectos abiertos
 
-### 4. La temperatura se lee de un pin que el firmware dejó digital
+### 4. La temperatura no se mide — y son dos defectos, no uno
 
-`Aplicacion.c:236` lee con `ADC_read(3)` → **AN3**. `main.c:175` deja `PCFG = 0b1011`, que solo
-habilita **AN0–AN2**. AN3 queda digital: la conversión devuelve basura. La fórmula ya es
-correcta; lo que falta es habilitar el canal (`PCFG = 0b1010`).
+Medido el 22-ago-2026 con el bloque `I` del arnés, que **no se podía escribir hasta ese día**:
+`ADC_init()` vivía en `main.c`, el único `.c` que el arnés no compila, así que el `PCFG` era
+invisible para el simulador. Se extrajo a `Adc.c` — **el binario resultante es byte a byte
+idéntico**, el refactor no cambió una sola instrucción.
 
-**El arnés no lo puede ver** —devuelve el valor que se le pida por `ADC_read()` y nunca mira
-`PCFG`—, por eso sobrevivió a 58 comprobaciones en verde. Antes de tocarlo hace falta el
-escenario que lo mida en rojo, y eso exige que el simulador modele el registro, no solo el
-valor devuelto.
+**4a. La lectura de temperatura es código muerto.** El estado `ST_READ_TEMP_AP` está escrito,
+pero **ningún sitio transiciona a él**: `ap.uiCntTemp` se asigna una vez en el arranque y no se
+incrementa ni se compara jamás, y `ap.uiTempDec` no lo lee nadie. La baliza **no mide la
+temperatura** — no es que la mida mal. Nadie está viendo un número equivocado, porque no hay
+número.
 
-**La telemetría de batería va por `AN1` y no está afectada.**
+**4b. `AN3` no está habilitado como analógico** por el `PCFG` de `ADC_init()`, y `Aplicacion.c`
+lo leería con `ADC_read(3)`. Hoy es **latente**: no hace daño porque 4a impide que esa lectura
+se ejecute. Morderá el día que se implemente la transición sin arreglar esto antes — y ese es
+justo el orden en que alguien lo haría.
+
+> ⚠️ **El valor de arreglo que circula está en duda.** `Manuales/HARDWARE.md` propone
+> `PCFG = 0b1010`. Según la tabla del PIC18F2455/2550/4455/4550 el número de canales analógicos
+> es `(13 - PCFG)`, con lo que `0b1010` daría AN0–AN2 y **dejaría AN3 fuera igual**; haría falta
+> `0b1001`. Las dos fuentes del repositorio se contradicen, y `HARDWARE.md` se apoya en el
+> comentario del propio código (`//Entradas Analogicas a0, a1, a2`), que es circular.
+> **No hay datasheet del PIC en el repositorio.** Aplicar `0b1010` a ciegas dejaría el defecto
+> vivo con todo el mundo creyendo que se arregló, que es peor que no tocarlo.
+>
+> **Pregunta concreta a resolver antes de tocar nada:** en el PIC18F2550, ¿qué valor de
+> `ADCON1<PCFG>` habilita AN0 a AN3 como analógicas?
+
+Los dos rojos están en el arnés, fechados, y se quedan hasta que se resuelvan.
 
 ### 5. La versión de XC8 del binario de la v3.3 no está registrada
 
@@ -95,8 +113,9 @@ Solo existen **8** (diario), **9** (lunes a viernes) y **10** (fin de semana).
 - **Los hashes del certificado de la v3.3 no verifican.** Comparten los 12 primeros caracteres
   con los reales y luego divergen, así que ni siquiera detectan un cambio. Los valores medidos
   quedaron anotados en `Release_v3.3/LEEME_RELEASE_v3.3.md`.
-- **El arnés son 58 comprobaciones**, no 33 (`CLAUDE.md`) ni 37 (el LEEME de la v3.3). Corrió
-  el 22-ago-2026: **58/58 PASS**.
+- **El arnés no eran 33 comprobaciones** (`CLAUDE.md`) ni 37 (el LEEME de la v3.3): eran 58, y
+  hoy son **63** con el bloque `I` del ADC. Última medida el 22-ago-2026: **61 en verde y 2
+  rojos esperados y fechados**, los dos del canal de temperatura.
 - **El buzzer ya está en `RC1`** y coincide con la placa. `CLAUDE.md` y la skill `verificar`
   seguían anunciándolo como roto en `RC0`.
 

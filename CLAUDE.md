@@ -32,7 +32,7 @@ día no rige.
 | Candidata (mejoras de hoy) | `BALIZA_18F2550_V1_CORREGIDO.hex` + `Baliza_IT_VIAL_30_v3.4.apk` | 49.068 B / 6.066.074 B. **Sin funcional** — ver ROADMAP |
 | App Android | `1 Firmware/Doc Aplicativo Movil/BalizaV10/` | Gradle + Java nativo. **No es App Inventor** |
 | Tarjeta | `2 Hardware tarjeta/` | KiCad y gerbers. **Fabricada y montada** — ver regla 1 |
-| Simulador | `4 Simulador/` | 58 comprobaciones, corre en un segundo |
+| Simulador | `4 Simulador/` | 63 comprobaciones, corre en un segundo |
 | Bluetooth | `5 HW bluetooth/` | Solo el datasheet del **SoC**, no el del módulo |
 
 Punto de entrada: **[README.md](README.md)**. Qué falta y en qué orden:
@@ -102,12 +102,17 @@ que hay es lo que hay, y está descrito en [`Manuales/HARDWARE.md`](Manuales/HAR
 
 Auditado el **22-ago-2026**: de los dos desajustes que hubo, **queda uno vivo**.
 
-- **La temperatura — VIVO.** El sensor entra por `AN3` (`Aplicacion.c:236` llama a
-  `ADC_read(3)`), y `main.c:175` pone `PCFG = 0b1011`, que solo habilita AN0–AN2. AN3 queda
-  digital y la conversión devuelve basura. **La fórmula ya se arregló** y hoy es correcta
-  (`(ADC * 5000) / 1024`, décimas de grado para un LM35); lo que falta es habilitar el canal.
-  El simulador **no lo puede ver**: devuelve el valor que se le pida y nunca mira `PCFG`. Por
-  eso sobrevivió a 58 comprobaciones en verde. Ver ROADMAP, pendiente 1.
+- **La temperatura — NO SE MIDE.** Medido el 22-ago-2026, y no es lo que decía este
+  documento: la baliza no lee mal la temperatura, **no la lee nunca**. El estado
+  `ST_READ_TEMP_AP` está escrito pero **ningún sitio transiciona a él**; `ap.uiCntTemp` se
+  asigna una vez en el arranque y no se incrementa ni se compara jamás, y `ap.uiTempDec` no lo
+  lee nadie. Es código muerto de punta a punta.
+  Debajo hay un segundo defecto, **latente**: `AN3` no está habilitado como analógico por el
+  `PCFG` de `ADC_init()`. Hoy no hace daño porque esa lectura no se ejecuta; morderá el día
+  que alguien implemente la transición sin arreglar el `PCFG` antes.
+  ⚠️ **Y el valor de arreglo que propone `Manuales/HARDWARE.md` (`0b1010`) está en duda**: según
+  la tabla del PIC18F2550 daría AN0–AN2 y dejaría AN3 fuera igual. Confirmar contra el
+  datasheet antes de tocarlo. Ver ROADMAP y `Adc.c`.
 - **El buzzer — YA ARREGLADO (verificado 22-ago-2026).** `Buzzer.h:24` ataca `LATC1` y
   `pinConfBuzzer()` pone `TRISC1 = 0` / `TRISC0 = 1`, que es lo que pide la placa. Coincide.
   **No lo "arregles" otra vez hacia `RC0`**: esa era la versión rota.
@@ -252,7 +257,7 @@ cd "D:/@Proyect/Baliza/4 Simulador" && python correr.py
 # Compilar el firmware para el PIC. --std=c99 NO es opcional.
 cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
 "C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" --chip=18f2550 --std=c99 \
-  --outdir=<salida> main.c Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c \
+  --outdir=<salida> main.c Adc.c Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c \
   EEprom.c I2C.c LedLive.c Serial.c TimeBase.c
 ```
 

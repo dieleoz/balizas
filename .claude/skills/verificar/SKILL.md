@@ -132,13 +132,15 @@ bit que va a `LATC2`. **No toca un solo pin real.** En concreto no dice nada de:
   desde el 22-ago-2026 (`Buzzer.h:24` ataca `LATC1`, que es lo que pide la placa), pero eso lo
   sabemos por haber leido el fuente, **no porque el arnes lo mida**. La tarjeta esta fabricada
   y es fija: se cambia el firmware, no la placa.
-- **El ADC — y aqui hay un defecto VIVO que este arnes deja pasar en verde.** El firmware lee
-  la temperatura de **AN3** (`Aplicacion.c:236`), y `main.c:175` pone `PCFG = 0b1011`, que solo
-  habilita AN0-AN2: la conversion devuelve basura. El arnes devuelve el valor que le pidas por
-  `ADC_read()` y **nunca mira `PCFG`**, asi que las 58 comprobaciones pasan con el defecto
-  puesto. La telemetria de bateria va por **AN1** y esa si esta bien.
-  **Es el ejemplo mas caro de este documento: 58 en verde no dicen nada de un canal que el
-  instrumento no puede ver.**
+- **El ADC — desde el 22-ago-2026 SI lo mide, en parte** (bloque `I`), y merece leerse porque
+  es el mejor ejemplo de este documento. Durante 58 comprobaciones en verde nadie vio que la
+  baliza **no mide la temperatura**: el estado que la lee es codigo muerto, ningun sitio
+  transiciona a el. No se podia ver porque `ADC_init()` vivia en `main.c`, **el unico `.c` que
+  el arnes no compila**. Se saco a `Adc.c` y el defecto aparecio en rojo el mismo dia.
+  La leccion: cuando algo no se puede medir, no es que este bien -- es que no se esta mirando.
+  **Si un `.c` del firmware queda fuera de `FUENTES_FW`, todo lo que decida ese archivo es un
+  punto ciego permanente.** Hoy siguen fuera `main.c`, `EEprom.c`, `DS1307.c` e `I2C.c`.
+  Lo que el bloque `I` aun NO mide: que el pin entregue de verdad la tension del LM35.
 - **El I2C y el DS1307.** El reloj simulado siempre responde y siempre corre. Una pila
   agotada, unas pull-ups mal o el bit de reloj parado no existen aqui.
 - **El Bluetooth.** El simulador le mete las tramas directamente. Que el modulo empareje es

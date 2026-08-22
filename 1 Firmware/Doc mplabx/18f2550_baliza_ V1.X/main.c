@@ -17,6 +17,7 @@
 
 #include "Buzzer.h"
 #include "Cluster.h"
+#include "Adc.h"
 
 #include <stdint.h>
 
@@ -169,17 +170,7 @@ void INT_init(void)
 * Inicialización del ADC
 ******************************************/
 
-void ADC_init(void)
-{  
-    ADCON1bits.VCFG = 0b00;     //REF -> VSS, VCC
-    ADCON1bits.PCFG = 0b1011;   //Entradas Analogicas a0, a1, a2
-    
-    ADCON2bits.ACQT = 0b010;    //TACQT > 2.45us
-    ADCON2bits.ADCS = 0b100;    //TAD >  0.7us Tosc * 4 = 1us
-    ADCON2bits.ADFM = 1;        //1 derecha, 0 izquierda
-    
-    ADCON0bits.ADON = 1;        //ADC on
-}
+/* ADC_init() se movio a Adc.c para que el arnes pueda compilarlo. Ver Adc.c. */
 
 /*****************************************
 * Lectura de un canal Analogico

@@ -577,6 +577,61 @@ int main(int argc, char **argv)
               "rafaga de 50 reprogramaciones consecutivas no corrompio la memoria EEPROM");
     }
     /* =============================================================
+       I. EL CANAL DE TEMPERATURA
+
+       [ROJO ESPERADO 22-ago-2026] Dos rojos, y son defectos distintos que
+       conviene no confundir:
+
+       I2 - AN3 no esta habilitado como analogico. El PCFG que deja ADC_init()
+            no lo incluye, y Aplicacion.c lo lee con ADC_read(3). Hoy es un
+            defecto LATENTE: no hace dano porque, por I4, esa lectura no llega
+            a ejecutarse nunca. Mordera el dia que se implemente I4 sin
+            arreglar esto antes.
+
+       I4 - La lectura de temperatura es CODIGO MUERTO. El estado
+            ST_READ_TEMP_AP existe y esta escrito, pero ningun sitio
+            transiciona a el: ap.uiCntTemp se asigna una vez en el arranque y
+            no se incrementa ni se compara jamas, y ap.uiTempDec no lo lee
+            nadie. La baliza no mide la temperatura -- no es que la mida mal.
+
+       Este escenario no se podia escribir hasta hoy: ADC_init() vivia en
+       main.c, el unico .c que el arnes no compila. Por eso el asunto entero
+       sobrevivio a 58 comprobaciones en verde.
+       ============================================================= */
+    ESCENARIO("I. El canal de temperatura");
+    {
+        arrancar_limpio();
+
+        /* I1: la bateria, que es el canal que SI funciona. Va primero para que
+           cualquier cambio del PCFG que la rompa se note de inmediato. */
+        CHECK(sim_adc_canal_habilitado(1),
+              "AN1 (tension de bateria) esta habilitado como analogico");
+
+        /* I2: el defecto latente. */
+        CHECK(sim_adc_canal_habilitado(3),
+              "AN3 (LM35 de temperatura) esta habilitado como analogico");
+
+        sim_adc_set(1, 512);
+        sim_adc_set(3, 300);
+        sim_tick(20000);   /* TIME_READ_TEMP son 4500 ticks: sobraria de largo */
+
+        /* I3: verde de verdad, y verificable: la bateria si se lee, asi que el
+           contador de lecturas funciona y el verde de abajo significa algo. */
+        CHECK(sim_adc_lecturas(1) > 0,
+              "la tarea lee el canal de bateria (AN1) durante la operacion normal");
+
+        /* I4: el codigo muerto. */
+        CHECK(sim_adc_lecturas(3) > 0,
+              "la tarea llega a leer el canal de temperatura (AN3) alguna vez");
+
+        /* I5: mientras I4 siga en rojo, esto es verde por omision -- no se lee
+           un canal deshabilitado porque no se lee ninguno. Queda escrito para
+           que el dia que I4 se arregle sin tocar el PCFG, este pase a rojo. */
+        CHECK(!sim_adc_hubo_lectura_de_canal_deshabilitado(),
+              "el firmware no leyo ningun canal que su propio PCFG dejo digital");
+    }
+
+    /* =============================================================
        G. BATERIA EXHAUSTIVA DE CASOS LIMITE E IF-CASES
        Valida transiciones de medianoche, fines de semana, desbordes de
        buffer, parametros fuera de rango y estabilidad de 24 horas.

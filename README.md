@@ -46,7 +46,7 @@ responsable el 22-ago-2026. No se mezclan con nada de otra procedencia:
 | **Microcontrolador** | **Microchip PIC18F2550** a 20.0 MHz (HS) |
 | **Compilador Firmware** | **C99** (`--std=c99`). ⚠️ **La versión exacta de XC8 de este binario no está registrada**: la carpeta `build_xc8/` no conserva el `.map`. Ver ROADMAP, pendiente 5 |
 | **Binario que corre HOY en la calle** | Sin confirmar — ver ROADMAP, pendiente 3 |
-| **Cobertura de Pruebas** | **58 de 58 (PASS)** — medido el **22-ago-2026** con `python "4 Simulador/correr.py"` sobre los `.c` actuales |
+| **Cobertura de Pruebas** | **63 comprobaciones · 61 en verde · 2 rojos esperados y fechados** (el canal de temperatura). Medido el **22-ago-2026** |
 
 ---
 
@@ -119,15 +119,15 @@ python "4 Simulador/servidor_interactivo.py"
 
 ---
 
-### Qué NO cubren esas 58 comprobaciones
+### Qué NO cubren esas comprobaciones
 
 El arnés compila los `.c` reales del firmware y los ejercita en el PC, pero **no toca un solo
 pin**. Verde aquí no es entregable y no autoriza a grabar. En concreto no dice nada de:
 
-* **El ADC.** Hay un defecto vivo por aquí: la temperatura se lee de **AN3**, y `main.c` deja
-  `PCFG = 0b1011`, que solo habilita AN0–AN2. La lectura de temperatura es basura. **La
-  telemetría de batería va por `AN1` y no está afectada** — esa se lee bien. Detalle y
-  arreglo propuesto en [`ROADMAP.md`](ROADMAP.md), pendiente 1.
+* **El ADC.** Desde el 22-ago-2026 **sí lo cubre en parte** (bloque `I` del arnés), y lo
+  primero que midió es que **la baliza no mide la temperatura**: el estado que la lee es
+  código muerto, nadie transiciona a él. **La telemetría de batería (`AN1`) no está afectada
+  y funciona.** Detalle en [`ROADMAP.md`](ROADMAP.md).
 * **El I²C y el DS1307.** El reloj simulado siempre responde. Una pila `CR2032` agotada o unas
   pull-ups mal no existen en el simulador.
 * **Que el módulo Bluetooth empareje.** Al arnés se le meten las tramas directamente.

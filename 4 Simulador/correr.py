@@ -34,6 +34,10 @@ GCC = r"D:\toolchain\mingw64\bin\gcc.exe"
 # quedan fuera y estan sustituidos por sim/plataforma.c -- el motivo de cada
 # exclusion esta escrito en la cabecera de arnes.c.
 FUENTES_FW = [
+    # Adc.c salio de main.c justo para que el arnes pudiera compilar el PCFG:
+    # mientras vivio dentro de main.c, el simulador no podia ver que canales
+    # quedaban analogicos y el defecto de AN3 pasaba en verde.
+    "Adc.c",
     "TimeBase.c",
     "LedLive.c",
     "Buzzer.c",

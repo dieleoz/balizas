@@ -15,6 +15,7 @@
  */
 
 #include <string.h>
+#include "../../1 Firmware/Doc mplabx/18f2550_baliza_ V1.X/Adc.h"
 #include <stdint.h>
 #include <xc.h>
 #include "DS1307.h"
@@ -285,12 +286,59 @@ uint8_t I2C_Master_Read(uint8_t ACK) { (void)ACK; return 0; }
    mide en banco, no aqui.
    --------------------------------------------------------------- */
 static int adc_val[16];
+static int adc_leido_deshabilitado = 0;
+static int adc_lecturas[16];
 
-void ADC_init(void) {}
+/* ADC_init() YA NO SE FALSEA AQUI: lo compila el arnes desde Adc.c, que es
+   firmware real. Antes era un stub vacio y por eso el PCFG no existia para el
+   simulador -- el canal de temperatura pasaba en verde leyendo un pin digital. */
 void INT_init(void) {}
+
+/* Cuantos canales AN quedan analogicos segun PCFG, en el PIC18F2455/2550/4455/4550.
+   La tabla del datasheet asigna (13 - PCFG) canales analogicos contiguos desde AN0,
+   y ninguno a partir de PCFG >= 0b1101.
+
+   PENDIENTE DE CONFIRMAR CONTRA EL DATASHEET (22-ago-2026). Es la pieza que
+   decide si el arreglo de AN3 es 0b1001 o 0b1010, y las dos fuentes que hay en el
+   repositorio se contradicen -- ver Adc.c. Mientras no se confirme, este escenario
+   nace en ROJO a proposito. */
+static int adc_canales_analogicos(void)
+{
+    int pcfg = ADCON1bits.PCFG & 0x0F;
+    if (pcfg >= 13) return 0;
+    return 13 - pcfg;
+}
+
+int sim_adc_canal_habilitado(int canal)
+{
+    return canal >= 0 && canal < adc_canales_analogicos();
+}
+
+int sim_adc_hubo_lectura_de_canal_deshabilitado(void)
+{
+    return adc_leido_deshabilitado;
+}
+
+/* Cuantas veces pidio el firmware ese canal. Sin esto, un escenario que
+   comprueba que "no se leyo nada malo" da verde tambien cuando NO SE LEYO
+   NADA -- que es el falso verde que ya se comio este banco una vez. */
+int sim_adc_lecturas(int canal)
+{
+    if (canal < 0 || canal > 15) return 0;
+    return adc_lecturas[canal];
+}
 
 uint16_t ADC_read(uint8_t channel)
 {
+    /* En la tarjeta, leer un canal que PCFG dejo digital no devuelve el sensor:
+       devuelve algo no especificado por Microchip. Aqui se anota para que el
+       arnes lo pueda acusar, en vez de entregar un valor limpio que nunca
+       existio. */
+    adc_lecturas[channel & 0x0F]++;
+
+    if (!sim_adc_canal_habilitado((int)(channel & 0x0F)))
+        adc_leido_deshabilitado = 1;
+
     return (uint16_t)adc_val[channel & 0x0F];
 }
 
@@ -453,6 +501,17 @@ extern unsigned char flagInitStLed;
 
 void sim_reset(void)
 {
+    /* El ADC vuelve al estado de arranque y se reaplica la configuracion REAL
+       del firmware (Adc.c), igual que hace main(). Si esto no se hiciera, el
+       PCFG quedaria a cero y todos los canales parecerian analogicos: el
+       escenario del ADC daria verde por accidente. */
+    memset((void *)&ADCON0bits, 0, sizeof(ADCON0bits));
+    memset((void *)&ADCON1bits, 0, sizeof(ADCON1bits));
+    memset((void *)&ADCON2bits, 0, sizeof(ADCON2bits));
+    adc_leido_deshabilitado = 0;
+    memset(adc_lecturas, 0, sizeof(adc_lecturas));
+    ADC_init();
+
     /* --- lo que en el equipo real hace el corte de alimentacion --- */
     memset((void *)&LATAbits, 0, sizeof(LATAbits));
     memset((void *)&LATBbits, 0, sizeof(LATBbits));
