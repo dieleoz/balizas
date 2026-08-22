@@ -1,168 +1,243 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-test_suite_e2e.py - LA APP CONTRA EL FIRMWARE REAL, POR HTTP
+test_suite_e2e.py - LAS TRAMAS DE LA APP CONTRA EL FIRMWARE EN C, SIN NADA EN MEDIO
 
-Manda las tramas EXACTAS de MainActivity2.java al firmware en C que corre
-detras de servidor_interactivo.py, y comprueba el EFECTO leyendo la baliza con
-"¿L?". No comprueba que la peticion HTTP fuera bien: comprueba que la baliza
-quedo como tiene que quedar.
+Habla por tuberia con `arnes.exe --interactivo`, que es el firmware REAL del PIC
+compilado para PC. Sin servidor HTTP, sin navegador, sin emulador web: solo las
+tramas que manda MainActivity2.java entrando por la UART simulada.
 
-    0  PASS   |  1  FALLA  |  2  ABORTADO (el servidor no esta)
+    0  PASS   |   1  FALLA   |   2  ABORTADO (falta arnes.exe)
 
-POR QUE SE REESCRIBIO ENTERO (22-ago-2026). La version anterior no podia pasar
-nunca, y aun asi el repositorio afirmaba "100% PASS":
+QUE MIDE: que el firmware haga lo que la app espera. Cada flujo manda las tramas
+literales de la app y despues comprueba el EFECTO leyendo la baliza con "¿L?".
+No comprueba que la trama se enviara: comprueba que la baliza quedo bien.
 
-  - Comprobaba res.get("ok") y res.get("tx"). El servidor solo devuelve
-    {"respuesta": ...}: las dos claves eran None SIEMPRE.
-  - Mandaba "\\xBF A1,..." CON UN ESPACIO detras del 0xBF. La app no manda ese
-    espacio. Se estaba midiendo un protocolo que no existe.
-  - El flujo 3 mandaba "¿T?" y "¿A?" como test de luz. Ninguno de los dos esta
-    en el protocolo: la app usa "¿A5,E1,...?" y "¿A5,E0,?".
-  - El flujo 4 construia un texto y luego comprobaba que ese texto contenia lo
-    que el mismo acababa de meter. No podia fallar.
+QUE NO MIDE, y hay que tenerlo presente:
+  - Que el APK instalado mande de verdad estas tramas. Aqui van escritas a mano
+    contra MainActivity2.java. Que el Java las construya igual es otra cosa.
+  - Que el modulo Bluetooth empareje ni que el enlace aguante.
+  - Que la etapa de potencia encienda la luz de la senal.
+  - Que el horario coincida con la CHAPA ATORNILLADA de esa instalacion.
 
-REQUIERE el servidor levantado:  python servidor_interactivo.py
-Y OJO: ese servidor retiene arnes.exe, asi que hay que pararlo antes de correr
-correr.py o el arnes no enlaza.
+POR QUE NO USA HTTP (22-ago-2026). La version anterior iba contra
+servidor_interactivo.py y encadenaba tramas sin dejar procesar la anterior. Eso
+disparaba el defecto de solapamiento (arnes, bloque K) y hacia parecer roto el
+ajuste de reloj, que esta bien. El modo interactivo procesa UNA trama por linea
+con su propio tiempo, que es el caso que se quiere medir aqui.
 """
 
-import json
+import os
+import subprocess
 import sys
-import urllib.error
-import urllib.request
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-API_URL = "http://localhost:8080/api/uart"
+AQUI = os.path.dirname(os.path.abspath(__file__))
+ARNES = os.path.join(AQUI, "arnes.exe")
 
 fallos = []
 
 
-def enviar(trama):
-    """Manda una trama tal cual y devuelve lo que el firmware saco por la UART."""
-    data = json.dumps({"trama": trama}).encode("utf-8")
-    req = urllib.request.Request(
-        API_URL, data=data, headers={"Content-Type": "application/json"}
-    )
-    with urllib.request.urlopen(req, timeout=10) as r:
-        return json.loads(r.read().decode("utf-8")).get("respuesta", "")
+class Baliza:
+    """El firmware del PIC al otro lado de una tuberia."""
 
+    def __init__(self, proc):
+        self.p = proc
 
-def leer_baliza():
-    """El volcado de '¿L?'. Es la unica fuente de verdad de este fichero."""
-    return enviar("\xBFL?\r\n")
+    def _leer_hasta_ok(self):
+        lineas = []
+        while True:
+            linea = self.p.stdout.readline()
+            if not linea:
+                raise RuntimeError("el arnes se murio a mitad")
+            t = linea.decode("cp1252", "replace").rstrip("\r\n")
+            if t == "[SIM_OK]":
+                break
+            lineas.append(t)
+        return "\n".join(lineas)
+
+    def enviar(self, trama):
+        """Manda una trama tal cual la manda la app. Devuelve lo que salio por la UART."""
+        self.p.stdin.write(trama.encode("cp1252") + b"\n")
+        self.p.stdin.flush()
+        return self._leer_hasta_ok()
+
+    def leer(self):
+        """El volcado de '¿L?'. Unica fuente de verdad de este fichero."""
+        return self.enviar("\xBFL?")
+
+    def cerrar(self):
+        try:
+            self.p.stdin.write(b"SALIR\n")
+            self.p.stdin.flush()
+            self.p.wait(timeout=5)
+        except Exception:
+            self.p.kill()
 
 
 def check(condicion, descripcion):
-    if condicion:
-        print(f"   ok    {descripcion}")
-    else:
-        print(f"   FALLA {descripcion}")
+    print(f"   {'ok   ' if condicion else 'FALLA'} {descripcion}")
+    if not condicion:
         fallos.append(descripcion)
 
 
-def flujo_1_reloj():
-    """Trama de MainActivity2.java:208 -> "¿R" + HHmm + ",C" + ddMMyy-u + "?" """
-    print("\n-- 1. Sincronizacion de reloj")
-    enviar("\xBFR1130,C210826-4?\r\n")
-    d = leer_baliza()
-    check("11:30" in d, "el reloj de la baliza quedo en 11:30 tras la trama de la app")
-    check("21/8/26" in d, "la fecha quedo en 21/8/26")
+# ---------------------------------------------------------------- flujos
 
 
-def flujo_2_un_toque():
+def flujo_reloj(b):
+    """MainActivity2.java:208 -> "¿R" + HHmm + ",C" + ddMMyy-u + "?" """
+    print("\n-- 1. Poner la baliza en hora")
+    b.enviar("\xBFR1130,C210826-4?")
+    d = b.leer()
+    check("11:30" in d, "el reloj queda en 11:30")
+    check("21/8/26" in d, "la fecha queda en 21/8/26")
+
+
+def flujo_un_toque(b):
     """La secuencia literal del boton 1-Toque: MainActivity2.java:686-709.
 
-    Las horas NO se inventan aqui: son las de la chapa atornillada a la senal."""
+    Las horas NO se eligen aqui: son las de la chapa atornillada a la senal."""
     print("\n-- 2. Boton 1-Toque (horario escolar de la chapa)")
-    for t in [
-        "\xBFA1,E1,I0600,F0900,D9,?\r\n",
-        "\xBFA2,E1,I1130,F1330,D9,?\r\n",
-        "\xBFA3,E1,I1500,F1630,D9,?\r\n",
-        "\xBFA4,E0,?\r\n",
-        "\xBFA5,E0,?\r\n",
-    ]:
-        enviar(t)
+    for t in (
+        "\xBFA1,E1,I0600,F0900,D9,?",
+        "\xBFA2,E1,I1130,F1330,D9,?",
+        "\xBFA3,E1,I1500,F1630,D9,?",
+        "\xBFA4,E0,?",
+        "\xBFA5,E0,?",
+    ):
+        b.enviar(t)
 
-    d = leer_baliza()
-    check("6:0" in d and "9:0" in d, "franja 1 grabada: 06:00 a 09:00")
-    check("11:30" in d and "13:30" in d, "franja 2 grabada: 11:30 a 13:30")
-    check("15:0" in d and "16:30" in d, "franja 3 grabada: 15:00 a 16:30")
-    check(d.count("LV") >= 3, "las tres franjas quedaron en Lunes-Viernes (LV)")
-    check(d.count("OFF") >= 2, "las alarmas 4 y 5 quedaron apagadas")
-
-
-def flujo_3_test_de_luz():
-    """Test de foco: MainActivity2.java:562 y 577. Usa la alarma 5 temporal."""
-    print("\n-- 3. Test de foco de 2 minutos")
-    enviar("\xBFR1200,C210826-4?\r\n")
-    enviar("\xBFA5,E1,I1200,F1202,D8,?\r\n")
-    d = leer_baliza()
-    check("12:0" in d and "12:2" in d, "la alarma 5 temporal quedo de 12:00 a 12:02")
-
-    enviar("\xBFA5,E0,?\r\n")
-    d = leer_baliza()
-    lineas = [l for l in d.split("\n") if l.strip().startswith("5")]
-    check(bool(lineas) and "OFF" in lineas[0],
-          "tras apagar, la alarma 5 vuelve a OFF")
+    d = b.leer()
+    check("6:0" in d and "9:0" in d, "franja 1: 06:00 a 09:00")
+    check("11:30" in d and "13:30" in d, "franja 2: 11:30 a 13:30")
+    check("15:0" in d and "16:30" in d, "franja 3: 15:00 a 16:30")
+    check(d.count("LV") >= 3, "las tres franjas quedan en Lunes-Viernes")
+    check(d.count("OFF") >= 2, "las alarmas 4 y 5 quedan apagadas")
 
 
-def flujo_4_nombre_ota():
+def _muestrear_lampara(b, veces=8):
+    """La luz PARPADEA a 1 Hz, asi que una sola muestra no dice nada: sale 0 o 1
+    segun el instante. Se muestrea una ventana y se mira el conjunto.
+    (Este fichero ya dio un rojo falso por muestrear una vez -- 22-ago-2026.)"""
+    return "".join("1" if "[LAMP]:1" in b.enviar("TICK 200") else "0"
+                   for _ in range(veces))
+
+
+def flujo_luz_enciende(b):
+    """Lo unico que le importa a un conductor: que la luz parpadee DENTRO de la
+    franja y este apagada fuera."""
+    print("\n-- 3. La luz obedece a la franja (LATC2)")
+
+    b.enviar("¿R0700,C210826-5?")          # viernes 07:00, dentro de 06:00-09:00
+    b.enviar("TICK 2000")
+    m = _muestrear_lampara(b)
+    check("1" in m and "0" in m,
+          f"viernes 07:00: la luz PARPADEA dentro de la franja (muestras {m})")
+
+    b.enviar("¿R1000,C210826-5?")          # 10:00, fuera de toda franja
+    b.enviar("TICK 2000")
+    m = _muestrear_lampara(b)
+    check(m == "0" * len(m), f"viernes 10:00: la luz esta apagada (muestras {m})")
+
+    b.enviar("¿R0700,C220826-6?")          # sabado: las franjas son L-V
+    b.enviar("TICK 2000")
+    m = _muestrear_lampara(b)
+    check(m == "0" * len(m), f"sabado 07:00: la luz esta apagada (muestras {m})")
+
+
+def flujo_test_foco(b):
+    """Test de foco de 2 min: MainActivity2.java:562 y 577 (alarma 5 temporal)."""
+    print("\n-- 4. Test de foco de 2 minutos")
+    b.enviar("\xBFR1200,C210826-4?")
+    b.enviar("\xBFA5,E1,I1200,F1202,D8,?")
+    d = b.leer()
+    check("12:0" in d and "12:2" in d, "la alarma 5 temporal queda de 12:00 a 12:02")
+
+    b.enviar("\xBFA5,E0,?")
+    d = b.leer()
+    linea5 = [l for l in d.split("\n") if l.strip().startswith("5")]
+    check(bool(linea5) and "OFF" in linea5[0], "tras apagar, la alarma 5 vuelve a OFF")
+
+
+def flujo_nombre_ota(b):
     """Nombre por el aire: MainActivity2.java:876 -> "¿N<nombre>?".
 
-    [ROJO ESPERADO 22-ago-2026] El despachador de Serial.c elige comando por
-    LETRA SUELTA y en orden (L, R, N, A), asi que las letras del propio nombre
-    compiten con los identificadores. Medido tambien en el arnes, bloque J."""
-    print("\n-- 4. Nombre por el aire (OTA)")
-    enviar("\xBFR0900,C210826-4?\r\n")
+    OJO CON EL ALCANCE: desde aqui NO se ve la EEPROM, asi que no se puede
+    comprobar si el nombre quedo grabado. Eso lo mide el arnes (bloque J), que
+    si lee 0x40. Aqui se comprueba el efecto que SI es visible y es el grave:
+    que grabar un nombre no destroce la hora de la baliza.
 
-    enviar("\xBFNCOLEGIO SAN JOSE?\r\n")
-    d = leer_baliza()
-    check("OK_NAME" in enviar("\xBFNCOLEGIO SAN JOSE?\r\n"),
-          "un nombre con L mayuscula se acepta como nombre")
+    [ROJO ESPERADO 22-ago-2026] Serial.c despacha por letra suelta y en orden
+    (L, R, N, A) sobre el buffer entero, y el nombre viaja dentro."""
+    print("\n-- 5. Nombre por el aire (OTA)")
 
-    enviar("\xBFNCARRERA 30 CON 45?\r\n")
-    d = leer_baliza()
-    check("9:0" in d,
-          "grabar un nombre con R mayuscula NO corrompe la hora de la baliza")
+    # PRIMERO se demuestra que la rama del nombre se EJECUTA. Sin esto, los
+    # CHECK de abajo dan verde tambien cuando la trama se descarta entera --
+    # que es justo lo que pasaba el 22-ago-2026 y estuvo a punto de colarse.
+    eco = b.enviar(chr(0xBF) + "NCol. San Jose?")
+    procesada = "OK_NAME" in eco
+    check(procesada,
+          "la trama de nombre se procesa y responde OK_NAME")
+
+    if not procesada:
+        print("         (sin OK_NAME no se puede afirmar nada del OTA desde aqui:")
+        print("          quien lo mide es el arnes, bloque J, que si lee la EEPROM)")
+        return
+
+    b.enviar(chr(0xBF) + "R0900,C210826-4?")
+    b.enviar(chr(0xBF) + "NCARRERA 30 CON 45?")
+    check("9:0" in b.leer(),
+          "nombre con R mayuscula: la hora NO se corrompe")
+
+
+# ---------------------------------------------------------------- main
 
 
 def main():
-    print("=" * 65)
-    print(" E2E: LAS TRAMAS DE LA APP CONTRA EL FIRMWARE EN C")
-    print("=" * 65)
+    print("=" * 66)
+    print(" LAS TRAMAS DE LA APP CONTRA EL FIRMWARE EN C (sin HTTP, sin front)")
+    print("=" * 66)
 
-    try:
-        enviar("\xBFL?\r\n")
-    except (urllib.error.URLError, OSError) as e:
-        print(f"\nABORTADO: no hay servidor en {API_URL}")
-        print(f"  ({e})")
-        print("\n  Levantalo con:  python servidor_interactivo.py")
+    if not os.path.isfile(ARNES):
+        print(f"\nABORTADO: no esta {ARNES}")
+        print("  Generalo con:  python correr.py")
         print("\nUn instrumento que no corre no dice NADA del firmware.")
         return 2
 
-    for flujo in (flujo_1_reloj, flujo_2_un_toque,
-                  flujo_3_test_de_luz, flujo_4_nombre_ota):
-        try:
-            flujo()
-        except Exception as e:
-            print(f"   FALLA {flujo.__name__}: excepcion {e!r}")
-            fallos.append(flujo.__name__)
+    proc = subprocess.Popen(
+        [ARNES, "--interactivo"],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=0,
+    )
+    listo = proc.stdout.readline().decode("cp1252", "replace").strip()
+    if listo != "[SIM_LISTO]":
+        print(f"\nABORTADO: el arnes no saludo ([SIM_LISTO]), dijo: {listo!r}")
+        proc.kill()
+        return 2
 
-    print("\n" + "=" * 65)
+    b = Baliza(proc)
+    try:
+        for f in (flujo_reloj, flujo_un_toque, flujo_luz_enciende,
+                  flujo_test_foco, flujo_nombre_ota):
+            try:
+                f(b)
+            except Exception as e:
+                print(f"   FALLA {f.__name__}: excepcion {e!r}")
+                fallos.append(f.__name__)
+    finally:
+        b.cerrar()
+
+    print("\n" + "=" * 66)
     if fallos:
-        print(f" RESULTADO: FALLA -- {len(fallos)} comprobacion(es) en rojo")
+        print(f" RESULTADO: FALLA -- {len(fallos)} en rojo")
         for f in fallos:
             print(f"   - {f}")
     else:
         print(" RESULTADO: PASS")
-    print("=" * 65)
-    print("\nLo que este fichero NO dice:")
-    print("  - que el APK instalado mande de verdad estas tramas (aqui van a mano)")
-    print("  - que el Bluetooth empareje")
-    print("  - que el horario coincida con la chapa atornillada de esa senal")
+    print("=" * 66)
+    print("\nEsto NO dice que el APK mande estas tramas, ni que el Bluetooth")
+    print("empareje, ni que el horario coincida con la chapa de esa senal.")
     return 1 if fallos else 0
 
 
