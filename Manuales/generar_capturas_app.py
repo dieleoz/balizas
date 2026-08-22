@@ -920,21 +920,27 @@ def _tarjeta_mantenimiento(altura):
     se pueden marcar por descuido, y un checklist que permite afirmar lo que no
     se ha comprobado es peor que no tener checklist.
     """
+    # El ESTADO FISICO va primero: es lo que mira un auditor antes que nada, y
+    # casi todo el se ve desde abajo -- una senal existe para leerse desde la via.
     suelo_items = [
+        "Lamina reflectiva limpia, sin grafiti ni golpes",
+        "Placa del horario legible y bien sujeta",
+        "Senal sin obstruccion (ramas, vegetacion, avisos)",
+        "Poste vertical y sin dano visible en la base",
         "Hora del equipo coincide con la del telefono",
         "Horario grabado coincide con la placa",
         "Tension de bateria en rango        12.6 V",
         "Sin cortes de energia nuevos       2 cortes",
         "Destello verificado (prueba 2 min)",
-        "Senal y placa legibles, sin danos",
     ]
     altura_items = [
-        "Panel solar limpio y sin sombra",
+        "Herrajes y abrazaderas apretados al poste",
+        "Gabinete cerrado y hermetico, sin agua",
+        "Lente del foco limpia por dentro",
+        "Panel solar limpio, orientado y sin sombra",
         "Fusible de 12 V verificado",
-        "Borneras apretadas, sin falsos contactos",
+        "Borneras apretadas, sin sulfatacion ni juego",
         "Pila CR2032 verificada o sustituida",
-        "Gabinete cerrado y sellado",
-        "Lente del foco limpia",
     ]
     items = suelo_items + (altura_items if altura else [])
 
@@ -968,7 +974,7 @@ def _tarjeta_mantenimiento(altura):
     # Checklist
     y = 138
     for n, txt in enumerate(items, 1):
-        marcado = n <= (5 if not altura else 8)
+        marcado = n <= (8 if not altura else 12)
         draw.rounded_rectangle([28, y, 48, y + 20], radius=4,
                                fill=("#15803D" if marcado else "#FFFFFF"),
                                outline="#94A3B8", width=1)
@@ -984,7 +990,7 @@ def _tarjeta_mantenimiento(altura):
                                fill="#FEF3C7", outline="#F59E0B")
         draw.text((40, y + 8), "Inspeccion a nivel de suelo.", fill="#92400E",
                   font=FONTS["small_bold"])
-        draw.text((40, y + 28), "6 puntos requieren subir al poste y NO se han verificado.",
+        draw.text((40, y + 28), "7 puntos requieren subir al poste y NO se han verificado.",
                   fill="#92400E", font=FONTS["small"])
         y += 62
     draw.rounded_rectangle([25, y, w - 25, y + 44], radius=8, fill="#7C3AED")

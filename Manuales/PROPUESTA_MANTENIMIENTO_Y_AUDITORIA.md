@@ -144,32 +144,50 @@ desplegable escondido: es lo primero que se toca y cambia lo que se ve debajo.
 
 
 
-**A nivel de suelo** — solo lo verificable sin tocar el equipo:
+**A nivel de suelo** — el estado físico va primero, porque es lo que mira una interventoría
+antes que nada, y **casi todo él se ve desde abajo**: una señal existe para leerse desde la vía.
 
 ```
-☐ 1. Hora del equipo coincide con la del teléfono
-☐ 2. Horario grabado coincide con la placa atornillada
-☐ 3. Tensión de batería dentro de rango        [ 12.6 V ]
-☐ 4. Sin cortes de energía nuevos              [ 2 cortes ]
-☐ 5. Destello verificado con la prueba de 2 minutos
-☐ 6. Señal y placa legibles, sin daños ni obstrucción
+ESTADO FISICO
+☐ 1. Lámina reflectiva limpia, sin grafiti ni golpes
+☐ 2. Placa del horario legible y bien sujeta
+☐ 3. Señal sin obstrucción (ramas, vegetación, avisos)
+☐ 4. Poste vertical y sin daño visible en la base
+
+OPERACION (por Bluetooth y a la vista)
+☐ 5. Hora del equipo coincide con la del teléfono
+☐ 6. Horario grabado coincide con la placa atornillada
+☐ 7. Tensión de batería dentro de rango        [ 12.6 V ]
+☐ 8. Sin cortes de energía nuevos              [ 2 cortes ]
+☐ 9. Destello verificado con la prueba de 2 minutos
 ```
 
-**En altura** — los seis anteriores, **más** los físicos:
+**En altura** — los nueve anteriores, **más** lo que solo se alcanza subiendo:
 
 ```
-☐ 7. Panel solar limpio y sin sombra
-☐ 8. Fusible de 12 V verificado
-☐ 9. Borneras apretadas, sin falsos contactos
-☐ 10. Pila CR2032 verificada o sustituida
-☐ 11. Gabinete cerrado y sellado, sin entrada de agua
-☐ 12. Lente del foco limpia
+☐ 10. Herrajes y abrazaderas apretados al poste
+☐ 11. Gabinete cerrado y hermético, sin entrada de agua
+☐ 12. Lente del foco limpia por dentro
+☐ 13. Panel solar limpio, orientado y sin sombra
+☐ 14. Fusible de 12 V verificado
+☐ 15. Borneras apretadas, sin sulfatación ni juego
+☐ 16. Pila CR2032 verificada o sustituida
 ```
+
+> **Por qué el estado físico no es una sola casilla.** La propuesta en circulación lo mete como
+> un único punto que agrupa *«lámina reflectiva + herrajes + lente + gabinete»*. Pero la lámina
+> se ve desde la vía y el lente y el gabinete **están arriba**: juntarlos obliga otra vez a
+> marcar desde el suelo algo que no se ha podido mirar. Repartidos, cada uno cae en la modalidad
+> donde de verdad se comprueba.
+>
+> Y la **obstrucción por vegetación** merece su propia línea: es el fallo más común y más
+> barato de arreglar de una señal escolar, y el equipo no puede detectarlo — la baliza destella
+> perfectamente detrás de una rama.
 
 **Los puntos que no aplican no se muestran en gris: no se muestran.** Si no están en pantalla,
 no se pueden marcar por descuido. Y debajo, una línea que evita el malentendido:
 
-> *Inspección a nivel de suelo. **6 puntos adicionales requieren subir al poste** y no se han
+> *Inspección a nivel de suelo. **7 puntos adicionales requieren subir al poste** y no se han
 > verificado en esta visita.*
 
 ### 4.3 Esa frase entra en el acta
@@ -188,13 +206,66 @@ CHECKLIST — 5 de 6 verificados
   [ ] Señal y placa legibles          <-- NO VERIFICADO
 ----------------------------------------
 NO APLICA EN ESTA MODALIDAD (requiere subir al poste):
-  panel solar · fusible 12 V · borneras · pila CR2032 ·
-  sellado del gabinete · lente del foco
+  herrajes · gabinete · lente del foco · panel solar ·
+  fusible 12 V · borneras · pila CR2032
+----------------------------------------
+INSPECCION REALIZADA POR: Cuadrilla 01 - D. Zuniga
+FIRMA LO VERIFICADO Y TAMBIEN LO NO VERIFICADO.
 ```
 
 Un acta que enumera lo no verificado es la diferencia entre un registro y una coartada.
 
-### 4.4 Dónde se guarda
+### 4.4 Quién firma: el nombre del técnico
+
+Hace falta, y el diseño propuesto es correcto en lo práctico:
+
+* Un campo de texto en la tarjeta de auditoría.
+* **Se guarda solo** en el teléfono, así que se escribe una vez al empezar la jornada y aparece
+  ya puesto en las veinte señales siguientes de la ruta.
+* Es un dato **del teléfono**, no de la baliza — al revés que el nombre del colegio, que sí se
+  graba en la EEPROM del poste con `¿N…?`. Esa distinción está bien vista y conviene mantenerla.
+
+Pero hay que ser honestos con lo que eso vale:
+
+> **Un nombre escrito en una caja de texto es una atribución, no una firma.** No da «validez
+> legal»: acredita lo mismo que quien sostiene el teléfono quiera escribir, y se puede cambiar
+> entre una señal y la siguiente sin dejar rastro.
+
+Y hay un detalle que cambia el planteamiento: **la app ya pide usuario y contraseña al entrar**
+(`MainActivity`). Solo que hoy esa pantalla es decorativa para identificar a nadie — acepta
+únicamente `admin` / `admin`, y **el nombre de usuario se descarta**: no se pasa a la pantalla
+principal, no se guarda, no aparece en el acta.
+
+Así que la decisión no es «¿añadimos un campo?» sino **de dónde sale la identidad**:
+
+| Opción | Qué acredita | Coste |
+|---|---|---|
+| **A. Campo de texto libre**, autoguardado | Atribución. Suficiente si solo se quiere saber a quién preguntar | Bajo. Es lo propuesto |
+| **B. Usar el login que ya existe**, con una credencial por técnico o cuadrilla | Quién entró a la app, no solo quién dice haber ido | Medio: hay que gestionar credenciales |
+| **C. Las dos**: identidad del login, y el campo solo para anotar la cuadrilla | Lo mismo que B, con contexto | Medio |
+
+> ### Decidido: opción A — 22-ago-2026
+>
+> **Se queda el campo de texto.** El motivo lo puso el responsable y es el que zanja la
+> discusión: *si nos metemos con usuarios, acabamos dejando uno para todo.*
+>
+> Y tiene razón, porque eso ya pasó: hoy la app tiene login y **todo el mundo entra como
+> `admin`**. Una credencial compartida no acredita a nadie — solo añade una pantalla más y la
+> ilusión de control. Las credenciales por técnico degeneran en credencial compartida en cuanto
+> hay prisa, una cuadrilla presta el teléfono o alguien olvida la suya.
+>
+> Así que se elige lo que de verdad aporta —saber a quién preguntar— y **se le llama por su
+> nombre: atribución, no firma**. El acta no dirá «firmado por»; dirá «inspección realizada
+> por», que es lo que un campo de texto puede sostener.
+>
+> Si algún día la interventoría exige acreditar identidad, eso no se arregla con un login: se
+> arregla con un acta que salga del teléfono a un sitio que el técnico no controle. Eso es otro
+> proyecto y hoy no está sobre la mesa.
+
+Sea cual sea, en el acta va **al lado de lo no verificado**, no debajo de un «señal aprobada»:
+quien firma, firma también lo que no pudo comprobar.
+
+### 4.5 Dónde se guarda
 
 Propuesta mínima que ya resuelve la auditoría, sin servidor ni conectividad:
 
@@ -215,12 +286,10 @@ qué comprobó y qué quedó sin comprobar?* Hoy no puede responder ninguna de l
 
 No lo decide quien programa:
 
-1. **¿Los 12 puntos son los correctos?** Los he derivado de la tarjeta y del manual actual, pero
+1. **¿Los 16 puntos son los correctos?** Los he derivado de la tarjeta y del manual actual, pero
    quien mantiene estas señales sabrá si falta alguno o sobra.
 2. **¿Cada cuánto toca subir?** Si la norma o el contrato fijan una periodicidad para el
    mantenimiento físico, la app puede avisar: *«última inspección en altura hace 8 meses»*.
-3. **¿Hace falta identificar al técnico?** Un acta sin firma no acredita quién la hizo. Si se
-   necesita, hay que decidir cómo — usuario y clave, o un campo de nombre y cédula.
 4. **¿El historial se queda en el teléfono o tiene que salir?** Si el teléfono se pierde o se
    cambia, el historial se va con él. Exportarlo periódicamente resuelve el caso simple.
 5. **¿Quién consulta esto?** De la respuesta depende el formato: no es lo mismo para el técnico
