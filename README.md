@@ -145,7 +145,7 @@ Cómo está construido y cómo añadirle un escenario:
 ```bash
 cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
 "C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" --chip=18f2550 --std=c99 \
-  --outdir=<salida> main.c Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c \
+  --outdir=build main.c Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c \
   EEprom.c I2C.c LedLive.c Serial.c TimeBase.c
 ```
 
@@ -159,6 +159,70 @@ Dos cosas que hay que saber antes de intentarlo, las dos comprobadas:
 - **`File > Open Project` no va a funcionar.** La carpeta del firmware **no tiene `nbproject/`**,
   así que MPLAB X no la reconoce como proyecto. Hay que crear uno nuevo y añadir los fuentes
   existentes.
+
+---
+
+## Aplicación Móvil Android (`IT VIAL 30` v3.3)
+
+La aplicación móvil es la herramienta oficial de control, configuración y diagnóstico de las balizas escolares en campo.
+
+```mermaid
+flowchart LR
+    DEV["Código Fuente Java<br/>Android Studio / Gradle"] --> BUILD["JDK 11 + Android SDK 34<br/>gradlew assembleDebug"]
+    BUILD --> APK["APK de Producción<br/>Baliza_v3.3.apk"]
+    APK --> INST["Instalador Android<br/>Play Protect: Instalar de todas formas"]
+    INST --> APP["IT VIAL 30 (v3.3)<br/>SPP Bluetooth 9600 8N1"]
+```
+
+### 1. Ubicación de la Aplicación y Código Fuente
+
+* **Instalador APK Oficial (Listo para instalar en móvil):** [`1 Firmware/Baliza_v3.3.apk`](1%20Firmware/Baliza_v3.3.apk)
+* **Código Fuente del Proyecto Android (Gradle + Java nativo):** [`1 Firmware/Doc Aplicativo Movil/BalizaV10/`](1%20Firmware/Doc%20Aplicativo%20Movil/BalizaV10/)
+* **Manual de Usuario Oficial para Cliente e Instaladores:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md) / [`Manuales/MANUAL_USUARIO_APP.docx`](Manuales/MANUAL_USUARIO_APP.docx) / [`Manuales/MANUAL_USUARIO_APP.pdf`](Manuales/MANUAL_USUARIO_APP.pdf)
+
+---
+
+### 2. Herramientas, Instaladores y Requisitos de Compilación
+
+Para compilar el proyecto Android desde la consola o IDE se utilizan los componentes portables incluidos en el repositorio:
+
+| Herramienta / Instalador | Versión / Ubicación en Repositorio | Propósito |
+|---|---|---|
+| **Java Development Kit (JDK)** | **OpenJDK 11.0.24+8** en [`7 sw apk/jdk-11/jdk-11.0.24+8`](7%20sw%20apk/jdk-11/jdk-11.0.24+8) | Entorno de compilación Java y ejecución de Gradle. |
+| **Android SDK & Build-Tools** | **Build-Tools 34.0.0 / Platform 34** en [`7 sw apk/android-sdk/`](7%20sw%20apk/android-sdk/) | Compilación de recursos Android, empaquetado y firmado de APK. |
+| **Gradle Wrapper** | **Gradle 7.4 / AGP 7.3.0** en `1 Firmware/Doc Aplicativo Movil/BalizaV10/gradlew.bat` | Automatización de compilación (`assembleDebug` / `assembleRelease`). |
+
+#### Comando para Compilar el APK desde PowerShell:
+```powershell
+$env:JAVA_HOME = "D:\@Proyect\Baliza\7 sw apk\jdk-11\jdk-11.0.24+8"
+$env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
+$env:ANDROID_HOME = "D:\@Proyect\Baliza\7 sw apk\android-sdk"
+cd "D:\@Proyect\Baliza\1 Firmware\Doc Aplicativo Movil\BalizaV10"
+cmd.exe /c "gradlew.bat assembleDebug"
+
+# Copiar el binario generado a la raíz de distribución
+Copy-Item "app\build\outputs\apk\debug\app-debug.apk" "..\..\Baliza_v3.3.apk" -Force
+```
+
+---
+
+### 3. Pautas Clave para la Instalación en el Teléfono Móvil
+
+1. **Instalador de Paquetes:** Al tocar el `.apk`, seleccionar **«Instalador de paquetes»** y permitir *«Instalar aplicaciones de fuentes desconocidas»*.
+2. **Desbloqueo en Google Play Protect:** Al mostrarse el aviso *«Se bloqueó la app no segura»*, presionar obligatoriamente **«Instalar de todas formas»** (desplegando previamente *Más detalles*). **NUNCA pulsar «Entendido»**, pues cancela la instalación.
+3. **Permisos en Android 12, 13 y 14+:** Conceder permisos de *Dispositivos Cercanos* y autorizar a la app a activar el Bluetooth.
+4. **PIN de Emparejamiento:** Vincular en los Ajustes de Bluetooth con la clave PIN oficial **`1234`** (o `0000`).
+
+---
+
+### 4. Cómo se Desarrolló y Mejoró la Aplicación (Evolución de Ingeniería)
+
+* **Modernización del Stack Android:** Se actualizó la arquitectura base en Java nativo para cumplir las restricciones de permisos en tiempo de ejecución de Android 12+ (`BLUETOOTH_SCAN`, `BLUETOOTH_CONNECT` y `ACCESS_FINE_LOCATION`).
+* **Blindaje de Tema Oscuro (UI/UX):** Se rediseñó el sistema de estilos para evitar que el modo oscuro del teléfono volviera los textos ilegibles o invisibles. Se fijó tipografía negra de alto contraste (`#212121`) sobre tarjetas sólidas (`#F5F7FA`) con bordes definidos (`#CFD8DC`).
+* **Botón Oficial de Programación en «1-Toque»:** Se implementó la sincronización atómica que lee la hora del celular (`¿R[HHMM],C[DDMMAA-D]?`), programa las 3 franjas de la placa escolar oficial (06:00-09:00, 11:30-13:30 y 15:00-16:30 Lun-Vie) y desactiva las alarmas 4 y 5, eliminando errores de configuración humana en campo.
+* **Módulo de Diagnóstico y Test en Terreno (2 Minutos):** Se integró el comando de prueba que enciende inmediatamente el foco ámbar durante 120 segundos a la cadencia reglamentaria de **1.0 Hz (500 ms ON / 500 ms OFF)**, junto con el botón de apagado inmediato para validaciones rápidas.
+* **Identidad Corporativa:** Se adaptaron los íconos de la aplicación para Android 8+ con el logotipo corporativo `t` de **IT VIAL S.A.S**, banner de bienvenida y título limpio en el ActionBar (`IT VIAL 30`).
+
 
 El detalle completo, y cómo grabar el PIC, en [`Manuales/COMPILAR_Y_GRABAR.md`](Manuales/COMPILAR_Y_GRABAR.md).
 
