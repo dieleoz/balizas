@@ -336,6 +336,64 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+                <!-- CHECKLIST DE MANTENIMIENTO Y AUDITORÍA EN CAMPO -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FFFFFF"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="CHECKLIST DE MANTENIMIENTO PREVENTIVO"
+                    android:textColor="#334155"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <CheckBox
+                    android:id="@+id/idChkPanelSolar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1. Panel solar limpio y fusible 12V verificado"
+                    android:textColor="#475569"
+                    android:textSize="11sp" />
+
+                <CheckBox
+                    android:id="@+id/idChkPilaRTC"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2. Pila de botón CR2032 (3V) verificada / OK"
+                    android:textColor="#475569"
+                    android:textSize="11sp" />
+
+                <CheckBox
+                    android:id="@+id/idChkBorneras"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="3. Borneras ajustadas (sin falsos contactos)"
+                    android:textColor="#475569"
+                    android:textSize="11sp" />
+
+                <CheckBox
+                    android:id="@+id/idChkTestLuz"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="4. Prueba de destello de luz (Test 2 min) ejecutada"
+                    android:textColor="#475569"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
         <!-- 5. ACCESO RÁPIDO: HORARIO ESCOLAR OFICIAL (1-TOQUE) -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"

@@ -606,7 +606,13 @@ Ala 5: 00:00 a 00:00 - Diario [OFF]`);
       `• Red / Bornes:        Alimentación Estable (${c})\n` +
       `• Estado EEPROM:       100% Íntegra (0x00=0x06)\n` +
       `----------------------------------------\n` +
-      `2. HORARIOS PROGRAMADOS EN BALIZA:\n` +
+      `2. CHECKLIST DE MANTENIMIENTO TÉCNICO:\n` +
+      `[` + (document.getElementById('chkPanelSolar').checked ? 'X' : ' ') + `] Panel Solar limpio y fusible 12V verificado\n` +
+      `[` + (document.getElementById('chkPilaRTC').checked ? 'X' : ' ') + `] Pila CR2032 (3V) verificada / cambiada\n` +
+      `[` + (document.getElementById('chkBorneras').checked ? 'X' : ' ') + `] Borneras de 12V ajustadas contra vibración\n` +
+      `[` + (document.getElementById('chkTestLuz').checked ? 'X' : ' ') + `] Prueba física de foco (Test 2 min) ejecutada\n` +
+      `----------------------------------------\n` +
+      `3. HORARIOS PROGRAMADOS EN BALIZA:\n` +
       cons + `\n` +
       `----------------------------------------\n` +
       `3. CAJA NEGRA UART (ÚLTIMAS TRAMAS):\n` +

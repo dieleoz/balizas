@@ -78,6 +78,10 @@ public class MainActivity2 extends AppCompatActivity {
     private TextView txtTituloDictamen;
     private TextView txtMensajeDictamen;
     private TextView txtAccionRecomendada;
+    private android.widget.CheckBox chkPanelSolar;
+    private android.widget.CheckBox chkPilaRTC;
+    private android.widget.CheckBox chkBorneras;
+    private android.widget.CheckBox chkTestLuz;
     private String diagnosticoPilaRTC = "OK";
     private String diagnosticoBateria12V = "OK";
     private String diagnosticoCortes = "OK";
