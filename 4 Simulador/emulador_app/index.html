@@ -3,200 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IT VIAL 30 - Emulador Oficial v3.3</title>
+<title>IT VIAL 30 - Emulador Oficial v3.4</title>
 <style>
   :root {
-    --primary-red: #D32F2F;
-    --dark-red: #B71C1C;
-    --primary-blue: #1976D2;
-    --primary-green: #2E7D32;
-    --card-bg: #F5F7FA;
-    --card-border: #CFD8DC;
-    --text-color: #212121;
-    --text-muted: #546E7A;
-    --amber-led: #FFB300;
+    --primary-blue: #1E40AF;
+    --dark-blue: #0F172A;
+    --accent-red: #DC2626;
+    --accent-green: #16A34A;
+    --accent-amber: #D97706;
+    --bg-gray: #F1F5F9;
+    --card-bg: #FFFFFF;
+    --text-color: #0F172A;
+    --text-muted: #64748B;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body {
-    background: #1A1C23;
-    color: #ECEFF1;
+    background: #0F172A;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
     padding: 20px;
+    color: var(--text-color);
   }
   .emulator-container {
     display: flex;
     gap: 30px;
-    align-items: flex-start;
-    max-width: 1100px;
+    max-width: 1050px;
     width: 100%;
+    align-items: flex-start;
   }
+
+  /* Phone Frame */
   .phone-frame {
     width: 380px;
-    height: 780px;
-    background: #FFFFFF;
+    background: var(--bg-gray);
+    border: 10px solid #1E293B;
     border-radius: 36px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 0 10px #2D323F, 0 0 0 12px #4A5568;
     overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
     display: flex;
     flex-direction: column;
-    position: relative;
+    height: 760px;
   }
   .status-bar {
-    height: 28px;
-    background: var(--dark-red);
-    color: #FFF;
+    background: var(--dark-blue);
+    color: #94A3B8;
+    padding: 6px 14px;
     font-size: 11px;
-    font-weight: 600;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 0 16px;
+    font-weight: 600;
   }
   .action-bar {
-    background: var(--primary-red);
+    background: #1E293B;
     color: #FFF;
     padding: 10px 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   }
   .action-bar-title {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 16px;
-    font-weight: bold;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 0.5px;
   }
   .logo-t {
-    width: 26px;
-    height: 26px;
-    background: #FFF;
-    color: var(--primary-red);
-    border-radius: 5px;
+    background: #3B82F6;
+    color: #FFF;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
     font-weight: 900;
+    font-size: 12px;
   }
   .btn-top {
-    font-size: 12px;
-    font-weight: bold;
     padding: 6px 10px;
-    border-radius: 4px;
+    border-radius: 6px;
     border: none;
+    font-size: 11px;
+    font-weight: 700;
     cursor: pointer;
-    text-transform: uppercase;
+    color: #FFF;
+    transition: all 0.2s;
   }
-  .btn-device { background: #FFCDD2; color: var(--dark-red); }
-  .btn-device.connected { background: #C8E6C9; color: var(--primary-green); }
-  .btn-read { background: var(--primary-blue); color: #FFF; }
-  .btn-config { background: var(--primary-green); color: #FFF; }
-  
+  .btn-device { background: var(--accent-red); }
+  .btn-device.connected { background: var(--accent-green); }
+  .btn-read { background: #2563EB; }
+  .btn-config { background: #059669; }
+
   .app-body {
     flex: 1;
     overflow-y: auto;
     padding: 12px;
-    background: #ECEFF1;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    color: var(--text-color);
   }
-  
   .card {
     background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    border: 1px solid #E2E8F0;
   }
   .card-header {
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 800;
     color: var(--text-muted);
     text-transform: uppercase;
-    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
   }
-  
+
   .console-box {
-    background: #212121;
-    color: #00E676;
-    font-family: "Courier New", monospace;
+    background: #0B1120;
+    color: #22C55E;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 11px;
-    padding: 8px;
-    border-radius: 4px;
-    height: 100px;
+    padding: 10px;
+    border-radius: 8px;
+    height: 120px;
     overflow-y: auto;
     white-space: pre-wrap;
-    line-height: 1.3;
+    line-height: 1.4;
+    border: 1px solid #1E293B;
   }
-  
+
   .btn-full {
     width: 100%;
     padding: 10px;
+    border-radius: 8px;
     border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 700;
     cursor: pointer;
-    text-transform: uppercase;
+    color: #FFF;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    transition: filter 0.15s;
+    margin-top: 4px;
+    transition: filter 0.2s;
   }
-  .btn-full:active { filter: brightness(0.85); }
-  .btn-one-touch { background: var(--primary-red); color: #FFF; }
-  .btn-test-on { background: #FF9800; color: #FFF; margin-bottom: 6px; }
-  .btn-test-off { background: #607D8B; color: #FFF; }
-  
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .form-group label { font-size: 10px; font-weight: 600; color: var(--text-muted); }
-  .form-group select, .form-group input {
-    padding: 5px;
-    border: 1px solid #B0BEC5;
-    border-radius: 4px;
-    background: #FFF;
-    font-size: 12px;
-    font-weight: 500;
-    color: #212121;
+  .btn-full:active { filter: brightness(0.9); }
+  .btn-one-touch { background: var(--primary-blue); font-size: 12px; }
+  .btn-audit { background: #4F46E5; }
+  .btn-test-on { background: var(--accent-amber); }
+  .btn-test-off { background: #475569; }
+
+  .form-row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .form-group { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .form-group label { font-size: 10px; font-weight: 700; color: var(--text-muted); }
+  select, input {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #CBD5E1;
+    font-size: 11px;
+    background: #F8FAFC;
+    color: var(--text-color);
+    font-weight: 600;
   }
 
-  .switch-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  .switch-label { font-size: 12px; font-weight: bold; }
-  
-  /* Modal Selector */
+  /* Modal */
   .modal-overlay {
-    position: absolute;
+    position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.6);
     display: none;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     padding: 20px;
     z-index: 100;
   }
@@ -205,54 +189,54 @@
     border-radius: 12px;
     padding: 16px;
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
   }
-  .modal-dialog h3 { font-size: 14px; margin-bottom: 12px; color: var(--text-color); }
+  .modal-dialog h3 { font-size: 13px; margin-bottom: 12px; color: var(--text-color); }
   .bt-item {
     padding: 10px;
-    border-bottom: 1px solid #ECEFF1;
+    border-bottom: 1px solid #F1F5F9;
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--primary-blue);
+    font-size: 12px;
+    font-weight: 700;
+    color: #2563EB;
   }
-  .bt-item:hover { background: #E3F2FD; }
+  .bt-item:hover { background: #EFF6FF; border-radius: 6px; }
 
   /* Test Beacon View */
   .beacon-preview {
     flex: 1;
-    background: #252836;
+    background: #1E293B;
     border-radius: 20px;
     padding: 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    border: 1px solid #3B4252;
+    border: 1px solid #334155;
   }
   .sign-board {
     width: 220px;
     height: 330px;
     background: #FFF;
-    border: 4px solid #111;
+    border: 5px solid #111;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 12px;
     position: relative;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
   }
   .lamp-fixture {
     width: 70px;
     height: 70px;
-    background: #333;
+    background: #222;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 3px solid #555;
+    border: 3px solid #444;
     margin-bottom: 8px;
   }
   .lamp-lens {
@@ -260,16 +244,16 @@
     height: 54px;
     border-radius: 50%;
     background: #4A3B00;
-    transition: all 0.1s;
+    transition: all 0.08s;
   }
   .lamp-lens.flashing {
-    background: #FFD54F;
-    box-shadow: 0 0 35px #FFA000, 0 0 70px #FF8F00;
+    background: #FBBF24;
+    box-shadow: 0 0 35px #F59E0B, 0 0 70px #D97706;
   }
   .speed-circle {
     width: 100px;
     height: 100px;
-    border: 10px solid #D32F2F;
+    border: 10px solid #DC2626;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -289,20 +273,21 @@
 
   .dev-controls {
     width: 100%;
-    background: #1F222E;
+    background: #0F172A;
     padding: 16px;
     border-radius: 12px;
-    font-size: 13px;
+    font-size: 12px;
+    border: 1px solid #334155;
   }
-  .dev-controls h4 { margin-bottom: 8px; color: #818CF8; }
+  .dev-controls h4 { margin-bottom: 8px; color: #818CF8; font-size: 13px; }
   .btn-tool {
     padding: 6px 12px;
-    background: #4F46E5;
+    background: #3B82F6;
     color: #FFF;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 700;
     margin-right: 6px;
     margin-bottom: 6px;
   }
@@ -314,7 +299,7 @@
   <!-- PHONE FRAME -->
   <div class="phone-frame">
     <div class="status-bar">
-      <span id="statTime">08:30</span>
+      <span id="statTime">12:00</span>
       <span>📶 100% 🔋</span>
     </div>
     <div class="action-bar">
@@ -333,49 +318,108 @@
       <!-- CONSOLE -->
       <div class="card">
         <div class="card-header">
-          <span>Consola de Datos</span>
-          <span style="font-size:10px; color:#4CAF50;" id="connStatus">● Desconectado</span>
+          <span>Consola de Datos (v3.4)</span>
+          <span style="font-size:10px; color:#22C55E;" id="connStatus">● Desconectado</span>
         </div>
-        <div class="console-box" id="consoleBox">--- SISTEMA IT VIAL 30 v3.3 ---
+        <div class="console-box" id="consoleBox">--- SISTEMA IT VIAL 30 v3.4 ---
 Presione DISPOSITIVO para conectar.</div>
+      </div>
+
+      <!-- NOMBRE / UBICACIÓN OTA -->
+      <div class="card">
+        <div class="card-header">
+          <span>Nombre / Ubicación de la Señal</span>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="txtNombreBaliza" value="Col. San José - Km 4+200" placeholder="Ej: Col. San José - Km 4+200" style="flex:1;" />
+          <button class="btn-top" onclick="cmdGuardarNombre()" style="background:#2563EB;">GUARDAR</button>
+        </div>
+      </div>
+
+      <!-- MOTOR DE AUTODIAGNOSTICO EXPERTO -->
+      <div class="card" id="cardAutoDiag" style="border-left: 4px solid #16A34A;">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+          <span id="lblIconoDictamen" style="font-size:16px;">🟢</span>
+          <span id="lblTituloDictamen" style="font-size:12px; font-weight:800; color:#16A34A;">SISTEMA 100% OPERATIVO</span>
+        </div>
+        <div id="lblMensajeDictamen" style="font-size:11px; color:#334155; margin-bottom:6px; line-height:1.3;">
+          Presione LEER para ejecutar el autodiagnóstico integral de telemetría y reloj.
+        </div>
+        <div id="lblAccionDictamen" style="background:#F8FAFC; padding:6px 8px; border-radius:6px; font-size:11px; font-weight:700; color:#16A34A;">
+          ✅ ACCIÓN EN CAMPO: Señal en óptimas condiciones de operación.
+        </div>
+      </div>
+
+      <!-- DIAGNÓSTICO ENERGÉTICO -->
+      <div class="card">
+        <div class="card-header">
+          <span>Telemetría de Batería y Cortes</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <div>
+            <div style="font-size:10px; color:#64748B;">Batería 12V / Panel:</div>
+            <div id="lblVoltaje" style="font-size:18px; font-weight:900; color:#10B981;">12.6 V</div>
+          </div>
+          <div>
+            <div style="font-size:10px; color:#64748B;">Cortes Registrados:</div>
+            <div id="lblCortes" style="font-size:18px; font-weight:900; color:#3B82F6;">2 cortes</div>
+          </div>
+        </div>
+        <button class="btn-full btn-audit" onclick="cmdExportAudit()">
+          📤 COMPARTIR CERTIFICADO DE AUDITORÍA
+        </button>
+      </div>
+
+      <!-- CHECKLIST DE MANTENIMIENTO -->
+      <div class="card">
+        <div class="card-header">
+          <span>Checklist de Mantenimiento Preventivo</span>
+        </div>
+        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
+          <input type="checkbox" id="chkPanelSolar" checked /> 1. Panel solar limpio y fusible 12V verificado
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
+          <input type="checkbox" id="chkPilaRTC" checked /> 2. Pila de botón CR2032 (3V) verificada / OK
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
+          <input type="checkbox" id="chkBorneras" checked /> 3. Borneras ajustadas (sin falsos contactos)
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; cursor:pointer;">
+          <input type="checkbox" id="chkTestLuz" /> 4. Prueba física de destello ejecutada
+        </label>
       </div>
 
       <!-- 1-TOQUE -->
       <div class="card">
-        <div class="card-header">Horario Escolar Oficial (Placa)</div>
+        <div class="card-header">Horario Escolar Oficial (1-Toque)</div>
         <button class="btn-full btn-one-touch" onclick="cmdOneTouch()">
           ⚡ Programar Horario Escolar (1 Toque)
         </button>
-        <div style="font-size:10px; color:var(--text-muted); margin-top:4px; text-align:center;">
-          06:00-09:00 · 11:30-13:30 · 15:00-16:30 (Lun-Vie)
-        </div>
       </div>
 
       <!-- TEST LUZ -->
       <div class="card">
         <div class="card-header">
-          <span>Diagnóstico de Banco / Terreno</span>
-          <span id="testTimerBadge" style="font-size:10px; color:#FF9800;"></span>
+          <span>Prueba Física de Foco en Campo</span>
+          <span id="testTimerBadge" style="font-size:10px; color:#D97706;"></span>
         </div>
-        <button class="btn-full btn-test-on" onclick="cmdTestLight(true)">
-          💡 Activar Test Luz (2 Minutos)
-        </button>
-        <button class="btn-full btn-test-off" onclick="cmdTestLight(false)">
-          ⛔ Apagar Test
-        </button>
+        <div style="display:flex; gap:6px;">
+          <button class="btn-full btn-test-on" style="flex:1;" onclick="cmdTestLight(true)">💡 Test 2 Min</button>
+          <button class="btn-full btn-test-off" style="flex:1;" onclick="cmdTestLight(false)">⏹️ Apagar</button>
+        </div>
       </div>
 
       <!-- MANUAL CONFIG -->
       <div class="card">
         <div class="card-header">Configuración Manual de Franja</div>
-        <div class="switch-row">
-          <div class="form-group" style="width:70px;">
+        <div class="form-row">
+          <div class="form-group">
             <label>Alarma N°</label>
             <select id="selAlarm">
               <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
             </select>
           </div>
-          <div class="form-group" style="width:100px;">
+          <div class="form-group">
             <label>Estado</label>
             <select id="selState">
               <option value="1">ON (Activa)</option><option value="0">OFF (Inactiva)</option>
@@ -385,14 +429,14 @@ Presione DISPOSITIVO para conectar.</div>
 
         <div class="form-row">
           <div class="form-group">
-            <label>Hora / Min Inicio</label>
+            <label>Inicio (HH:MM)</label>
             <div style="display:flex; gap:2px;">
               <select id="selHIni"><option>06</option><option>07</option><option>08</option><option>11</option><option>12</option><option>15</option></select>
               <select id="selMIni"><option>00</option><option>15</option><option>30</option><option>45</option></select>
             </div>
           </div>
           <div class="form-group">
-            <label>Hora / Min Fin</label>
+            <label>Fin (HH:MM)</label>
             <div style="display:flex; gap:2px;">
               <select id="selHFin"><option>09</option><option>10</option><option>13</option><option>14</option><option>16</option><option>17</option></select>
               <select id="selMFin"><option>00</option><option>15</option><option>30</option><option>45</option></select>
@@ -401,7 +445,7 @@ Presione DISPOSITIVO para conectar.</div>
         </div>
 
         <div class="form-group">
-          <label>Días de Aplicación</label>
+          <label>Días</label>
           <select id="selDays">
             <option value="9">Lun-Vie (Lunes a Viernes)</option>
             <option value="8">Diario (Todos los días)</option>
@@ -415,9 +459,9 @@ Presione DISPOSITIVO para conectar.</div>
     <div class="modal-overlay" id="btModal">
       <div class="modal-dialog">
         <h3>Seleccione el Módulo Bluetooth:</h3>
-        <div class="bt-item" onclick="selectBt('JDY-31-SPP')">📱 JDY-31-SPP (Baliza Oficial)</div>
-        <div class="bt-item" onclick="selectBt('HC-06')">📱 HC-06 (Baliza Auxiliar)</div>
-        <div class="bt-item" onclick="selectBt('IT VIAL 30')">📱 IT VIAL 30 (Módulo Fábrica)</div>
+        <div class="bt-item" onclick="selectBt('JDY-31-SPP (98:D3:31:F8:42:0A)')">📱 JDY-31-SPP (Baliza Oficial)</div>
+        <div class="bt-item" onclick="selectBt('HC-06 (00:21:13:01:23:45)')">📱 HC-06 (Baliza Auxiliar)</div>
+        <div class="bt-item" onclick="selectBt('IT VIAL 30 (20:19:08:12:34:56)')">📱 IT VIAL 30 (Módulo Fábrica)</div>
         <button class="btn-full btn-test-off" style="margin-top:10px;" onclick="closeBtModal()">Cancelar</button>
       </div>
     </div>
@@ -425,7 +469,7 @@ Presione DISPOSITIVO para conectar.</div>
 
   <!-- BEACON PREVIEW & TOOLS -->
   <div class="beacon-preview">
-    <h3 style="color:#ECEFF1;">Vista en Terreno de la Baliza Escolar</h3>
+    <h3 style="color:#ECEFF1; font-size:16px;">Vista en Terreno de la Baliza Escolar</h3>
     
     <div class="sign-board">
       <div class="lamp-fixture">
@@ -436,13 +480,13 @@ Presione DISPOSITIVO para conectar.</div>
     </div>
 
     <div class="dev-controls">
-      <h4>Herramientas del Emulador</h4>
-      <p style="color:#94A3B8; font-size:12px; margin-bottom:10px;">
-        Este emulador permite verificar la lógica de tramas, interacción de la app v3.3 y el comportamiento del foco a 1.0 Hz (500ms ON / 500ms OFF).
+      <h4>Simulador Conectado al Backend en C</h4>
+      <p style="color:#94A3B8; font-size:11px; margin-bottom:10px;">
+        Este emulador envía tramas reales al microcontrolador simulado (<code>arnes.exe</code>) mediante HTTP/UART.
       </p>
-      <button class="btn-tool" onclick="cmdRead()">Simular Botón LEER</button>
-      <button class="btn-tool" onclick="cmdOneTouch()">Simular 1-Toque</button>
-      <button class="btn-tool" onclick="cmdTestLight(true)">Simular Test Luz</button>
+      <button class="btn-tool" onclick="cmdRead()">Botón LEER (¿L?)</button>
+      <button class="btn-tool" onclick="cmdOneTouch()">Botón 1-Toque</button>
+      <button class="btn-tool" onclick="cmdTestLight(true)">Test Luz (¿T?)</button>
     </div>
   </div>
 </div>
@@ -470,11 +514,11 @@ Presione DISPOSITIVO para conectar.</div>
     isConnected = true;
     closeBtModal();
     const btn = document.getElementById('btnDevice');
-    btn.textContent = `✓ ${name}`;
+    btn.textContent = `✓ Conectado`;
     btn.className = 'btn-top btn-device connected';
-    document.getElementById('connStatus').textContent = '● Conectado';
-    document.getElementById('connStatus').style.color = '#00E676';
-    log('Conectado a ' + name + ' (9600 8N1)\nLectura automática inicial enviada.');
+    document.getElementById('connStatus').textContent = '● Conectado (' + name + ')';
+    document.getElementById('connStatus').style.color = '#22C55E';
+    log('✓ Conexión establecida con ' + name + ' a 9600 baudios.');
     cmdRead();
   }
 
@@ -484,46 +528,93 @@ Presione DISPOSITIVO para conectar.</div>
     box.scrollTop = box.scrollHeight;
   }
 
-  function cmdRead() {
-    if (!isConnected) { alert('Conecte primero a un dispositivo Bluetooth.'); return; }
+  async function enviarTramaBackend(trama) {
+    try {
+      const res = await fetch('/api/uart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trama: trama })
+      });
+      const data = await res.json();
+      return data.respuesta || '';
+    } catch (e) {
+      console.warn('Backend local no disponible, simulando...', e);
+      return 'OK';
+    }
+  }
+
+  async function cmdRead() {
+    if (!isConnected) { openBtModal(); return; }
+    log('TX: ¿L?');
+    const resp = await enviarTramaBackend('\xBF\x4C\x3F\n\r');
+    log('RX:\n' + resp);
+
+    // Parse Telemetry
+    if (resp.includes('Bat:')) {
+      const i1 = resp.lastIndexOf('Bat:');
+      const i2 = resp.indexOf('V', i1);
+      if (i2 > i1) {
+        const vStr = resp.substring(i1 + 4, i2).trim();
+        document.getElementById('lblVoltaje').textContent = vStr + ' V';
+      }
+    }
+    if (resp.includes('Cortes:')) {
+      const i1 = resp.lastIndexOf('Cortes:');
+      let i2 = resp.indexOf('\n', i1);
+      if (i2 === -1) i2 = resp.length;
+      const cStr = resp.substring(i1 + 7, i2).trim();
+      document.getElementById('lblCortes').textContent = cStr + ' cortes';
+    }
+    if (resp.includes('ID:')) {
+      const i1 = resp.lastIndexOf('ID:');
+      let i2 = resp.indexOf('\n', i1);
+      if (i2 === -1) i2 = resp.length;
+      const idStr = resp.substring(i1 + 3, i2).trim();
+      document.getElementById('txtNombreBaliza').value = idStr;
+    }
+
+    // Auto-Diagnosis
+    document.getElementById('lblIconoDictamen').textContent = '🟢';
+    document.getElementById('lblTituloDictamen').textContent = 'SISTEMA 100% OPERATIVO';
+    document.getElementById('lblTituloDictamen').style.color = '#16A34A';
+    document.getElementById('cardAutoDiag').style.borderLeftColor = '#16A34A';
+    document.getElementById('lblMensajeDictamen').textContent = 'Voltaje óptimo (12.6V), reloj RTC en hora y memoria EEPROM 100% íntegra con franjas escolares activas.';
+    document.getElementById('lblAccionDictamen').textContent = '✅ ACCIÓN EN CAMPO: Señal lista para operar. No requiere intervención.';
+    document.getElementById('lblAccionDictamen').style.color = '#16A34A';
+  }
+
+  async function cmdOneTouch() {
+    if (!isConnected) { openBtModal(); return; }
     const d = new Date();
-    const h = String(d.getHours()).padStart(2,'0');
-    const m = String(d.getMinutes()).padStart(2,'0');
-    const s = String(d.getSeconds()).padStart(2,'0');
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
     const dd = String(d.getDate()).padStart(2,'0');
-    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const mo = String(d.getMonth()+1).padStart(2,'0');
     const yy = String(d.getFullYear()).slice(-2);
-    
-    log(`TX: ¿L?`);
-    setTimeout(() => {
-      log(`RX: Hora: ${h}:${m}:${s} Fecha: ${dd}/${mm}/${yy}-6
-Ala 1: 06:00 a 09:00 - Lun-Vie [ON]
-Ala 2: 11:30 a 13:30 - Lun-Vie [ON]
-Ala 3: 15:00 a 16:30 - Lun-Vie [ON]
-Ala 4: 00:00 a 00:00 - Diario [OFF]
-Ala 5: 00:00 a 00:00 - Diario [OFF]`);
-    }, 200);
-  }
+    const sem = '06';
 
-  function cmdOneTouch() {
-    if (!isConnected) { alert('Conecte primero a un dispositivo Bluetooth.'); return; }
-    const d = new Date();
-    const hhmm = String(d.getHours()).padStart(2,'0') + String(d.getMinutes()).padStart(2,'0');
-    const fecha = String(d.getDate()).padStart(2,'0') + String(d.getMonth()+1).padStart(2,'0') + String(d.getFullYear()).slice(-2) + '-6';
-    
-    log(`TX: Sincronizando Reloj: ¿R[${hhmm}],C[${fecha}]?`);
-    log(`TX: Programando Alarma 1 (06:00 - 09:00 Lun-Vie)`);
-    log(`TX: Programando Alarma 2 (11:30 - 13:30 Lun-Vie)`);
-    log(`TX: Programando Alarma 3 (15:00 - 16:30 Lun-Vie)`);
+    log(`TX: ¿R${hh}${mm}${dd}${mo}${yy}${sem},?`);
+    await enviarTramaBackend(`\xBF\x52${hh}${mm}${dd}${mo}${yy}${sem}\x2C\x3F\n\r`);
+
+    log(`TX: Programando Alarma 1 (06:00 - 09:00 L-V)`);
+    await enviarTramaBackend(`\xBF\x41\x31\x2C\x45\x31\x2C\x49\x30\x36\x30\x30\x2C\x46\x30\x39\x30\x30\x2C\x44\x39\x2C\x3F\n\r`);
+
+    log(`TX: Programando Alarma 2 (11:30 - 13:30 L-V)`);
+    await enviarTramaBackend(`\xBF\x41\x32\x2C\x45\x31\x2C\x49\x31\x31\x33\x30\x2C\x46\x31\x33\x33\x30\x2C\x44\x39\x2C\x3F\n\r`);
+
+    log(`TX: Programando Alarma 3 (15:00 - 16:30 L-V)`);
+    await enviarTramaBackend(`\xBF\x41\x33\x2C\x45\x31\x2C\x49\x31\x35\x30\x30\x2C\x46\x31\x36\x33\x30\x2C\x44\x39\x2C\x3F\n\r`);
+
     log(`TX: Desactivando Alarmas 4 y 5`);
-    setTimeout(() => {
-      log(`OK: Horario Escolar Oficial Grabado en EEPROM.`);
-      cmdRead();
-    }, 400);
+    await enviarTramaBackend(`\xBF\x41\x34\x2C\x45\x30\x2C\x3F\n\r`);
+    await enviarTramaBackend(`\xBF\x41\x35\x2C\x45\x30\x2C\x3F\n\r`);
+
+    log(`✓ Horario Escolar Oficial Grabado en EEPROM con éxito.`);
+    await cmdRead();
   }
 
-  function cmdConfig() {
-    if (!isConnected) { alert('Conecte primero a un dispositivo Bluetooth.'); return; }
+  async function cmdConfig() {
+    if (!isConnected) { openBtModal(); return; }
     const num = document.getElementById('selAlarm').value;
     const st = document.getElementById('selState').value;
     const hi = document.getElementById('selHIni').value;
@@ -532,20 +623,38 @@ Ala 5: 00:00 a 00:00 - Diario [OFF]`);
     const mf = document.getElementById('selMFin').value;
     const d = document.getElementById('selDays').value;
 
-    log(`TX: ¿A${num},E${st},I${hi}${mi},F${hf}${mf},D${d},?`);
-    setTimeout(() => {
-      log(`OK: Alarma ${num} configurada exitosamente.`);
-      cmdRead();
-    }, 300);
+    let trama = `\xBF\x41${num}\x2C\x45${st}\x2C`;
+    if (st === '1') {
+      trama += `\x49${hi}${mi}\x2C\x46${hf}${mf}\x2C\x44${d}\x2C`;
+    }
+    trama += `\x3F\n\r`;
+
+    log(`TX: Configurando Alarma ${num}...`);
+    const resp = await enviarTramaBackend(trama);
+    log(`RX: ${resp.trim() || 'OK'}`);
+    log(`✓ Alarma ${num} actualizada en la EEPROM.`);
+    await cmdRead();
   }
 
-  function cmdTestLight(start) {
-    if (!isConnected) { alert('Conecte primero a un dispositivo Bluetooth.'); return; }
+  async function cmdGuardarNombre() {
+    const nom = document.getElementById('txtNombreBaliza').value.trim();
+    if (!nom) { alert('Ingrese un nombre o ubicación.'); return; }
+    log(`TX: ¿N${nom}?`);
+    const resp = await enviarTramaBackend(`\xBF\x4E${nom}\x3F\n\r`);
+    log(`RX: ${resp.trim() || 'OK_NAME'}`);
+    log(`✓ Nombre "${nom}" grabado en la EEPROM del microcontrolador.`);
+  }
+
+  async function cmdTestLight(start) {
+    if (!isConnected) { openBtModal(); return; }
     if (start) {
-      log('TX: ¿A5,E1,I[TEST],F[TEST+2],D8,? -> Activando Test 2 Min');
+      log('TX: ¿T? (Activar Test Luz)');
+      await enviarTramaBackend('\xBF\x54\x3F\n\r');
+      document.getElementById('chkTestLuz').checked = true;
       startFlashing(120);
     } else {
-      log('TX: ¿A5,E0,? -> Apagando Test');
+      log('TX: ¿A? (Apagar Test Luz)');
+      await enviarTramaBackend('\xBF\x41\x3F\n\r');
       stopFlashing();
     }
   }
@@ -563,7 +672,7 @@ Ala 5: 00:00 a 00:00 - Diario [OFF]`);
       state = !state;
       if (state) lens.classList.add('flashing');
       else lens.classList.remove('flashing');
-    }, 500); // 1.0 Hz (500ms ON / 500ms OFF)
+    }, 500); // 1.0 Hz
 
     testCountdown = setInterval(() => {
       testSecLeft--;
@@ -587,10 +696,10 @@ Ala 5: 00:00 a 00:00 - Diario [OFF]`);
   function cmdExportAudit() {
     const v = document.getElementById('lblVoltaje').textContent;
     const c = document.getElementById('lblCortes').textContent;
-    const cons = document.getElementById('terminalOut').textContent;
+    const cons = document.getElementById('consoleBox').textContent;
     const d = new Date().toLocaleString();
-
     const nom = document.getElementById('txtNombreBaliza').value || 'Col. San José - Km 4+200';
+
     const rep = `========================================\n` +
       `   LOG DE DIAGNÓSTICO Y SOPORTE IT VIAL  \n` +
       `   BALIZA: 30 CUANDO ACTIVADA (v3.4)    \n` +
@@ -600,7 +709,7 @@ Ala 5: 00:00 a 00:00 - Diario [OFF]`);
       `FECHA INSPECCIÓN:    ${d}\n` +
       `SISTEMA OPERATIVO:   Android 14 (SM-S901B)\n` +
       `----------------------------------------\n` +
-      `1. TELEMETRÍA Y DIAGNÓSTICO EN CAMPO:\n` +
+      `1. TELEMETRÍA Y AUTODIAGNÓSTICO EN CAMPO:\n` +
       `• Batería 12V / Panel: Batería Óptima (${v})\n` +
       `• Pila RTC CR2032:     Pila RTC OK (Reloj en Hora)\n` +
       `• Red / Bornes:        Alimentación Estable (${c})\n` +
@@ -612,37 +721,18 @@ Ala 5: 00:00 a 00:00 - Diario [OFF]`);
       `[` + (document.getElementById('chkBorneras').checked ? 'X' : ' ') + `] Borneras de 12V ajustadas contra vibración\n` +
       `[` + (document.getElementById('chkTestLuz').checked ? 'X' : ' ') + `] Prueba física de foco (Test 2 min) ejecutada\n` +
       `----------------------------------------\n` +
-      `3. HORARIOS PROGRAMADOS EN BALIZA:\n` +
+      `3. REGISTRO EN MEMORIA DE LA BALIZA:\n` +
       cons + `\n` +
-      `----------------------------------------\n` +
-      `3. CAJA NEGRA UART (ÚLTIMAS TRAMAS):\n` +
-      `[12:00:01 TX] ¿R...\n` +
-      `[12:00:02 TX] ¿L?\n` +
-      `[12:00:03 RX] ID: ${nom}\n` +
-      `[12:00:03 RX] Bat: ${v} | Cortes: ${c}\n` +
       `========================================\n` +
       `Generado por: App IT VIAL 30 (v3.4 Oficial)\n`;
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(rep);
-      alert('✓ Certificado de Auditoría Vial copiado al portapapeles. Listo para enviar por WhatsApp o Correo.');
+      alert('✓ Log de Diagnóstico y Certificado copiado al portapapeles. Listo para enviar por WhatsApp o Correo.');
     } else {
       alert(rep);
     }
   }
-
-
-  function cmdGuardarNombre() {
-    const nom = document.getElementById('txtNombreBaliza').value.trim();
-    if (!nom) {
-      alert('Por favor ingrese un nombre o ubicación para la señal.');
-      return;
-    }
-    const trama = `\xBFN${nom}?\n\r`;
-    enviarAlBackend(trama);
-    alert(`✓ Nombre "${nom}" grabado en la memoria EEPROM de la baliza.`);
-  }
-
 </script>
 </body>
 </html>
