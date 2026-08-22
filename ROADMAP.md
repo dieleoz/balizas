@@ -79,6 +79,45 @@ justo el orden en que alguien lo haría.
 
 Los dos rojos están en el arnés, fechados, y se quedan hasta que se resuelvan.
 
+### 4bis. El nombre por el aire (OTA) choca con el despachador de tramas
+
+Medido el 22-ago-2026 (arnés, bloque `J`). `Serial.c` elige qué comando es mirando **una letra
+suelta con `strstr()`**, sobre el buffer entero y en este orden:
+
+```
+1º  strstr(buffer,"L") -> leer            Serial.c:160
+2º  strstr(buffer,"R") -> AJUSTAR RELOJ   Serial.c:166
+3º  strstr(buffer,"N") -> nombre          Serial.c:181
+4º  strstr(buffer,"A") -> alarma          Serial.c:192
+```
+
+El nombre viaja **dentro** del buffer, así que sus propias letras compiten con los
+identificadores de comando:
+
+| Nombre | Qué pasa |
+|---|---|
+| `Col. San Jose` | ✅ se graba (no lleva `L` ni `R` mayúsculas) |
+| `COLEGIO SAN JOSE` | ❌ lleva `L` → se despacha como **lectura**, el nombre no se graba |
+| `CARRERA 30 CON 45` | ❌ lleva `R` y ninguna `L` → entra por la rama del **reloj** y **corrompe la hora** |
+
+El último es el grave: **de la hora del RTC depende la franja horaria**, o sea si la señal dice
+30 km/h cuando toca. Y el ejemplo que se venía usando en las demos, `Col. San José - Km 4+200`,
+funciona **por casualidad**: no lleva `L` ni `R` mayúsculas.
+
+El OTA es una de las funciones nuevas sin revisar por funcional. Esto es exactamente lo que esa
+revisión tiene que atrapar.
+
+### 4ter. Dos tramas pegadas: la segunda se pierde
+
+Medido el 22-ago-2026 (arnés, bloque `K`). Si dos tramas llegan seguidas sin que el firmware
+alcance a procesar la primera, **la segunda no se atiende**: las letras de la primera siguen en
+el buffer de análisis y el despachador vuelve a encontrarlas.
+
+No es teórico: **la app se auto-manda `¿L?` justo después de programar**
+(`MainActivity2.java:716, 743, 749`). Comprobado que el caso espaciado sí funciona — el
+firmware limpia su buffer correctamente en `Serial.c:128` — así que el problema es solo el
+solapamiento.
+
 ### 5. La versión de XC8 del binario de la v3.3 no está registrada
 
 `build_xc8/` conserva el `.hex` pero **no el `.map`**, así que del binario que está en la calle

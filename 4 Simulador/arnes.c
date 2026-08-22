@@ -577,6 +577,108 @@ int main(int argc, char **argv)
               "rafaga de 50 reprogramaciones consecutivas no corrompio la memoria EEPROM");
     }
     /* =============================================================
+       K. DOS COMANDOS SEGUIDOS EN LA MISMA SESION
+
+       [ROJO ESPERADO 22-ago-2026] En campo la app no manda UNA trama: manda
+       "¿L?" al pulsar LEER, y despues "¿R...?" al configurar -- y ademas se
+       auto-manda "¿L?" al terminar de programar (MainActivity2.java:716, 743).
+
+       El arnes hasta hoy reiniciaba el equipo antes de CADA trama, asi que
+       media siempre el caso facil. Este escenario manda dos comandos seguidos
+       SIN reiniciar, que es lo que pasa de verdad.
+
+       Medido por HTTP contra el firmware real: la primera trama de reloj entra
+       bien, y la segunda -- despues de un "¿L?" -- se pierde. La "L" anterior
+       sigue en el bufferRx y el despachador la vuelve a encontrar.
+       ============================================================= */
+    ESCENARIO("K. Dos comandos seguidos sin reiniciar entre medias");
+    {
+        int h, m, sg, d, mo, a, dw;
+        arrancar_limpio();
+
+        /* K1: el reloj entra bien cuando es lo primero. Control del escenario. */
+        sim_rx_str("\xBF" "R1130,C210826-4?\n\r");
+        sim_tick(300);
+        sim_rtc_get(&h, &m, &sg, &d, &mo, &a, &dw);
+        CHECK(h == 11 && m == 30,
+              "1a trama: el reloj entra a 11:30 (leido %02d:%02d)", h, m);
+
+        /* K3: las dos tramas PEGADAS, sin dejar que el firmware procese la
+           primera. Es lo que hace la app de verdad: tras programar se
+           auto-manda "¿L?" (MainActivity2.java:716) pisando la trama anterior. */
+        sim_rx_str("\xBF" "L?\n\r" "\xBF" "R0615,C210826-4?\n\r");
+        sim_tick(300);
+        sim_rtc_get(&h, &m, &sg, &d, &mo, &a, &dw);
+        CHECK(h == 6 && m == 15,
+              "dos tramas pegadas: la 2a (reloj 06:15) se atiende (leido %02d:%02d)", h, m);
+
+        /* K2: ahora un LEER y otro reloj distinto, sin reiniciar. */
+        sim_rx_str("\xBF" "L?\n\r");
+        sim_tick(300);
+        sim_rx_str("\xBF" "R0745,C210826-4?\n\r");
+        sim_tick(300);
+        sim_rtc_get(&h, &m, &sg, &d, &mo, &a, &dw);
+        CHECK(h == 7 && m == 45,
+              "tras un LEER, la siguiente trama de reloj SI se atiende (leido %02d:%02d)", h, m);
+    }
+
+    /* =============================================================
+       J. EL NOMBRE POR EL AIRE (OTA) CONTRA EL DESPACHADOR DE TRAMAS
+
+       [ROJO ESPERADO 22-ago-2026] La app v3.4 anade "¿N<nombre>?" para grabar
+       el nombre del colegio en la EEPROM. El despachador de Serial.c decide que
+       comando es mirando UNA LETRA SUELTA con strstr(), sobre el buffer entero
+       y EN ESTE ORDEN:
+
+           1º strstr(buffer,"L") -> leer          (Serial.c:160)
+           2º strstr(buffer,"R") -> AJUSTAR RELOJ (Serial.c:166)
+           3º strstr(buffer,"N") -> nombre        (Serial.c:181)
+           4º strstr(buffer,"A") -> alarma        (Serial.c:192)
+
+       El nombre viaja DENTRO del buffer, asi que sus propias letras compiten
+       con los identificadores de comando. Un nombre con una "L" mayuscula se
+       despacha como lectura y no se graba. Y uno con una "R" mayuscula entra
+       por la rama del reloj, que llama a escribirRTC() con lo que consiga
+       extraer del nombre: corrompe la hora de la baliza.
+
+       Esto importa mas que la mayoria de los rojos: de la hora del RTC depende
+       la franja horaria, o sea si la senal dice 30 km/h cuando toca.
+       ============================================================= */
+    ESCENARIO("J. El nombre por el aire (OTA) contra el despachador");
+    {
+        /* J1: un nombre "afortunado" -- sin L ni R mayusculas -- si se graba.
+           Sirve de control: demuestra que la funcion existe y que el escenario
+           mide algo, en vez de dar rojo por estar mal escrito. */
+        arrancar_limpio();
+        sim_rx_str("\xBF" "NCol. San Jose?\r\n");
+        sim_tick(400);
+        CHECK(sim_eeprom_leer(0x40) == 'C' && sim_eeprom_leer(0x41) == 'o',
+              "un nombre sin L ni R mayusculas se graba en la EEPROM (0x40)");
+
+        /* J2: el mismo caso con una L mayuscula. Se lo come la rama de lectura. */
+        arrancar_limpio();
+        sim_rx_str("\xBF" "NCOLEGIO SAN JOSE?\r\n");
+        sim_tick(400);
+        CHECK(sim_eeprom_leer(0x40) == 'C',
+              "un nombre con L mayuscula (COLEGIO) tambien se graba");
+
+        /* J3: el peligroso. Tiene que llevar R mayuscula y NINGUNA L, o la
+           rama de lectura lo intercepta antes y este CHECK da verde sin haber
+           probado el reloj -- que es justo lo que paso al escribirlo con
+           "ESCUELA RURAL", que lleva L en las dos palabras. */
+        arrancar_limpio();
+        sim_rtc_set(10, 30, 0, 22, 8, 26, 6);   /* hora buena conocida */
+        sim_rx_str("\xBF" "NCARRERA 30 CON 45?\r\n");
+        sim_tick(400);
+        {
+            int h, m, sg, d, mo, a, dw;
+            sim_rtc_get(&h, &m, &sg, &d, &mo, &a, &dw);
+            CHECK(h == 10 && m == 30,
+                  "grabar un nombre con R mayuscula NO altera la hora del RTC");
+        }
+    }
+
+    /* =============================================================
        I. EL CANAL DE TEMPERATURA
 
        [ROJO ESPERADO 22-ago-2026] Dos rojos, y son defectos distintos que
