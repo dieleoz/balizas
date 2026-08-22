@@ -60,16 +60,17 @@ certificado. De ahi salen otros dos binarios:
 | | Fichero | Tamano | SHA-256 (12) |
 |---|---|---|---|
 | Firmware | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex` | 49.068 B | `048856fc78e8` |
-| App | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk` | 6.066.074 B | `55e208611e66` |
+| App | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk` | 3.869.517 B | `6ecc13944c69` |
 
 **Son la base de la proxima version, no una version.** Tres cosas tienen que pasar antes de
 que puedan llamarse v3.4 y salir a campo:
 
 1. **Funcional tiene que revisar las funciones nuevas.** Ninguna lo ha hecho todavia.
-2. **Hay que incrementar el `versionCode`.** Hoy `build.gradle` sigue en `versionCode 33` /
-   `versionName "3.3"`: el telefono muestra 3.3 y **Android no ofrece la actualizacion sobre
-   una v3.3 ya instalada**, porque para el sistema es la misma version. Esto no es cosmetico:
-   es que la actualizacion no llega.
+2. ~~Incrementar el `versionCode`.~~ **HECHO el 22-ago-2026.** `build.gradle` esta en
+   `versionCode 34` / `versionName "3.4"` y el APK se **recompilo**, asi que ahora se declara
+   de verdad como 3.4 y Android si ofrece la actualizacion sobre una v3.3 instalada.
+   (El APK bajo de 6.066.074 a 3.869.517 B: mismas 695 entradas y mismo contenido
+   descomprimido, solo mejor comprimido. No se perdio nada.)
 3. **Hay que probar la pareja junta contra una senal real**, como se hizo con la v3.3. El
    firmware nuevo y la App nueva no se han validado juntos en campo.
 

@@ -11,7 +11,7 @@ todavía no han pasado por funcional.
 | | v3.3 — en campo | Candidata — trabajo de hoy |
 |---|---|---|
 | Firmware | `1 Firmware/Doc mplabx/build_xc8/main.hex`<br>59.577 B · `c14b4350d960…` | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`<br>49.068 B · `048856fc78e8…` |
-| App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>6.066.074 B · `55e208611e66…` |
+| App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>3.869.517 B · `6ecc13944c69…` |
 | Funcional | Aprobada | **Pendiente** |
 
 **Las parejas no se mezclan.** App v3.3 con firmware v3.3.
@@ -29,19 +29,15 @@ experto**, **certificado de auditoría por WhatsApp**, **checklist de mantenimie
 Por la regla del proyecto, un requisito que nadie revisó gobernando una señal escolar es peor
 que un pendiente abierto. Esto va primero.
 
-### 2. Incrementar el `versionCode` — BLOQUEANTE, y no es cosmético
+### 2. ~~Incrementar el `versionCode`~~ — HECHO el 22-ago-2026
 
-```
-build.gradle:13    versionCode 33
-build.gradle:14    versionName "3.3"
-```
+`build.gradle` esta en `versionCode 34` / `versionName "3.4"` y el APK se **recompilo**: ya se
+declara como 3.4, asi que Android ofrece la actualizacion sobre una v3.3 instalada. Antes decia
+3.3 y la mejora no habria llegado nunca al telefono del tecnico.
 
-El APK llamado `v3.4` **se declara a sí mismo como 3.3**. Consecuencia concreta: Android no
-ofrece la actualización sobre un teléfono que ya tenga la v3.3, porque para el sistema es la
-misma versión. La mejora no llega al técnico aunque se publique.
-
-Hay que subir a `versionCode 34` / `versionName "3.4"` **y recompilar** — cambiar el gradle sin
-recompilar deja el APK actual mintiendo igual.
+Nuevo binario: **3.869.517 B**, `6ecc13944c69…`. Bajo de 6,07 MB a 3,87 MB, y se comprobo que
+**no se perdio nada**: mismas 695 entradas y mismo tamano descomprimido (6.809.576 B). La
+diferencia era solo compresion.
 
 ### 3. Validar la pareja nueva junta contra una señal real
 

@@ -10,8 +10,8 @@ android {
         applicationId "com.example.balizav10"
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 33
-        versionName "3.3"
+        versionCode 34
+        versionName "3.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
