@@ -888,6 +888,7 @@ public class MainActivity2 extends AppCompatActivity {
         String logData = txtVoutput != null ? txtVoutput.getText().toString() : "";
         String vData = txtVoltaje != null ? txtVoltaje.getText().toString() : "--";
         String cData = txtCortes != null ? txtCortes.getText().toString() : "--";
+        String devName = addressDevice != null && !addressDevice.isEmpty() ? addressDevice : "JDY-31-BALIZA";
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
         String fechaReporte = sdf.format(new Date());
@@ -896,6 +897,7 @@ public class MainActivity2 extends AppCompatActivity {
                 "   CERTIFICADO DE AUDITORÍA VIAL SR30   \n" +
                 "   SEÑAL: 30 CUANDO ACTIVADA - IT VIAL  \n" +
                 "========================================\n" +
+                "ID Dispositivo (MAC): " + devName + "\n" +
                 "Fecha de Inspección: " + fechaReporte + "\n" +
                 "Voltaje Batería 12V: " + vData + "\n" +
                 "Cortes de Energía: " + cData + "\n" +
