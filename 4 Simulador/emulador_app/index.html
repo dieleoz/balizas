@@ -426,61 +426,59 @@ Presione DISPOSITIVO para conectar.</div>
         </button>
       </div>
 
-      <!-- 6. AJUSTE AVANZADO: CONFIGURACIÓN MANUAL DE FRANJAS (COLAPSABLE / ABAJO) -->
-      <details class="card" style="cursor:pointer;">
-        <summary style="font-size:11px; font-weight:800; color:#334155; padding:2px 0;">
-          ⚙️ Ajuste Manual Avanzado de Franjas (Opcional)
-        </summary>
-        <div style="margin-top:10px; cursor:default;">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Alarma N°</label>
-              <select id="selAlarm">
-                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Estado</label>
-              <select id="selState">
-                <option value="1">ON (Activa)</option><option value="0">OFF (Inactiva)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Inicio (HH:MM)</label>
-              <div style="display:flex; gap:2px;">
-                <select id="selHIni"></select>
-                <select id="selMIni"></select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Fin (HH:MM)</label>
-              <div style="display:flex; gap:2px;">
-                <select id="selHFin"></select>
-                <select id="selMFin"></select>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group" style="margin-bottom:8px;">
-            <label>Días</label>
-            <select id="selDays">
-              <option value="9">Lun-Vie (Lunes a Viernes)</option>
-              <option value="8">Diario (Todos los días)</option>
-              <option value="10">Sab-Dom (Fin de semana)</option>
+      <!-- 6. CONFIGURACIÓN MANUAL DE FRANJAS -->
+      <div class="card">
+        <div class="card-header">
+          <span>Configuración Manual de Franja</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Alarma N°</label>
+            <select id="selAlarm">
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
             </select>
           </div>
-
-          <button class="btn-full" onclick="cmdConfig()" style="background:#059669; font-size:11px;">
-            💾 GUARDAR ESTA FRANJA EN BALIZA
-          </button>
-          <div id="badgeStatusManual" style="display:none; background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:6px; border-radius:6px; font-size:10px; font-weight:700; margin-top:6px; text-align:center;">
-            ✓ ¡Franja guardada en EEPROM!
+          <div class="form-group">
+            <label>Estado</label>
+            <select id="selState">
+              <option value="1">ON (Activa)</option><option value="0">OFF (Inactiva)</option>
+            </select>
           </div>
         </div>
-      </details>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Inicio (HH:MM)</label>
+            <div style="display:flex; gap:2px;">
+              <select id="selHIni"></select>
+              <select id="selMIni"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Fin (HH:MM)</label>
+            <div style="display:flex; gap:2px;">
+              <select id="selHFin"></select>
+              <select id="selMFin"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>Días</label>
+          <select id="selDays">
+            <option value="9">Lun-Vie (Lunes a Viernes)</option>
+            <option value="8">Diario (Todos los días)</option>
+            <option value="10">Sab-Dom (Fin de semana)</option>
+          </select>
+        </div>
+
+        <button class="btn-full" onclick="cmdConfig()" style="background:#059669; font-size:11px;">
+          💾 GUARDAR ESTA FRANJA EN BALIZA
+        </button>
+        <div id="badgeStatusManual" style="display:none; background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:6px; border-radius:6px; font-size:10px; font-weight:700; margin-top:6px; text-align:center;">
+          ✓ ¡Franja guardada en EEPROM!
+        </div>
+      </div>
 
 
 
