@@ -119,8 +119,8 @@ typedef struct
     
     unsigned int uiCntVolt;
     unsigned int uiCntTemp;
-    float fVolt;
-    float fTemp;
+    uint16_t uiVoltDec;  // Voltaje en decimas de voltio (ej. 126 = 12.6V)
+    uint16_t uiTempDec;  // Temperatura en decimas de grado (ej. 250 = 25.0 C)
 }strAplicacion;
 
 typedef struct

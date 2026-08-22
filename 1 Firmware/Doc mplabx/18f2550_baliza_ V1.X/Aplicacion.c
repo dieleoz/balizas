@@ -208,15 +208,13 @@ static int taskAplicacion(struct pt *pt)
             case ST_READ_VOLT_AP:
                 if(inicioEstado(ST_READ_VOLT_AP))
                 {
-                    ap.fVolt = ADC_read(1);
-                    ap.fVolt = (5.0/1024) * ap.fVolt;
-                    ap.fVolt = (ap.fVolt * 6) + 0.3;
-                    ap.fVolt = ap.fVolt * 10;
-                    
+                    // Aritmetica entera punto fijo: V_in = (ADC * 5.0 / 1024) * 6.0 = (ADC * 30) / 1024
+                    // En decimas de voltio (x10): (ADC * 300) / 1024 + 3 decimas (offset 0.3V diodo)
+                    uint16_t raw_volt = ADC_read(1);
+                    ap.uiVoltDec = (uint16_t)(((uint32_t)raw_volt * 300UL) / 1024UL + 3);
                 }
                 else
                 {
-                    
                     cambiarEstado(ST_ESPERA_AP);
                 }
                 break;
@@ -224,13 +222,13 @@ static int taskAplicacion(struct pt *pt)
             case ST_READ_TEMP_AP:
                 if(inicioEstado(ST_READ_TEMP_AP))
                 {
-                    ap.fTemp = ADC_read(3);
-                    ap.fTemp = (5.0/1024) * ap.fTemp;
-                    ap.fTemp = ap.fTemp * 10;
+                    // LM35 entrega 10 mV/C. V_in = ADC * 5000 / 1024 mV -> Temp = V_in / 10
+                    // En decimas de grado (x10): (ADC * 5000) / 1024
+                    uint16_t raw_temp = ADC_read(3);
+                    ap.uiTempDec = (uint16_t)(((uint32_t)raw_temp * 5000UL) / 1024UL);
                 }
                 else
                 {
-                    
                     cambiarEstado(ST_ESPERA_AP);
                 }
                 break;
