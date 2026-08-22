@@ -100,8 +100,9 @@ def convertir(pandoc, md):
         "--toc-depth=3",
         "--highlight-style=tango",
         "-V", "lang=es",
+        "--resource-path", AQUI + ";" + os.path.join(AQUI, "img"),
     ]
-    r = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+    r = subprocess.run(cmd, cwd=AQUI, capture_output=True, text=True, errors="replace")
     if r.returncode != 0:
         print("  FALLO %s" % md)
         print(r.stdout + r.stderr)

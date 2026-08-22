@@ -8,6 +8,29 @@ Genera capturas de pantalla de alta fidelidad para el Manual de Usuario de la Ap
 import os
 from PIL import Image, ImageDraw, ImageFont
 
+# ---------------------------------------------------------------------------
+# Los emoji salian como CUADROS VACIOS en las figuras del manual.
+#
+# Estas ilustraciones se dibujan con Arial, que no tiene glifos de emoji: PIL
+# no falla, dibuja el rectangulo de "caracter ausente". En pantalla se ve un
+# cuadrito; en un manual que va a la interventoria se ve como un documento roto.
+#
+# En vez de ir quitandolos uno a uno cada vez que alguien anade texto, se filtra
+# aqui: lo que la fuente no puede representar, no se dibuja. Latin-1 cubre todo
+# el castellano con acentos y enes, que es lo que estas figuras necesitan.
+_dibujar_original = ImageDraw.ImageDraw.text
+
+
+def _dibujar_sin_tofu(self, xy, text, *a, **kw):
+    if isinstance(text, str):
+        text = "".join(c for c in text if ord(c) < 0x2500)
+        text = text.replace("  ", " ").strip() if text.strip() else text
+    return _dibujar_original(self, xy, text, *a, **kw)
+
+
+ImageDraw.ImageDraw.text = _dibujar_sin_tofu
+# ---------------------------------------------------------------------------
+
 AQUI = os.path.dirname(os.path.abspath(__file__))
 IMG_DIR = os.path.join(AQUI, "img")
 os.makedirs(IMG_DIR, exist_ok=True)
