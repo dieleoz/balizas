@@ -74,6 +74,12 @@ Lo que hace falta es que el 1-Toque **deje de llevar un horario dentro**: que lo
 el técnico lee en la chapa que tiene delante, con las cuatro franjas disponibles y sin apagar
 nada que no se le haya pedido apagar. Eso es un cambio de app y de UI, y va por funcional.
 
+> **Y no es solo un defecto técnico: es un incumplimiento normativo.** El Manual de
+> Señalización Vial obliga a ajustar los horarios *estrictamente a la realidad operativa del
+> centro educativo*, y avisa de que un horario sobredimensionado o desactualizado
+> **acostumbra al conductor** y le resta autoridad a la señal. Programar el horario de otro
+> colegio es exactamente eso. Ver [`Manuales/NORMATIVA.md`](Manuales/NORMATIVA.md).
+
 ### 4. Validar la pareja nueva junta contra una señal real
 
 Como se hizo con la v3.3. Firmware nuevo + App nueva, sobre una señal, comprobando que el
@@ -160,6 +166,21 @@ Solo existen **8** (diario), **9** (lunes a viernes) y **10** (fin de semana).
   pone siempre el comando. No cambia el protocolo y cuesta **26 bytes** de Flash (53,1% → 53,2%).
   El bloque `J` del arnés queda como guardia de no-regresión.
 
+## Decisiones tomadas
+
+### Los festivos NO se contemplan — decidido el 22-ago-2026
+
+Se planteó que la placa puede decir «días hábiles» y que el equipo, con el código **9**
+(lunes a viernes), haría titilar la señal en los ~18 festivos del año con el colegio cerrado.
+
+**Descartado por el responsable: no aplica.** El motivo es práctico y manda: **no hay forma
+razonable de saber los festivos** desde el equipo. Un calendario nacional dentro del PIC
+significa memoria, y sobre todo **mantenimiento anual en cada señal montada** — que es peor
+problema que el que resuelve, y falla en silencio en cuanto nadie lo actualiza.
+
+Queda escrito para que no se vuelva a abrir. Si algún día cambia, lo que lo cambiaría es que
+el funcional pida explícitamente distinguir festivos, no que a alguien se le ocurra otra vez.
+
 ### La lección que costó la mañana
 
 **El nombre de un fichero no identifica un binario.** `BALIZA_18F2550_V1_CORREGIDO.hex` designó
@@ -175,4 +196,5 @@ Antes de grabar un PIC se comprueba el **SHA-256**, nunca el nombre.
 * Compilar y grabar: [`Manuales/COMPILAR_Y_GRABAR.md`](Manuales/COMPILAR_Y_GRABAR.md)
 * Restricciones de la tarjeta: [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md)
 * Paquete de la v3.3: [`Release_v3.3/LEEME_RELEASE_v3.3.md`](Release_v3.3/LEEME_RELEASE_v3.3.md)
+* Base normativa (Manual de Señalización Vial): [`Manuales/NORMATIVA.md`](Manuales/NORMATIVA.md)
 * Estado de la última sesión: [`ESTADO.md`](ESTADO.md)

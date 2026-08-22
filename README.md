@@ -148,4 +148,5 @@ pin**. Verde aquí no es entregable y no autoriza a grabar. En concreto no dice 
 * 📋 **Especificación de Calidad y No-Regresión:** [`Manuales/ESPECIFICACION_REFACTORIZACION_APP_v3.4.md`](Manuales/ESPECIFICACION_REFACTORIZACION_APP_v3.4.md)
 * 🩺 **Guía de Diagnóstico y Logs de Soporte:** [`Manuales/GUIA_DIAGNOSTICO_Y_LOGS_SOPORTE.md`](Manuales/GUIA_DIAGNOSTICO_Y_LOGS_SOPORTE.md)
 * 🏛️ **Dictamen del Comité Técnico:** [`Manuales/DICTAMEN_COMITE_TECNICO_MULTIDISCIPLINARIO.md`](Manuales/DICTAMEN_COMITE_TECNICO_MULTIDISCIPLINARIO.md)
+* ⚖️ **Base normativa (Manual de Señalización Vial):** [`Manuales/NORMATIVA.md`](Manuales/NORMATIVA.md)
 * 🗺️ **Hoja de Ruta (Roadmap):** [`ROADMAP.md`](ROADMAP.md)

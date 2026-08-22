@@ -25,6 +25,12 @@ día no rige.
 > en el arnés, bloque `L`. Cualquier documento, prueba o botón que dé por hecho «tres franjas»
 > está describiendo un colegio concreto y hay que leerlo así.
 >
+> Y lo dice la norma, no solo el sentido común: el Manual de Señalización Vial obliga a que
+> los horarios se ajusten **estrictamente a la realidad operativa del centro educativo**,
+> porque un horario sobredimensionado **acostumbra al conductor** y le quita autoridad a la
+> señal. Base normativa y preguntas abiertas en
+> [`Manuales/NORMATIVA.md`](Manuales/NORMATIVA.md).
+>
 > **La consecuencia gobierna todo el proyecto:** si lo que se programa por Bluetooth no
 > coincide **exactamente** con esa chapa, la señal afirma una cosa y hace otra, delante de un
 > colegio, y no hay forma de detectarlo desde el escritorio. Ningún documento de este
