@@ -1,0 +1,26 @@
+# Que git NO toque los entregables.
+#
+# Esta maquina tiene core.autocrlf=true. Sin este fichero, git convierte los
+# saltos de linea al guardar, y un .hex es TEXTO: el 22-ago-2026 los tres .hex
+# del repositorio quedaron almacenados con un contenido distinto del que hay en
+# disco -- el de la v3.3 pasaba de 59.577 B a 58.250 B, y su sha256 dejaba de ser
+# el c14b4350d960 que publica la documentacion.
+#
+# En esta maquina el checkout deshace la conversion y no se nota. Pero quien
+# clone en Linux o macOS, o con autocrlf=false, se lleva un fichero cuyo hash NO
+# coincide con el certificado. Para un binario que gobierna una senal escolar,
+# eso es perder la trazabilidad entera: el hash deja de identificar nada.
+#
+# "binary" = ni conversion de saltos de linea ni diff de texto.
+
+*.hex   binary
+*.map   binary
+*.apk   binary
+*.production.hex binary
+
+# Artefactos del compilador XC8, por si alguno se versiona algun dia.
+*.p1    binary
+*.lst   binary
+
+# Los .md sI son texto y se normalizan con normalidad.
+*.md    text

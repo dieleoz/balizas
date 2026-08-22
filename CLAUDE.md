@@ -66,6 +66,15 @@ reales y luego divergían, así que ni siquiera servían para detectar el cambio
 real: la App v3.3 con el `.hex` de la v3.3. Un firmware nuevo con una App vieja, o al revés,
 es una combinación que nadie ha visto funcionar.
 
+> **Y git tampoco puede tocarlos.** Esta máquina tiene `core.autocrlf=true`, y un `.hex` es
+> texto: hasta el 22-ago-2026 los tres `.hex` del repositorio se guardaban con los saltos de
+> línea convertidos, así que el blob almacenado **no era el fichero entregado** — el de la v3.3
+> pasaba de 59.577 a 58.250 bytes y su hash dejaba de ser el que publica la documentación. Aquí
+> no se notaba porque el checkout deshace la conversión; quien clonara en Linux se llevaba un
+> binario cuyo hash no coincidía con ningún certificado. Lo evita
+> [`.gitattributes`](.gitattributes), marcando `*.hex`, `*.map` y `*.apk` como `binary`. **Si
+> añades un tipo de entregable nuevo, márcalo ahí en el mismo cambio.**
+
 
 ### 0. Primero medir, después arreglar — y el simulador es lo que permite medir
 
