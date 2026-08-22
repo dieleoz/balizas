@@ -646,6 +646,58 @@ int main(int argc, char **argv)
     }
 
     /* =============================================================
+       M. RECESO ESCOLAR: APAGAR TODAS LAS FRANJAS Y VOLVER
+
+       La restriccion de 30 km/h solo rige cuando hay exposicion al riesgo, o
+       sea en dias lectivos. En vacaciones NO hay escolares, y son SEMANAS
+       seguidas -- mucho mas que un festivo suelto.
+
+       Los festivos se descartaron por imposibles de saber desde el equipo
+       (ROADMAP, Decisiones tomadas), pero las vacaciones son otra cosa: son
+       fechas conocidas, estables por colegio, y el tecnico pasa por la senal.
+       Basta con apagar las franjas y volver a encenderlas.
+
+       Esto mide que ese procedimiento FUNCIONA con el firmware de hoy, sin
+       calendario ni cambios: apagar deja la luz muerta, y volver a programar la
+       devuelve intacta.
+       ============================================================= */
+    ESCENARIO("M. Receso escolar: apagar las franjas y recuperarlas");
+    {
+        int i;
+        arrancar_limpio();
+
+        trama_alarma(1,  6,  0,  9,  0, 9);
+        trama_alarma(2, 11, 30, 13, 30, 9);
+        trama_alarma(3, 15,  0, 16, 30, 9);
+        trama_alarma(4, 17,  0, 18,  0, 9);
+
+        sim_rtc_set(7, 0, 0, 21, 8, 26, 5);   /* viernes lectivo, en franja */
+        sim_tick(3000);
+        CHECK(sim_cluster_parpadea(2000),
+              "antes del receso, en franja lectiva la luz parpadea");
+
+        /* El tecnico apaga las cuatro. Hoy son cuatro tramas, una por alarma. */
+        for (i = 1; i <= 4; i++) trama_apagar(i);
+
+        sim_tick(3000);
+        CHECK(!sim_cluster_parpadea(4000),
+              "en receso, con las franjas apagadas, la luz NO se enciende");
+
+        /* Y otra hora cualquiera del dia, por si acaso. */
+        sim_rtc_set(12, 0, 0, 21, 8, 26, 5);
+        sim_tick(3000);
+        CHECK(!sim_cluster_parpadea(4000),
+              "en receso la luz sigue apagada a cualquier hora");
+
+        /* Vuelta a clase: se reprograma y tiene que volver igual. */
+        trama_alarma(1,  6,  0,  9,  0, 9);
+        sim_rtc_set(7, 0, 0, 21, 8, 26, 5);
+        sim_tick(3000);
+        CHECK(sim_cluster_parpadea(2000),
+              "tras el receso, reprogramar devuelve la senal a servicio");
+    }
+
+    /* =============================================================
        L. CUATRO FRANJAS HORARIAS
 
        El horario NO es el mismo en todos los colegios y puede llegar a CUATRO

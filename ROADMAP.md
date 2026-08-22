@@ -132,7 +132,23 @@ El `RXD` del módulo Bluetooth es de 3,3 V y se ataca con 5 V sin adaptación. N
 enlace funciona— es un riesgo que mata módulos a las semanas. Va en el arnés de cables, **no en
 la PCB**, que está fabricada.
 
-### 8. Códigos de día 1..7 — no implementado
+### 8. Un botón de «receso escolar» en la app — pequeño y con efecto grande
+
+Las vacaciones sí importan y **sí se pueden resolver**: no son un día suelto sino **semanas
+seguidas** de señal anunciando lo que no rige, y a diferencia de los festivos las fechas se
+saben, son estables por colegio y el técnico pasa por la señal.
+
+**El firmware ya lo permite tal cual está.** Medido el 22-ago-2026 (arnés, bloque `M`): con las
+franjas apagadas la luz no se enciende a ninguna hora, y reprogramar devuelve la señal a
+servicio intacta. No hace falta tocar el PIC.
+
+Lo que falta es de la app: hoy hay que apagar las alarmas **una por una** desde la
+configuración manual, que en campo es donde se olvida una. Un botón que mande las cinco
+tramas de golpe —y otro para restaurar el horario de la placa— hace el procedimiento fiable.
+
+Va junto al arreglo del 1-Toque (pendiente 3): son la misma pantalla y la misma revisión.
+
+### 9. Códigos de día 1..7 — no implementado
 
 Solo existen **8** (diario), **9** (lunes a viernes) y **10** (fin de semana).
 
@@ -178,8 +194,19 @@ razonable de saber los festivos** desde el equipo. Un calendario nacional dentro
 significa memoria, y sobre todo **mantenimiento anual en cada señal montada** — que es peor
 problema que el que resuelve, y falla en silencio en cuanto nadie lo actualiza.
 
-Queda escrito para que no se vuelva a abrir. Si algún día cambia, lo que lo cambiaría es que
-el funcional pida explícitamente distinguir festivos, no que a alguien se le ocurra otra vez.
+**Y la norma respalda la decisión**, cosa que el 22-ago-2026 aún no sabíamos: si un lunes es
+festivo y la placa dice «LUNES A VIERNES», la restricción **no tiene validez jurídica ese
+día**. El instrumento legal es la señal —SR-30 más placa—, no la baliza. Una baliza titilando
+un festivo **no puede hacer exigible** algo que la placa ya excluyó, así que el equipo no
+puede provocar una multa injusta por no saber los festivos. Lo que queda es coste de
+credibilidad, unas 18 veces al año.
+
+⚠️ **Con una salvedad que hay que preguntar:** esto se cae si alguna fotomulta o SAST del
+corredor se dispara con **el estado de la baliza** en vez de con la placa. Ver
+[`Manuales/NORMATIVA.md`](Manuales/NORMATIVA.md).
+
+Queda escrito para que no se vuelva a abrir. Si algún día cambia, lo que lo cambiaría es esa
+salvedad o que el funcional lo pida, no que a alguien se le ocurra otra vez.
 
 ### La lección que costó la mañana
 

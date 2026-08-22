@@ -38,16 +38,46 @@ Graba tres franjas fijas en el código —las de una instalación concreta— y 
 cualquier otro colegio eso es **exactamente** un horario sobredimensionado o desajustado:
 la señal titila cuando no hay exposición al riesgo, y deja de titilar cuando sí la hay.
 
-### 2.2. «Días hábiles» y los festivos — planteado y DESCARTADO
+### 2.2. Festivos y receso escolar
 
-La placa puede decir «días hábiles», y el equipo solo sabe **8** diario, **9** lunes a viernes
-y **10** fin de semana: no tiene calendario de festivos. Con el código 9, en los ~18 festivos
-del año la señal titilaría con el colegio cerrado.
+Ampliado con lo aportado el 22-ago-2026. La restricción rige **exclusivamente en días hábiles
+lectivos**: en festivos, domingos y vacaciones **no hay exposición al riesgo**, que es lo único
+que justifica bajar a 30 km/h.
 
-**Decisión del responsable, 22-ago-2026: no aplica.** No hay forma razonable de saber los
-festivos desde el equipo, y meter un calendario nacional en el PIC obliga a **mantenimiento
-anual en cada señal montada** — un problema peor que el que resuelve, y que falla en silencio
-en cuanto nadie lo actualiza. Ver `ROADMAP.md`, «Decisiones tomadas».
+**Y la consecuencia jurídica es la que resuelve el asunto:** si un lunes es festivo y la placa
+dice «LUNES A VIERNES», la restricción **no tiene validez jurídica ni operativa ese día**. El
+conductor puede ir al límite general del corredor. La exclusión es **automática por la propia
+leyenda de la placa** — no la tiene que ejecutar el equipo.
+
+> #### Por qué esto valida la decisión de no llevar calendario
+>
+> **El instrumento legal es la señal: SR-30 más su placa.** La baliza es un *aviso*, no la
+> norma. Una baliza titilando un festivo **no puede hacer exigible** una restricción que ese día
+> no existe: la placa ya la excluyó. Es decir, el equipo **no puede crear una infracción
+> injusta** por no saber los festivos.
+>
+> Lo que queda es un coste de **credibilidad**: la señal avisa de algo que no rige, y eso es el
+> acostumbramiento del conductor contra el que avisa el Manual. Real, pero no es exposición
+> legal, y se paga unas 18 veces al año.
+>
+> ⚠️ **Esto se cae si alguna fotomulta o SAST se dispara con el estado de la baliza** en vez de
+> con la placa. Entonces sí habría multas injustificadas y el análisis cambia entero. **Es una
+> pregunta abierta y hay que hacerla** antes de instalar en un corredor con detección
+> automática.
+
+#### El receso escolar sí se puede resolver, y sin calendario
+
+Las vacaciones no son un día suelto: son **semanas seguidas** de señal anunciando lo que no
+rige — mucho más acostumbramiento que los festivos. Pero a diferencia de los festivos, las
+fechas de receso **se saben, son estables por colegio, y el técnico pasa por la señal**.
+
+Basta con **apagar las franjas antes del receso y reprogramarlas a la vuelta**. Medido el
+22-ago-2026 (arnés, bloque `M`): con las franjas apagadas la luz no se enciende a ninguna hora,
+y reprogramar devuelve la señal a servicio. **Funciona con el firmware de hoy, sin un cambio.**
+
+Lo único que falta es del lado de la app: hoy hay que apagar las alarmas **una por una** desde
+la configuración manual. Un botón de «receso» que mande las cuatro o cinco tramas de golpe
+—y otro para restaurar— haría el procedimiento fiable en campo. Ver `ROADMAP.md`.
 
 ## 3. Preguntas abiertas para el funcional
 
@@ -55,9 +85,12 @@ en cuanto nadie lo actualiza. Ver `ROADMAP.md`, «Decisiones tomadas».
    otra cosa? Ya no cambia el diseño —los festivos están descartados—, pero sí condiciona el
    texto de los manuales de campo.
 2. **¿Cuántas franjas** lleva cada colegio del corredor? Confirmado que pueden ser hasta cuatro.
-3. **¿Qué hace la señal en vacaciones escolares?** El equipo no distingue periodo lectivo de
-   vacaciones, y son varias semanas seguidas de señal anunciando lo que no rige.
-4. **¿La cadencia de 1,0 Hz** (500 ms ON / 500 ms OFF) está escrita en el Manual, o vino de otro
+3. **¿Alguna fotomulta o SAST del corredor se dispara con el estado de la baliza**, o solo con
+   la placa? De esto depende que un festivo con la luz encendida sea un coste de credibilidad
+   o una multa injusta. Es la pregunta más importante de esta lista.
+4. **¿Quién apaga la señal en el receso escolar** y con qué procedimiento? El equipo ya lo
+   permite; falta decidir de quién es la tarea y dejarlo en el manual de campo.
+5. **¿La cadencia de 1,0 Hz** (500 ms ON / 500 ms OFF) está escrita en el Manual, o vino de otro
    sitio? Hoy se aplica esa por una decisión de reunión.
 
 ---
