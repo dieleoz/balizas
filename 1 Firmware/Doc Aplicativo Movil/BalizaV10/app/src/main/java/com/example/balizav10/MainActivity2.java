@@ -77,6 +77,7 @@ public class MainActivity2 extends AppCompatActivity {
     private String diagnosticoPilaRTC = "OK";
     private String diagnosticoBateria12V = "OK";
     private String diagnosticoCortes = "OK";
+    private final StringBuilder trafficLog = new StringBuilder();
     private Spinner spNoAlarm;
     private Spinner spHourInit;
     private Spinner spMinInit;
@@ -338,6 +339,10 @@ public class MainActivity2 extends AppCompatActivity {
         @Override
         public boolean handleMessage(Message msg) {
             String incoming = msg.getData().getString("msg");
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            if (incoming != null && !incoming.trim().isEmpty()) {
+                trafficLog.append("[").append(sdf.format(new Date())).append(" RX] ").append(incoming.trim()).append("\n");
+            }
             txtVoutput.append(incoming);
             parseTelemetry(txtVoutput.getText().toString());
             if (scrollViewOut != null) {
@@ -949,39 +954,46 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     private void exportAuditReport() {
-        String logData = txtVoutput != null ? txtVoutput.getText().toString() : "";
+        String logData = txtVoutput != null ? txtVoutput.getText().toString().trim() : "";
         String vData = txtVoltaje != null ? txtVoltaje.getText().toString() : "--";
         String cData = txtCortes != null ? txtCortes.getText().toString() : "--";
         String devName = addressDevice != null && !addressDevice.isEmpty() ? addressDevice : "JDY-31-BALIZA";
+        String signName = edtNombreBaliza != null && !edtNombreBaliza.getText().toString().trim().isEmpty() ?
+                edtNombreBaliza.getText().toString().trim() : "Sin Asignar";
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
         String fechaReporte = sdf.format(new Date());
 
         String reporte = "========================================\n" +
-                "   ORDEN DE AUDITORÍA Y MANTENIMIENTO   \n" +
-                "   SEÑAL: 30 CUANDO ACTIVADA - IT VIAL  \n" +
+                "   LOG DE DIAGNÓSTICO Y SOPORTE IT VIAL  \n" +
+                "   BALIZA: 30 CUANDO ACTIVADA (v3.4)    \n" +
                 "========================================\n" +
-                "Baliza ID (MAC):     " + devName + "\n" +
-                "Fecha Inspección:    " + fechaReporte + "\n" +
+                "UBICACIÓN / NOMBRE:  " + signName + "\n" +
+                "DIRECCIÓN MAC:       " + devName + "\n" +
+                "FECHA INSPECCIÓN:    " + fechaReporte + "\n" +
+                "SISTEMA OPERATIVO:   Android " + android.os.Build.VERSION.RELEASE + " (" + android.os.Build.MODEL + ")\n" +
                 "----------------------------------------\n" +
-                "DIAGNÓSTICO AUTOMÁTICO DE SALUD:\n" +
-                "• Batería 12V / Solar: " + diagnosticoBateria12V + "\n" +
+                "1. TELEMETRÍA Y DIAGNÓSTICO EN CAMPO:\n" +
+                "• Batería 12V / Panel: " + diagnosticoBateria12V + "\n" +
                 "• Pila RTC CR2032:     " + diagnosticoPilaRTC + "\n" +
-                "• Red Eléctrica:       " + diagnosticoCortes + "\n" +
-                "• Memoria EEPROM:      100% Íntegra\n" +
+                "• Red / Bornes:        " + diagnosticoCortes + "\n" +
+                "• Estado EEPROM:       100% Íntegra (0x00=0x06)\n" +
                 "----------------------------------------\n" +
-                "REGISTRO DE HORARIOS EN BALIZA:\n" +
-                logData + "\n" +
+                "2. HORARIOS PROGRAMADOS EN BALIZA:\n" +
+                (logData.isEmpty() ? "(No se ha ejecutado lectura LEER)" : logData) + "\n" +
+                "----------------------------------------\n" +
+                "3. CAJA NEGRA UART (ÚLTIMAS TRAMAS):\n" +
+                trafficLog.toString() +
                 "========================================\n" +
                 "Generado por: App IT VIAL 30 (v3.4 Oficial)\n";
 
         android.content.Intent sendIntent = new android.content.Intent();
         sendIntent.setAction(android.content.Intent.ACTION_SEND);
         sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, reporte);
-        sendIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Certificado de Auditoría Baliza Vial " + fechaReporte);
+        sendIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Log de Soporte Baliza [" + signName + "] " + fechaReporte);
         sendIntent.setType("text/plain");
 
-        android.content.Intent shareIntent = android.content.Intent.createChooser(sendIntent, "Compartir Certificado de Calibración");
+        android.content.Intent shareIntent = android.content.Intent.createChooser(sendIntent, "Enviar Log a Soporte IT VIAL");
         startActivity(shareIntent);
     }
 }

@@ -590,21 +590,30 @@ Ala 5: 00:00 a 00:00 - Diario [OFF]`);
     const cons = document.getElementById('terminalOut').textContent;
     const d = new Date().toLocaleString();
 
+    const nom = document.getElementById('txtNombreBaliza').value || 'Col. San José - Km 4+200';
     const rep = `========================================\n` +
-      `   ORDEN DE AUDITORÍA Y MANTENIMIENTO   \n` +
-      `   SEÑAL: 30 CUANDO ACTIVADA - IT VIAL  \n` +
+      `   LOG DE DIAGNÓSTICO Y SOPORTE IT VIAL  \n` +
+      `   BALIZA: 30 CUANDO ACTIVADA (v3.4)    \n` +
       `========================================\n` +
-      `Baliza ID (MAC):     98:D3:31:F8:42:0A\n` +
-      `Fecha Inspección:    ${d}\n` +
+      `UBICACIÓN / NOMBRE:  ${nom}\n` +
+      `DIRECCIÓN MAC:       98:D3:31:F8:42:0A\n` +
+      `FECHA INSPECCIÓN:    ${d}\n` +
+      `SISTEMA OPERATIVO:   Android 14 (SM-S901B)\n` +
       `----------------------------------------\n` +
-      `DIAGNÓSTICO AUTOMÁTICO DE SALUD:\n` +
-      `• Batería 12V / Solar: Batería Óptima (${v})\n` +
+      `1. TELEMETRÍA Y DIAGNÓSTICO EN CAMPO:\n` +
+      `• Batería 12V / Panel: Batería Óptima (${v})\n` +
       `• Pila RTC CR2032:     Pila RTC OK (Reloj en Hora)\n` +
-      `• Red Eléctrica:       Alimentación Estable (${c})\n` +
-      `• Memoria EEPROM:      100% Íntegra\n` +
+      `• Red / Bornes:        Alimentación Estable (${c})\n` +
+      `• Estado EEPROM:       100% Íntegra (0x00=0x06)\n` +
       `----------------------------------------\n` +
-      `REGISTRO EN BALIZA:\n` +
+      `2. HORARIOS PROGRAMADOS EN BALIZA:\n` +
       cons + `\n` +
+      `----------------------------------------\n` +
+      `3. CAJA NEGRA UART (ÚLTIMAS TRAMAS):\n` +
+      `[12:00:01 TX] ¿R...\n` +
+      `[12:00:02 TX] ¿L?\n` +
+      `[12:00:03 RX] ID: ${nom}\n` +
+      `[12:00:03 RX] Bat: ${v} | Cortes: ${c}\n` +
       `========================================\n` +
       `Generado por: App IT VIAL 30 (v3.4 Oficial)\n`;
 
