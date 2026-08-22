@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#F5F5F5"
+    android:background="#F1F5F9"
     tools:context=".MainActivity2">
 
     <LinearLayout
@@ -15,64 +15,68 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- CONSOLA DE VOLCADO Y ESTADO -->
+        <!-- 1. CONSOLA DE VOLCADO Y TERMINAL -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
+            app:cardCornerRadius="10dp"
             app:cardElevation="3dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#1E1E1E"
+                android:background="#0F172A"
                 android:orientation="vertical"
-                android:padding="8dp">
+                android:padding="10dp">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Consola de Datos IT VIAL 30 v3.3"
-                    android:textColor="#AAAAAA"
+                    android:text="Consola de Telemetría IT VIAL 30 (v3.4)"
+                    android:textColor="#94A3B8"
                     android:textSize="11sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="6dp" />
 
                 <ScrollView
                     android:id="@+id/idScrollViewOut"
                     android:layout_width="match_parent"
-                    android:layout_height="180dp">
+                    android:layout_height="140dp">
 
                     <TextView
                         android:id="@+id/idTxtViewOut"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="monospace"
-                        android:text="Seleccione un dispositivo Bluetooth y presione LEER..."
-                        android:textColor="#00FF66"
-                        android:textSize="12sp" />
+                        android:text="Conecte el dispositivo Bluetooth y presione LEER..."
+                        android:textColor="#22C55E"
+                        android:textSize="11sp" />
                 </ScrollView>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- PANEL DE ACCIONES / BOTONES -->
+        <!-- 2. PANEL DE ACCIONES PRINCIPALES (BOTONES RESPONSIVOS) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="10dp">
 
             <Button
                 android:id="@+id/idBtnDispositivo"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="1.2"
+                android:minHeight="48dp"
                 android:layout_marginEnd="4dp"
                 android:text="@string/sDispositivo"
-                android:textSize="12sp"
-                app:backgroundTint="#D32F2F"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:backgroundTint="#DC2626"
                 android:textColor="#FFFFFF" />
 
             <Button
@@ -80,11 +84,13 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
+                android:minHeight="48dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
                 android:text="@string/sLeer"
-                android:textSize="12sp"
-                app:backgroundTint="#1976D2"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:backgroundTint="#2563EB"
                 android:textColor="#FFFFFF" />
 
             <Button
@@ -92,28 +98,281 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:minHeight="48dp"
                 android:layout_marginStart="4dp"
                 android:text="@string/sConfig"
-                android:textSize="12sp"
-                app:backgroundTint="#388E3C"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:backgroundTint="#059669"
                 android:textColor="#FFFFFF" />
         </LinearLayout>
 
-        <!-- TARJETA HORARIO ESCOLAR OFICIAL (PLACA VIAL) -->
+        <!-- 3. IDENTIFICADOR Y NOMBRE DE LA BALIZA (OTA) -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="10dp"
-            app:cardElevation="4dp"
-            android:layout_marginBottom="14dp">
+            app:cardElevation="2dp"
+            android:layout_marginBottom="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#FFFFFF"
                 android:orientation="vertical"
-                android:padding="14dp"
-                android:background="#FFF9C4">
+                android:padding="10dp">
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="NOMBRE / UBICACIÓN DE LA SEÑAL"
+                    android:textColor="#334155"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="6dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <EditText
+                        android:id="@+id/idEdtNombreBaliza"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_weight="1"
+                        android:background="#F8FAFC"
+                        android:hint="Ej: Col. San José - Km 4+200"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:textSize="12sp"
+                        android:textColor="#0F172A" />
+
+                    <Button
+                        android:id="@+id/idBtnGuardarNombre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:minHeight="44dp"
+                        android:layout_marginStart="6dp"
+                        android:text="GUARDAR"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#2563EB"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- 4. DIAGNÓSTICO ENERGÉTICO Y AUDITORÍA -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FFFFFF"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="DIAGNÓSTICO ENERGÉTICO Y SALUD"
+                    android:textColor="#334155"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="10dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Batería 12V / Panel:"
+                            android:textColor="#64748B"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/idTxtVoltaje"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--.- V"
+                            android:textColor="#10B981"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/idTxtEstadoBat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Presione LEER para medir"
+                            android:textColor="#94A3B8"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Cortes de Energía:"
+                            android:textColor="#64748B"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/idTxtCortes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-- cortes"
+                            android:textColor="#3B82F6"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/idTxtSalud"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Memoria EEPROM OK"
+                            android:textColor="#10B981"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/idBtnExportAudit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="46dp"
+                    android:text="📤 COMPARTIR CERTIFICADO DE AUDITORÍA"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="#4F46E5"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- 5. ACCESO RÁPIDO: HORARIO ESCOLAR OFICIAL (1-TOQUE) -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FFFFFF"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="CONFIGURACIÓN RÁPIDA (NORMA VIAL)"
+                    android:textColor="#334155"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Programa en 1 toque las 3 franjas escolares oficiales:\n• 06:00 - 09:00  |  • 11:30 - 13:30  |  • 15:00 - 16:30 (L-V)"
+                    android:textColor="#64748B"
+                    android:textSize="10sp"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/idBtnHorarioEscolar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="⚡ Programar Horario Escolar (1 Toque)"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="#1E40AF"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- 6. PROGRAMACIÓN MANUAL DETALLADA -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FFFFFF"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="PROGRAMACIÓN MANUAL DE FRANJA"
+                    android:textColor="#334155"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Selector de Alarma y Switch ON/OFF -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Alarma:"
+                        android:textColor="#475569"
+                        android:textSize="12sp"
+                        android:layout_marginEnd="6dp" />
+
+                    <Spinner
+                        android:id="@+id/idSpNoAlarm"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:entries="@array/aSpNoAlarm" />
+
+                    <Switch
+                        android:id="@+id/idSwEn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="ON/OFF"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- Hora Inicio -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -122,184 +381,74 @@
                     android:layout_marginBottom="6dp">
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:layout_width="60dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="🏫 Horario Escolar Oficial (Placa)"
-                        android:textColor="#D84315"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Lun a Vie"
-                        android:textColor="#BF360C"
-                        android:textStyle="bold"
-                        android:textSize="11sp"
-                        android:background="#FFE082"
-                        android:paddingLeft="6dp"
-                        android:paddingRight="6dp"
-                        android:paddingTop="2dp"
-                        android:paddingBottom="2dp" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="• Alarma 1: 06:00 am — 09:00 am\n• Alarma 2: 11:30 am — 01:30 pm (13:30)\n• Alarma 3: 03:00 pm (15:00) — 04:30 pm (16:30)"
-                    android:textColor="#4E342E"
-                    android:textSize="12sp"
-                    android:lineSpacingExtra="3dp"
-                    android:layout_marginBottom="10dp" />
-
-                <Button
-                    android:id="@+id/idBtnCargarHorarioEscolar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:text="🏫 Programar Horario Escolar (1 Toque)"
-                    android:textStyle="bold"
-                    android:textSize="13sp"
-                    app:backgroundTint="#E65100"
-                    android:textColor="#FFFFFF" />
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- TARJETA DE PROGRAMACIÓN DE ALARMA -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="3dp"
-            android:layout_marginBottom="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:background="#FFFFFF">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Configuración de Franja Horaria"
-                    android:textColor="#333333"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
-
-                <!-- FILA ALARMA Y SWITCH -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="10dp">
-
-                    <TextView
-                        android:id="@+id/idTxtNoAlarm"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sNoAlarma"
-                        android:textColor="#444444"
-                        android:textSize="14sp"
-                        android:layout_marginEnd="8dp" />
-
-                    <Spinner
-                        android:id="@+id/idSpNoAlarm"
-                        android:layout_width="80dp"
-                        android:layout_height="40dp" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
-
-                    <Switch
-                        android:id="@+id/idSwEn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sEnable"
-                        android:textColor="#333333"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <!-- FILA HORA INICIO -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="10dp">
-
-                    <TextView
-                        android:id="@+id/textView2"
-                        android:layout_width="100dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sAlarmaInit"
-                        android:textColor="#444444"
-                        android:textSize="14sp" />
+                        android:text="Inicio:"
+                        android:textColor="#475569"
+                        android:textSize="12sp" />
 
                     <Spinner
                         android:id="@+id/idSpHourInit"
-                        android:layout_width="80dp"
+                        android:layout_width="0dp"
                         android:layout_height="40dp"
-                        android:layout_marginEnd="8dp" />
+                        android:layout_weight="1"
+                        android:entries="@array/aSpHour" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=":"
-                        android:textSize="18sp"
                         android:textStyle="bold"
-                        android:layout_marginEnd="8dp" />
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp" />
 
                     <Spinner
                         android:id="@+id/idSpMinInit"
-                        android:layout_width="80dp"
-                        android:layout_height="40dp" />
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:entries="@array/aSpMin" />
                 </LinearLayout>
 
-                <!-- FILA HORA FIN -->
+                <!-- Hora Fin -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="10dp">
+                    android:layout_marginBottom="6dp">
 
                     <TextView
-                        android:id="@+id/textView3"
-                        android:layout_width="100dp"
+                        android:layout_width="60dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/sAlarmaEnd"
-                        android:textColor="#444444"
-                        android:textSize="14sp" />
+                        android:text="Fin:"
+                        android:textColor="#475569"
+                        android:textSize="12sp" />
 
                     <Spinner
                         android:id="@+id/idSpHourEnd"
-                        android:layout_width="80dp"
+                        android:layout_width="0dp"
                         android:layout_height="40dp"
-                        android:layout_marginEnd="8dp" />
+                        android:layout_weight="1"
+                        android:entries="@array/aSpHour" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=":"
-                        android:textSize="18sp"
                         android:textStyle="bold"
-                        android:layout_marginEnd="8dp" />
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp" />
 
                     <Spinner
                         android:id="@+id/idSpMinEnd"
-                        android:layout_width="80dp"
-                        android:layout_height="40dp" />
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:entries="@array/aSpMin" />
                 </LinearLayout>
 
-                <!-- FILA HORARIO / DIAS -->
+                <!-- Días de Activación -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -307,83 +456,85 @@
                     android:gravity="center_vertical">
 
                     <TextView
-                        android:id="@+id/textView4"
-                        android:layout_width="100dp"
+                        android:layout_width="60dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/sHorario"
-                        android:textColor="#444444"
-                        android:textSize="14sp" />
+                        android:text="Días:"
+                        android:textColor="#475569"
+                        android:textSize="12sp" />
 
                     <Spinner
                         android:id="@+id/idSpHorario"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp" />
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:entries="@array/aSpHorario" />
                 </LinearLayout>
-
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- TARJETA DE DIAGNÓSTICO Y TEST DE BANCO -->
+        <!-- 7. MANDO DIRECTO Y PRUEBA DE FOCO EN CAMPO -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="3dp"
-            android:layout_marginBottom="16dp">
+            app:cardCornerRadius="10dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="14dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="#FFFFFF"
                 android:orientation="vertical"
-                android:padding="14dp"
-                android:background="#FFFFFF">
+                android:padding="12dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="⚡ Diagnóstico de Banco / Terreno"
-                    android:textColor="#333333"
-                    android:textSize="14sp"
+                    android:text="PRUEBA FÍSICA DE FOCO (MANDO DIRECTO)"
+                    android:textColor="#334155"
+                    android:textSize="11sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="6dp" />
+                    android:layout_marginBottom="4dp" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Activa inmediatamente la luz por 2 minutos para validar el foco LED y el destello normativo de 1 Hz:"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="10dp" />
+                    android:text="Activa el destello ámbar a 1.0 Hz para verificar los LEDs y la etapa de potencia:"
+                    android:textColor="#64748B"
+                    android:textSize="10sp"
+                    android:layout_marginBottom="8dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <Button
                         android:id="@+id/idBtnTestLuz"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:minHeight="48dp"
-                        android:text="💡 Activar Test Luz (2 Minutos)"
-                        android:textSize="13sp"
+                        android:layout_weight="1"
+                        android:minHeight="46dp"
+                        android:layout_marginEnd="4dp"
+                        android:text="💡 Activar Test (2 min)"
+                        android:textSize="11sp"
                         android:textStyle="bold"
-                        app:backgroundTint="#FF8F00"
-                        android:textColor="#FFFFFF"
-                        android:layout_marginBottom="8dp" />
+                        app:backgroundTint="#D97706"
+                        android:textColor="#FFFFFF" />
 
                     <Button
                         android:id="@+id/idBtnStopTest"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:minHeight="44dp"
-                        android:text="⛔ Apagar Test"
-                        android:textSize="13sp"
+                        android:layout_weight="1"
+                        android:minHeight="46dp"
+                        android:layout_marginStart="4dp"
+                        android:text="⏹️ Apagar Test"
+                        android:textSize="11sp"
                         android:textStyle="bold"
-                        app:backgroundTint="#607D8B"
+                        app:backgroundTint="#475569"
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
-
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

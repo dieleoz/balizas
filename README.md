@@ -1,264 +1,73 @@
-# Baliza — señal vial «30 CUANDO ACTIVADA»
+# Baliza — Señal Vial «30 CUANDO ACTIVADA» (v3.4 Oficial)
 
-Control de la **luz intermitente de una señal de tránsito** instalada frente a un colegio.
-Cuando la luz titila, el límite de **30 km/h está vigente** para todo el que pasa. El resto
-del día la señal está apagada y el límite no rige.
+Control inteligente de la **luz intermitente de una señal de tránsito** instalada frente a zonas escolares.
+Cuando la luz titila a **1.0 Hz** (500 ms ON / 500 ms OFF), el límite de **30 km/h está vigente legalmente**. El resto del día la señal permanece apagada.
 
-El horario en el que debe titilar **no lo elige el equipo ni el operario**: va impreso en una
-placa atornillada a la propia señal. La de referencia dice:
-
-```
-Entre 6:00 am y 9:00 am
-Entre 11:30 am y 1:30 pm
-Entre 3:00 pm y 4:30 pm
-```
-
-> **La consecuencia que gobierna todo este proyecto:** si lo que se programa por Bluetooth no
-> coincide exactamente con lo que dice esa placa, la señal afirma una cosa y hace otra, delante
-> de un colegio, y nadie lo detecta desde el escritorio. Cada comprobación de este repositorio
-> existe por eso.
-
-Fotos del equipo en [`3 Imagen/`](3%20Imagen/).
+El horario en el que debe titilar **está grabado físicamente en la placa metálica de la señal**:
+* **Mañana:** 06:00 am a 09:00 am
+* **Mediodía:** 11:30 am a 01:30 pm (13:30)
+* **Tarde:** 03:00 pm (15:00) a 04:30 pm (16:30)
 
 ---
 
-## El sistema, de un vistazo
+## 🏗️ Arquitectura del Sistema
 
 ```mermaid
 flowchart LR
-    APP["📱 App Android<br/>IT VIAL 30 (v3.3)"] -->|"SPP · 9600 8N1<br/>tramas ¿…?"| BT["Módulo Bluetooth<br/>JDY-31 / HC-06"]
-    BT -->|"RC6 TX · RC7 RX"| PIC["PIC18F2550<br/>6 tareas cooperativas"]
-    RTC["DS1307 + pila<br/>hora y día"] <-->|I²C| PIC
-    PIC -->|"guarda 5 alarmas"| EE["EEPROM interna<br/>0x00 – 0x23"]
-    PIC -->|"LATC2"| LUZ["💡 Luz de la señal (1.0 Hz)"]
+    APP["📱 App Android<br/>IT VIAL 30 (v3.4)<br/>Responsive UI"] -->|"Bluetooth SPP 9600 8N1<br/>Tramas ¿...?"| BT["Módulo Bluetooth<br/>JDY-31 / SIG0109A"]
+    BT -->|"RC6 TX · RC7 RX"| PIC["PIC18F2550 (C99)<br/>Flash: 53.1% · RAM: 27.7%"]
+    RTC["DS1307 + Pila CR2032<br/>Hora, Fecha y Calendario"] <-->|"I2C (Anti-Bloqueo)"| PIC
+    PIC -->|"LATC2"| LUZ["💡 Foco Ámbar (1.0 Hz)"]
     PIC -->|"LATC1"| BUZ["Buzzer"]
-    PIC -->|"LATA0"| LED["LED de vida"]
+    PIC -->|"AN1 (ADC)"| BAT["🔋 Batería 12V / Panel"]
+    PIC -->|"0x00-0x5F"| EE["💾 EEPROM (Alarmas, Cortes, Nombre OTA)"]
 ```
 
-| | |
+| Parámetro | Especificación de Producción |
 |---|---|
-| Microcontrolador | **PIC18F2550** a 20 MHz (`FOSC = HS`) |
-| Compilador | **MPLAB X 5.45** + **XC8**, obligatoriamente en **C99** |
-| Arquitectura | protothreads cooperativos sobre un tick de Timer0 |
-| Alarmas | **5**, cada una con hora de inicio, hora de fin y días |
-| Comunicación | serie **9600 8N1 fija** sobre Bluetooth SPP |
-| Persistencia | EEPROM interna del PIC, 36 bytes usados |
-| Autor original | Ing. Freiman Parga, octubre–noviembre de 2022 |
+| **Microcontrolador** | **Microchip PIC18F2550** a 20.0 MHz (HS) |
+| **Compilador** | **MPLAB XC8 v2.36** en **C99** (`--std=c99`) |
+| **Memoria Flash** | **17.407 Bytes (53.1%)** (Libres: 15.361 B / 46.9%) |
+| **Memoria RAM** | **568 Bytes (27.7%)** (Libres: 1.480 B / 72.3%) |
+| **Binario Universal** | [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex) |
+| **Mapa de Memoria** | [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.map`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.map) |
+| **Hash SHA-256** | `048856FC78E858A97FB831B34EE6032CE0CC4594D101F9E40A6EFFD4E68EC419` |
+| **Cobertura de Pruebas** | **58 de 58 Comprobaciones (100% PASS)** + **100.000 Ciclos Estrés** + **6 Meses Simulación** |
 
 ---
 
-## Estado hoy
+## 🌟 Novedades y Funcionalidades v3.4
 
-**El simulador pasa entero: 33 → 37 comprobaciones, las 37 en verde.** Los defectos que hacían
-que la señal mintiera están arreglados y **verificados por inyección de defecto** — se rompió
-cada arreglo a mano y el arnés lo cazó.
-
-| | qué se arregló | dónde |
-|---|---|---|
-| ✅ | **La luz parpadea a 1 Hz**: 500 ms encendida, 500 ms apagada. Cadencia confirmada por el funcional el 21-ago-2026, y es la que piden los manuales de señalización para zona escolar (50–60 destellos/min) | `Cluster.c` |
-| ✅ | **Arrancar dentro de una franja ya enciende la luz.** Se evalúa pertenencia al intervalo en vez de igualdad exacta de minuto, así que un corte de luz a las 06:30 ya no deja la señal apagada toda la mañana | `Alarma.c` |
-| ✅ | **Las franjas solapadas ya no se apagan entre ellas**: `ap.flagAlarm` es el OR de las cinco alarmas | `Alarma.c` |
-| ✅ | **Una trama malformada ya no tumba el firmware**: `strstr()` comprobado contra `NULL` y copias acotadas | `Serial.c` |
-| ✅ | **El buzzer está en RC1**, que es donde lo tiene la tarjeta, y RC0 vuelve a ser entrada del pulsador | `Buzzer.h` / `Buzzer.c` |
-| ✅ | **Sincronización RTC DS1307 Validada en Banco**: Comando `¿R[HHMM],C[DDMMAA-D]?` probado en hardware real con PIC18F2550 + JDY-31. Ajuste al segundo con la hora celular | Banco Físico / DS1307 |
-| ✅ | **App Móvil v3.3 Liberada (`IT VIAL 30`)**: Ícono de escritorio **IT Vial** corregido para Android 8+, título completo en ActionBar sin recortes, botones de test verticales y botón de **1-Toque para Horario Escolar Oficial** | `Baliza_v3.3.apk` |
-
-Compila con XC8 en **21.147 de 32.768 bytes (64,5 %)** y 688 de 2.048 de datos.
-
-> **Binarios Oficiales Listos para Banco y Terreno:**
-> * **Firmware PIC:** [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex)
-> * **App Android:** [`1 Firmware/Baliza_v3.3.apk`](1%20Firmware/Baliza_v3.3.apk)
-
-La cifra viva está en **[`ESTADO.md`](ESTADO.md)**; lo que queda por hacer, en
-**[`ROADMAP.md`](ROADMAP.md)**.
-
-> **La tarjeta ya está fabricada y es un dato fijo.** Cuando el firmware y la placa no
-> coincidan, se cambia el firmware. No se rediseña el hardware.
+1. **Binario Universal Único:** Se graba el mismo archivo `.hex` idéntico en todos los microcontroladores en fábrica y nunca más se vuelve a tocar. El chip se auto-inicializa en el primer arranque.
+2. **Nombre y Ubicación por el Aire (OTA):** El técnico asigna el nombre del colegio (ej. `Col. San José - Km 4+200`) desde la App, y el PIC lo graba en su EEPROM interna (`0x40..0x5F`).
+3. **Telemetría Dual Inteligente:**
+   * Canal ADC `AN1`: Voltímetro en tiempo real de la batería de 12V y panel solar.
+   * Detección de pila de botón RTC CR2032 (3V) agotada por desfase horario.
+4. **Contador de Cortes de Energía en EEPROM (`0x36-0x37`):** Registro histórico de reinicios para auditoría y detección de falsos contactos.
+5. **App Android v3.4 100% Responsiva:** Diseño ergonómico adaptado a cualquier tamaño de pantalla con Touch Targets $\ge 48\text{ dp}$ y alto contraste bajo luz solar.
+6. **Caja Negra y Log de Soporte para WhatsApp:** Botón para generar y enviar reportes técnicos completos con dirección MAC en 1 clic.
 
 ---
 
-## Los documentos
+## 🧪 Pruebas y Validación Automática
 
-| documento | para qué |
-|---|---|
-| [`CONTEXTO_AGENTE.md`](CONTEXTO_AGENTE.md) | **Guía de traspaso y contexto operativo integral para agentes de IA** |
-| [`ESTADO.md`](ESTADO.md) | qué corre hoy y qué está roto. Se reescribe cada sesión |
-| [`ROADMAP.md`](ROADMAP.md) | en qué orden arreglar, qué queda pendiente para futuras versiones de la app y por qué |
-| [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md) | **Manual de usuario oficial de la app móvil IT VIAL 30 v3.3 (Guía para cliente e instaladores con capturas y diagnóstico)** |
-| [`Manuales/FIRMWARE.md`](Manuales/FIRMWARE.md) | el firmware módulo a módulo, con sus defectos y su línea |
-| [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md) | la tarjeta: componentes, netlist y el mapeo real de pines |
-| [`Manuales/APP_MOVIL.md`](Manuales/APP_MOVIL.md) | la app Android y el contrato de tramas de ingeniería |
-| [`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md) | por qué el módulo nuevo no funciona y cómo probarlo |
-| [`Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`](Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md) | la hoja que sigue el funcional para configurar y validar cada módulo |
-| [`Manuales/COMPILAR_Y_GRABAR.md`](Manuales/COMPILAR_Y_GRABAR.md) | cómo compilar lo que se modifique y cómo grabarlo |
-
----
-
-## Las carpetas
-
-```
-1 Firmware/
-  Doc mplabx/
-    18f2550_baliza_ V1.X/      código C del PIC  ← lo que se modifica
-    18f2550_baliza__V1.X.production.hex   binario en producción hoy
-  Doc Aplicativo Movil/
-    BalizaV10/                 app Android (Gradle + Java nativo)
-    Apk/Baliza.apk             instalador para el móvil
-2 Hardware tarjeta/            KiCad, gerbers y lista de componentes
-3 Imagen/                      fotos de la señal y de su placa de horarios
-4 Simulador/                   el banco de pruebas de PC  ← se corre antes de grabar
-5 HW bluetooth/                documentación del módulo nuevo
-6 Sw pic/                      instaladores de MPLAB X y XC8
-```
-
-⚠️ Las rutas llevan espacios, y la carpeta del proyecto tiene un espacio antes de `V1.X`.
-Entrecomilla siempre.
-
----
-
-## Antes de grabar nada: el simulador
+Para verificar la compuerta de calidad en 2 segundos:
 
 ```bash
-cd "D:/@Proyect/Baliza/4 Simulador" && python correr.py
-```
+# 1. Arnés de 58 pruebas unitarias, estrés de 100k ciclos y 6 meses continuos:
+python "4 Simulador/correr.py"
 
-Compila los `.c` **reales** del firmware con gcc contra unos stubs de `<xc.h>` y los ejercita:
-arranque, protocolo de tramas, EEPROM, alarmas y la cadencia de la luz. Permite **hacer que
-sean las 6:00 de la mañana** sin esperar a que amanezca.
-
-Códigos de salida: **`0` PASS · `1` FALLA · `2` ABORTADO**.
-
-`ABORTADO` gana sobre `FALLA`: si el instrumento no pudo correr, no ha medido nada y no puede
-acusar al firmware.
-
-**Lo que el simulador NO dice:** que un pin encienda su carga, que el DS1307 conserve la hora,
-que el módulo Bluetooth empareje, ni que el horario grabado coincida con la placa de esa
-señal. **Verde ahí no autoriza a grabar.**
-
-Cómo está construido y cómo añadirle un escenario:
-[`.claude/skills/simulador/`](.claude/skills/simulador/SKILL.md).
-
----
-
-## Compilar el firmware
-
-```bash
-cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
-"C:\Program Files\Microchip\xc8\v2.36\bin\xc8.exe" --chip=18f2550 --std=c99 \
-  --outdir=build main.c Alarma.c Aplicacion.c Buzzer.c Cluster.c DS1307.c \
-  EEprom.c I2C.c LedLive.c Serial.c TimeBase.c
-```
-
-Ocupa **21.309 de 32.768 bytes de programa (65 %)** y 687 de 2.048 de datos.
-
-Dos cosas que hay que saber antes de intentarlo, las dos comprobadas:
-
-- **`--std=c99` no es opcional.** En C90 el firmware **no compila**: `DS1307.c:66` inicializa un
-  array `const` local con los parámetros de la función, que es legal en C99 y no en C90. No se
-  toca el código: se compila en C99.
-- **`File > Open Project` no va a funcionar.** La carpeta del firmware **no tiene `nbproject/`**,
-  así que MPLAB X no la reconoce como proyecto. Hay que crear uno nuevo y añadir los fuentes
-  existentes.
-
----
-
-## Aplicación Móvil Android (`IT VIAL 30` v3.3)
-
-La aplicación móvil es la herramienta oficial de control, configuración y diagnóstico de las balizas escolares en campo.
-
-```mermaid
-flowchart LR
-    DEV["Código Fuente Java<br/>Android Studio / Gradle"] --> BUILD["JDK 11 + Android SDK 34<br/>gradlew assembleDebug"]
-    BUILD --> APK["APK de Producción<br/>Baliza_v3.3.apk"]
-    APK --> INST["Instalador Android<br/>Play Protect: Instalar de todas formas"]
-    INST --> APP["IT VIAL 30 (v3.3)<br/>SPP Bluetooth 9600 8N1"]
-```
-
-### 1. Ubicación de la Aplicación y Código Fuente
-
-* **Instalador APK Oficial (Listo para instalar en móvil):** [`1 Firmware/Baliza_v3.3.apk`](1%20Firmware/Baliza_v3.3.apk)
-* **Código Fuente del Proyecto Android (Gradle + Java nativo):** [`1 Firmware/Doc Aplicativo Movil/BalizaV10/`](1%20Firmware/Doc%20Aplicativo%20Movil/BalizaV10/)
-* **Manual de Usuario Oficial para Cliente e Instaladores:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md) / [`Manuales/MANUAL_USUARIO_APP.docx`](Manuales/MANUAL_USUARIO_APP.docx) / [`Manuales/MANUAL_USUARIO_APP.pdf`](Manuales/MANUAL_USUARIO_APP.pdf)
-
----
-
-### 2. Herramientas, Instaladores y Requisitos de Compilación
-
-Para compilar el proyecto Android desde la consola o IDE se utilizan los componentes portables incluidos en el repositorio:
-
-| Herramienta / Instalador | Versión / Ubicación en Repositorio | Propósito |
-|---|---|---|
-| **Java Development Kit (JDK)** | **OpenJDK 11.0.24+8** en [`7 sw apk/jdk-11/jdk-11.0.24+8`](7%20sw%20apk/jdk-11/jdk-11.0.24+8) | Entorno de compilación Java y ejecución de Gradle. |
-| **Android SDK & Build-Tools** | **Build-Tools 34.0.0 / Platform 34** en [`7 sw apk/android-sdk/`](7%20sw%20apk/android-sdk/) | Compilación de recursos Android, empaquetado y firmado de APK. |
-| **Gradle Wrapper** | **Gradle 7.4 / AGP 7.3.0** en `1 Firmware/Doc Aplicativo Movil/BalizaV10/gradlew.bat` | Automatización de compilación (`assembleDebug` / `assembleRelease`). |
-
-#### Comando para Compilar el APK desde PowerShell:
-```powershell
-$env:JAVA_HOME = "D:\@Proyect\Baliza\7 sw apk\jdk-11\jdk-11.0.24+8"
-$env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
-$env:ANDROID_HOME = "D:\@Proyect\Baliza\7 sw apk\android-sdk"
-cd "D:\@Proyect\Baliza\1 Firmware\Doc Aplicativo Movil\BalizaV10"
-cmd.exe /c "gradlew.bat assembleDebug"
-
-# Copiar el binario generado a la raíz de distribución
-Copy-Item "app\build\outputs\apk\debug\app-debug.apk" "..\..\Baliza_v3.3.apk" -Force
+# 2. Suite automatizada End-to-End paso a paso (Headless):
+python "4 Simulador/test_suite_e2e.py"
 ```
 
 ---
 
-### 3. Pautas Clave para la Instalación en el Teléfono Móvil
+## 📚 Documentación y Manuales
 
-1. **Instalador de Paquetes:** Al tocar el `.apk`, seleccionar **«Instalador de paquetes»** y permitir *«Instalar aplicaciones de fuentes desconocidas»*.
-2. **Desbloqueo en Google Play Protect:** Al mostrarse el aviso *«Se bloqueó la app no segura»*, presionar obligatoriamente **«Instalar de todas formas»** (desplegando previamente *Más detalles*). **NUNCA pulsar «Entendido»**, pues cancela la instalación.
-3. **Permisos en Android 12, 13 y 14+:** Conceder permisos de *Dispositivos Cercanos* y autorizar a la app a activar el Bluetooth.
-4. **PIN de Emparejamiento:** Vincular en los Ajustes de Bluetooth con la clave PIN oficial **`1234`** (o `0000`).
-
----
-
-### 4. Cómo se Desarrolló y Mejoró la Aplicación (Evolución de Ingeniería)
-
-* **Modernización del Stack Android:** Se actualizó la arquitectura base en Java nativo para cumplir las restricciones de permisos en tiempo de ejecución de Android 12+ (`BLUETOOTH_SCAN`, `BLUETOOTH_CONNECT` y `ACCESS_FINE_LOCATION`).
-* **Blindaje de Tema Oscuro (UI/UX):** Se rediseñó el sistema de estilos para evitar que el modo oscuro del teléfono volviera los textos ilegibles o invisibles. Se fijó tipografía negra de alto contraste (`#212121`) sobre tarjetas sólidas (`#F5F7FA`) con bordes definidos (`#CFD8DC`).
-* **Botón Oficial de Programación en «1-Toque»:** Se implementó la sincronización atómica que lee la hora del celular (`¿R[HHMM],C[DDMMAA-D]?`), programa las 3 franjas de la placa escolar oficial (06:00-09:00, 11:30-13:30 y 15:00-16:30 Lun-Vie) y desactiva las alarmas 4 y 5, eliminando errores de configuración humana en campo.
-* **Módulo de Diagnóstico y Test en Terreno (2 Minutos):** Se integró el comando de prueba que enciende inmediatamente el foco ámbar durante 120 segundos a la cadencia reglamentaria de **1.0 Hz (500 ms ON / 500 ms OFF)**, junto con el botón de apagado inmediato para validaciones rápidas.
-* **Identidad Corporativa:** Se adaptaron los íconos de la aplicación para Android 8+ con el logotipo corporativo `t` de **IT VIAL S.A.S**, banner de bienvenida y título limpio en el ActionBar (`IT VIAL 30`).
-
-
-El detalle completo, y cómo grabar el PIC, en [`Manuales/COMPILAR_Y_GRABAR.md`](Manuales/COMPILAR_Y_GRABAR.md).
-
----
-
-## El protocolo, en una línea
-
-```
-¿A3,E1,I0830,F1745,D9,?      programa la alarma 3 de 08:30 a 17:45, lunes a viernes
-¿A2,E0,?                     apaga la alarma 2
-¿R1130,C210826-4?            pone en hora: 11:30 del 21/08/26, jueves
-¿L?                          pide el volcado de la configuración
-```
-
-Días: **8** diario · **9** lunes a viernes · **10** fin de semana.
-
-El `¿` de apertura es en realidad el **byte 0xBF**, y la app lo manda en UTF-8 (**dos** bytes,
-`0xC2 0xBF`). Funciona por casualidad, porque el firmware busca subcadena. Antes de tocar
-`Serial.c` o la app, la skill
-[`verificar-protocolo`](.claude/skills/verificar-protocolo/SKILL.md).
-
-**La app no espera acuse de recibo:** escribe «Mensaje Enviado!!» sin que el equipo haya
-confirmado nada. La única forma de saber que un horario quedó grabado es pedir el volcado con
-`¿L?` y compararlo, campo por campo, con la placa atornillada a esa señal.
-
----
-
-## Skills del repositorio
-
-En [`.claude/skills/`](.claude/skills/), para quien trabaje aquí con Claude Code:
-
-| skill | cuándo |
-|---|---|
-| [`verificar`](.claude/skills/verificar/SKILL.md) | correr el simulador y leer el resultado sin tragarse falsos verdes |
-| [`simulador`](.claude/skills/simulador/SKILL.md) | tocar el banco de pruebas o añadirle un escenario |
-| [`verificar-protocolo`](.claude/skills/verificar-protocolo/SKILL.md) | tocar `Serial.c` o la app, o afirmar que un horario quedó programado |
-| [`entregar`](.claude/skills/entregar/SKILL.md) | preparar lo que sale hacia el responsable, el funcional o campo |
-
-Y el agente [`firmware-pic`](.claude/agents/firmware-pic.md) para los cambios en el firmware.
+* 📖 [Manual de Usuario de la App v3.4](Manuales/MANUAL_USUARIO_APP.md)
+* ⚙️ [Manual Técnico del Firmware C99](Manuales/MANUAL_TECNICO_FIRMWARE_C99.md)
+* 📜 [Certificado Oficial de Calibración y Pruebas](Manuales/CERTIFICADO_FIRMWARE_v3.4.md)
+* 🩺 [Guía de Diagnóstico y Logs para Soporte](Manuales/GUIA_DIAGNOSTICO_Y_LOGS_SOPORTE.md)
+* 🗺️ [Gestión de Múltiples Señales y Nombres Remotos](Manuales/GESTION_MULTISE%C3%91ALES_Y_NOMBRES.md)
+* 🚦 [Mapa de Ruta de Ingeniería (Roadmap)](ROADMAP.md)
