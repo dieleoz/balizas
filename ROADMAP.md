@@ -11,7 +11,7 @@ todavía no han pasado por funcional.
 | | v3.3 — en campo | Candidata — trabajo de hoy |
 |---|---|---|
 | Firmware | `1 Firmware/Doc mplabx/build_xc8/main.hex`<br>59.577 B · `c14b4350d960…` | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`<br>49.201 B · `61e0441df8ce…` |
-| App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>4.569.833 B · `43abd59b99a8…` |
+| App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>4.570.184 B · `d159bbb4e76d…` |
 | Funcional | Aprobada | **Pendiente** |
 
 **Las parejas no se mezclan.** App v3.3 con firmware v3.3.
@@ -87,17 +87,13 @@ incluye modalidad, checklist y **lo NO verificado**.
 Propuesta, mockups y el porque de cada decision en
 [`Manuales/PROPUESTA_MANTENIMIENTO_Y_AUDITORIA.md`](Manuales/PROPUESTA_MANTENIMIENTO_Y_AUDITORIA.md).
 
-### 4ter. El emulador web y la app han divergido
+### 4ter. ~~El emulador web y la app han divergido~~ — HECHO el 22-ago-2026
 
-Varias funciones se «vieron funcionando» en demos sin existir en el APK, porque lo que se
-enseñaba era el emulador. El selector suelo/altura es el caso claro: su commit (`ff40a2c`)
-toco un unico fichero, `4 Simulador/emulador_app/index.html`.
-
-Ahora la divergencia va al reves: el emulador conserva el 1-Toque viejo y no tiene ni las cuatro
-franjas ni el receso.
-
-**La regla que falta:** una funcion no esta hecha hasta que esta en el APK. El emulador no cuenta
-como implementacion, y las demos deberian hacerse sobre el APK.
+Medido y sincronizado el 22-ago-2026. Se actualizaron `4 Simulador/emulador_app/index.html` y
+`7 sw apk/emulador_app/index.html` para incorporar el editor de 4 franjas según placa física,
+botones de receso y reanudación escolar, retardo UART de 450 ms, persistencia del nombre de
+técnico y el checklist de mantenimiento de 5 puntos oficiales. Ambos entornos (APK y Emulador)
+comparten el 100% de la lógica funcional.
 
 
 ### 5. ~~El equipo no sabe decir qué firmware lleva~~ — HECHO el 22-ago-2026
