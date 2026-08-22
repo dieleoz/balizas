@@ -105,3 +105,22 @@ Para interpretar si el firmware esta realmente verificado antes de citarlo, la s
 [`verificar`](../verificar/SKILL.md). Para comprobar el contrato de tramas antes de afirmar
 que un horario quedo programado, la skill
 [`verificar-protocolo`](../verificar-protocolo/SKILL.md).
+
+## Al entregar un binario, di CUAL es
+
+El equipo no sabe decir que firmware lleva: anuncia `BALIZA ALARMA V1.0` desde siempre, y esa
+cadena es la misma en binarios que se comportan distinto. Delante de una senal montada no hay
+forma de averiguarlo.
+
+Asi que **la trazabilidad la pone el documento, no el equipo**. Todo envio que incluya un
+`.hex` o un `.apk` lleva, sin excepcion:
+
+* el **SHA-256** del fichero, medido sobre el fichero que se envia -- no copiado de otro sitio;
+* su **tamano en bytes**;
+* la **version del compilador** y sus banderas (regla 4);
+* y con que **pareja** se probo, porque app y firmware se validan juntos.
+
+El 22-ago-2026 se encontro un certificado cuyos hashes **no verificaban**: compartian los 12
+primeros caracteres con los reales y divergian despues. No detectaban ni un cambio, y por eso
+el binario de una carpeta de release pudo ser sobrescrito cinco veces sin que saltara nada.
+**Un hash que no se ha recalculado sobre el fichero que se envia no es un hash: es adorno.**

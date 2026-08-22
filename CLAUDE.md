@@ -44,7 +44,7 @@ día no rige.
 | Candidata (mejoras de hoy) | `BALIZA_18F2550_V1_CORREGIDO.hex` + `Baliza_IT_VIAL_30_v3.4.apk` | 49.068 B / 6.066.074 B. **Sin funcional** — ver ROADMAP |
 | App Android | `1 Firmware/Doc Aplicativo Movil/BalizaV10/` | Gradle + Java nativo. **No es App Inventor** |
 | Tarjeta | `2 Hardware tarjeta/` | KiCad y gerbers. **Fabricada y montada** — ver regla 1 |
-| Simulador | `4 Simulador/` | 75 comprobaciones, corre en un segundo |
+| Simulador | `4 Simulador/` | 67 comprobaciones, corre en un segundo |
 | Bluetooth | `5 HW bluetooth/` | Solo el datasheet del **SoC**, no el del módulo |
 
 Punto de entrada: **[README.md](README.md)**. Qué falta y en qué orden:
@@ -223,6 +223,20 @@ estado de la tarea, no una alarma.
 
 Códigos de días: **8** diario · **9** lunes a viernes · **10** fin de semana. Los valores 1..7
 serían días concretos y **no están implementados** — ver ROADMAP, pendiente 4.
+
+## El equipo no sabe decir qué firmware lleva
+
+Medido el 22-ago-2026. El firmware anuncia `BALIZA ALARMA V1.0` al arrancar
+(`Aplicacion.c:156`) y **esa cadena no ha cambiado nunca**: la dice igual el binario de la
+v3.3 (`c14b4350…`) que el candidato con el arreglo del OTA (`889c0188…`), que se comportan
+distinto. El volcado de `¿L?` tampoco incluye versión.
+
+**Consecuencia:** delante de una señal montada **no hay forma de saber qué firmware corre**.
+Ni con la app, ni con un terminal. Es la misma lección que costó la mañana —un nombre no
+identifica un binario— pero un escalón peor: aquí ni siquiera hay nombre que mirar.
+
+Mientras no se arregle (ver ROADMAP), la única trazabilidad es **anotar en el acta de campo
+qué `.hex` se grabó, con su SHA-256**.
 
 ## El retardo entre tramas no es opcional
 

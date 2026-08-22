@@ -70,19 +70,42 @@ horario programado coincide con la chapa atornillada. El simulador no puede sust
 
 ## Defectos abiertos
 
-### 5. La versión de XC8 del binario de la v3.3 no está registrada
+### 5. El equipo no sabe decir qué firmware lleva
+
+Medido el 22-ago-2026 al comprobar si el `.hex` «era de la 3.4». **No lo es, y no puede
+serlo:** el firmware no tiene identidad de versión.
+
+Anuncia `BALIZA ALARMA V1.0` al arrancar (`Aplicacion.c:156`) y esa cadena **es idéntica en
+el binario de la v3.3 y en el candidato**, que se comportan distinto — el candidato lleva el
+arreglo del despachador de tramas. El volcado de `¿L?` tampoco la incluye.
+
+Así que delante de una señal montada **nadie puede saber qué firmware corre**. Ni el técnico
+con la app, ni soporte por teléfono, ni una auditoría. Y con dos binarios en circulación que
+difieren en cómo tratan el nombre OTA, eso ya no es teórico.
+
+**Propuesta concreta**, que es barata: que el volcado de `¿L?` abra con una línea de versión,
+por ejemplo `FW 3.4 (889c0188)`. Dos cosas a medir antes de tocarlo:
+
+1. **Que la app no se rompa** al recibir una línea de más. Su parseo busca patrones concretos
+   (`Bat:`, las filas de alarma), pero eso hay que comprobarlo, no suponerlo.
+2. **Que quepa.** Quedan 15.361 bytes de Flash libres, así que espacio hay de sobra.
+
+Mientras tanto, la única trazabilidad es **anotar en el acta de campo qué `.hex` se grabó, con
+su SHA-256**.
+
+### 6. La versión de XC8 del binario de la v3.3 no está registrada
 
 `build_xc8/` conserva el `.hex` pero **no el `.map`**, así que del binario que está en la calle
 no consta con qué compilador se hizo. Por la regla 4, el compilador, su driver y sus banderas
 son parte del entregable. Se recupera recompilando y comparando, o se anota si alguien lo sabe.
 
-### 6. Los 1 kΩ en serie en `MCU_TX`
+### 7. Los 1 kΩ en serie en `MCU_TX`
 
 El `RXD` del módulo Bluetooth es de 3,3 V y se ataca con 5 V sin adaptación. No es un fallo —el
 enlace funciona— es un riesgo que mata módulos a las semanas. Va en el arnés de cables, **no en
 la PCB**, que está fabricada.
 
-### 7. ~~Un botón de «receso escolar»~~ — HECHO el 22-ago-2026
+### 8. ~~Un botón de «receso escolar»~~ — HECHO el 22-ago-2026
 
 En vacaciones no hay escolares y la restricción no rige, y son **semanas seguidas** de señal
 anunciando lo que no aplica — mucho más acostumbramiento del conductor que un festivo suelto.
@@ -95,7 +118,7 @@ Antes había que apagar las alarmas **una por una** desde la configuración manu
 es exactamente donde se olvida una. El firmware ya lo permitía sin cambios: medido en el
 arnés, bloque `M`.
 
-### 8. Códigos de día 1..7 — no implementado
+### 9. Códigos de día 1..7 — no implementado
 
 Solo existen **8** (diario), **9** (lunes a viernes) y **10** (fin de semana).
 

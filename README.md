@@ -46,7 +46,8 @@ responsable el 22-ago-2026. No se mezclan con nada de otra procedencia:
 | **Microcontrolador** | **Microchip PIC18F2550** a 20.0 MHz (HS) |
 | **Compilador Firmware** | **C99** (`--std=c99`). ⚠️ **La versión exacta de XC8 de este binario no está registrada**: la carpeta `build_xc8/` no conserva el `.map`. Ver ROADMAP, pendiente 5 |
 | **Binario que corre HOY en la calle** | Sin confirmar — ver ROADMAP, pendiente 3 |
-| **Cobertura de Pruebas** | **63 comprobaciones · 61 en verde · 2 rojos esperados y fechados** (el canal de temperatura). Medido el **22-ago-2026** |
+| **Cobertura de Pruebas** | **67 de 67 · PASS**, medido el **22-ago-2026** con `python "4 Simulador/correr.py"` |
+| **Comprobación de interfaz** | **PASS** — contraste WCAG, áreas táctiles y responsive, con `comprobar_ui.py`. **No sustituye a verla en un teléfono** |
 
 ---
 
