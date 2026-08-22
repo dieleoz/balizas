@@ -10,7 +10,7 @@
 4. [Programación del Horario de la Placa (Horario Escolar Oficial)](#4-programación-en-1-toque-horario-escolar-oficial)
 5. [Asignación de Nombre / Ubicación por el Aire (OTA)](#5-asignación-de-nombre--ubicación-por-el-aire-ota)
 6. [Motor de Autodiagnóstico y Dictamen en Campo](#6-motor-de-autodiagnóstico-y-dictamen-en-campo)
-7. [Checklist de Mantenimiento Preventivo y Trazabilidad](#7-checklist-de-mantenimiento-preventivo-y-trazabilidad)
+7. [Mantenimiento, Inspección y Acta](#7-checklist-de-mantenimiento-preventivo-y-trazabilidad)
 8. [Prueba Física de Foco (Mando Directo)](#8-prueba-física-de-foco-mando-directo)
 9. [Exportación del Certificado de Auditoría para WhatsApp](#9-exportación-del-certificado-de-auditoría-para-whatsapp)
 10. [Referencias Cruzadas del Proyecto](#10-referencias-cruzadas-del-proyecto)
@@ -158,17 +158,7 @@ flowchart LR
 
 ---
 
-## 7. Checklist de Mantenimiento Preventivo y Trazabilidad
-
-Para garantizar que los mantenimientos en campo se realicen formalmente, la app incluye un checklist obligatorio antes de generar reportes:
-* `[ ] 1. Panel solar limpio y fusible 12V verificado`
-* `[ ] 2. Pila de botón CR2032 (3V) verificada / cambiada`
-* `[ ] 3. Borneras de 12V ajustadas contra vibración`
-* `[ ] 4. Prueba física de destello ejecutada`
-
----
-
-## 8. Prueba Física de Foco (Mando Directo)
+## 7. Prueba Física de Foco (Mando Directo)
 
 ![Figura 18: Tarjeta de diagnóstico y prueba de luz.](img/paso8_detalle_diagnostico_luz.png)
 
@@ -178,13 +168,103 @@ Para garantizar que los mantenimientos en campo se realicen formalmente, la app 
 
 ---
 
-## 9. Exportación del Certificado de Auditoría para WhatsApp
+## 8. Mantenimiento, Inspección y Acta
 
-Presione **`📤 COMPARTIR CERTIFICADO DE AUDITORÍA`** para enviar el acta formal con dirección MAC, telemetría y checklist completado a la interventoría o al soporte de IT VIAL.
+### 8.1 Primero: quién y cómo
+
+En la tarjeta **MANTENIMIENTO E INSPECCIÓN**, escriba su nombre y cuadrilla en el campo
+**Técnico / cuadrilla**. Se escribe **una sola vez al empezar la jornada**: la aplicación lo
+guarda en el teléfono y aparecerá ya puesto en todas las señales de la ruta.
+
+> Este dato se guarda **en el teléfono**, no en la baliza. Es distinto del nombre del colegio
+> (apartado 5), que sí se graba en la memoria del equipo y viaja con el poste.
+
+### 8.2 Elija el tipo de inspección — y elíjalo bien
+
+Es lo primero que se toca, y **cambia lo que se puede marcar debajo**.
+
+| Modalidad | Cuándo |
+|---|---|
+| **A NIVEL DE SUELO** | Revisión desde la vía, con el teléfono, sin tocar el equipo |
+| **EN ALTURA (poste)** | Con escalera o canasta, para el mantenimiento físico |
+
+![Figura 20: Inspección a nivel de suelo. Solo aparecen los nueve puntos que se pueden comprobar sin subir, y el aviso enumera lo que queda pendiente.](img/paso9_mantenimiento_suelo.png)
+
+![Figura 21: Inspección en altura. Aparecen además los siete puntos que exigen subir al poste.](img/paso9_mantenimiento_altura.png)
+
+> ### Por qué los puntos de altura no aparecen desde el suelo
+>
+> No están en gris: **no están**. Y es a propósito.
+>
+> «Panel solar limpio y fusible verificado» no se puede comprobar desde abajo. Si la casilla
+> estuviera ahí, se podría marcar — y el acta diría que se revisó algo que nadie miró. Una
+> revisión incompleta convertida en un documento que afirma que fue completa es peor que no
+> tener acta.
+>
+> **Si cambia de «en altura» a «a nivel de suelo», los siete puntos de altura se desmarcan
+> solos.** Es intencionado: esa visita ya no los verificó.
+
+### 8.3 Los 16 puntos
+
+**Desde el suelo (9)** — el estado físico va primero, porque es lo que mira una interventoría
+antes que nada:
+
+1. Lámina reflectiva limpia, sin grafiti ni golpes
+2. Placa del horario legible y bien sujeta
+3. **Señal sin obstrucción** (ramas, vegetación, avisos)
+4. Poste vertical y sin daño visible en la base
+5. Hora del equipo coincide con la del teléfono
+6. Horario grabado coincide con la placa
+7. Tensión de batería dentro de rango
+8. Sin cortes de energía nuevos
+9. Destello verificado (prueba de 2 minutos)
+
+**Subiendo al poste (7 más)**
+
+10. Herrajes y abrazaderas apretados al poste
+11. Gabinete cerrado y hermético, sin entrada de agua
+12. Lente del foco limpia por dentro
+13. Panel solar limpio, orientado y sin sombra
+14. Fusible de 12 V verificado
+15. Borneras apretadas, sin sulfatación ni juego
+16. Pila CR2032 verificada o sustituida
+
+> **El punto 3 merece atención.** La obstrucción por vegetación es el fallo más común y más
+> barato de corregir en una señal escolar, y **el equipo no puede detectarlo**: la baliza
+> destella perfectamente detrás de una rama. Solo lo ve una persona mirando la señal desde donde
+> la mira un conductor.
+
+### 8.4 El acta dice también lo que NO se comprobó
+
+Al pulsar **COMPARTIR ACTA DE INSPECCIÓN** se abre el menú de compartir de Android — WhatsApp,
+correo, Drive, lo que tenga instalado.
+
+El acta incluye la modalidad, los puntos marcados, **los que quedaron sin marcar** y, si la
+inspección fue a nivel de suelo, **la lista de lo que requiere subir y no se verificó**:
+
+```
+MODALIDAD:  Inspeccion A NIVEL DE SUELO (sin subir)
+----------------------------------------
+CHECKLIST - 8 de 9 verificados
+  [X] 1. Lamina reflectiva limpia, sin grafiti ni golpes
+  ...
+  [ ] 9. Destello verificado (prueba 2 min)   <-- NO VERIFICADO
+----------------------------------------
+NO APLICA EN ESTA MODALIDAD (requiere subir al poste):
+  herrajes . gabinete . lente del foco . panel solar .
+  fusible 12 V . borneras . pila CR2032
+----------------------------------------
+INSPECCION REALIZADA POR: Cuadrilla 01 - D. Zuniga
+(Atribucion declarada en el telefono, no firma acreditada.)
+```
+
+> **Un acta que enumera lo no verificado es un registro. Una que solo enumera lo hecho es una
+> coartada.** Por eso el nombre va al lado de lo pendiente: quien firma, firma también lo que no
+> pudo comprobar.
 
 ---
 
-## 9bis. Cómo saber qué versión lleva la baliza
+## 9. Cómo saber qué versión lleva la baliza
 
 Al pulsar **LEER**, la primera línea del volcado indica la versión del firmware que corre en
 ese equipo:

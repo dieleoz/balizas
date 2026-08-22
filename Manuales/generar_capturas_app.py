@@ -945,17 +945,24 @@ def _tarjeta_mantenimiento(altura):
     items = suelo_items + (altura_items if altura else [])
 
     w = 460
-    h = 190 + len(items) * 30 + (70 if not altura else 40)
+    h = 258 + len(items) * 30 + (70 if not altura else 40)
     img = Image.new("RGB", (w, h), "#FFFFFF")
     draw = ImageDraw.Draw(img)
     draw.rounded_rectangle([10, 10, w - 10, h - 10], radius=12,
                            fill="#FFFFFF", outline="#CBD5E1", width=2)
 
     draw.text((25, 24), "MANTENIMIENTO E INSPECCION", fill="#0F172A", font=FONTS["bold"])
-    draw.text((25, 50), "TIPO DE INSPECCION", fill="#475569", font=FONTS["small_bold"])
+
+    # El tecnico se escribe una vez por jornada y queda guardado en el telefono.
+    draw.text((25, 52), "Tecnico / cuadrilla", fill="#475569", font=FONTS["small_bold"])
+    draw.rounded_rectangle([25, 70, w - 25, 104], radius=6,
+                           fill="#FFFFFF", outline="#CBD5E1")
+    draw.text((38, 79), "Cuadrilla 01 - D. Zuniga", fill="#0F172A", font=FONTS["small"])
+
+    draw.text((25, 118), "TIPO DE INSPECCION", fill="#475569", font=FONTS["small_bold"])
 
     # Control de dos posiciones
-    y0, y1 = 70, 116
+    y0, y1 = 138, 184
     mitad = w // 2
     sel_bg, off_bg = "#1D4ED8", "#F1F5F9"
     draw.rounded_rectangle([25, y0, mitad, y1], radius=8,
@@ -972,7 +979,7 @@ def _tarjeta_mantenimiento(altura):
               fill=("#DBEAFE" if altura else "#94A3B8"), font=FONTS["small"])
 
     # Checklist
-    y = 138
+    y = 206
     for n, txt in enumerate(items, 1):
         marcado = n <= (8 if not altura else 12)
         draw.rounded_rectangle([28, y, 48, y + 20], radius=4,
@@ -1000,10 +1007,14 @@ def _tarjeta_mantenimiento(altura):
 
 
 def gen_propuesta_mantenimiento():
-    _tarjeta_mantenimiento(False).save(
-        os.path.join(IMG_DIR, "propuesta_mant_suelo.png"))
-    _tarjeta_mantenimiento(True).save(
-        os.path.join(IMG_DIR, "propuesta_mant_altura.png"))
+    suelo = _tarjeta_mantenimiento(False)
+    altura = _tarjeta_mantenimiento(True)
+    # Mismo dibujo con dos nombres a proposito: la propuesta y el manual ensenan
+    # la misma tarjeta, y desde el 22-ago-2026 ya no es propuesta -- esta hecha.
+    suelo.save(os.path.join(IMG_DIR, "propuesta_mant_suelo.png"))
+    altura.save(os.path.join(IMG_DIR, "propuesta_mant_altura.png"))
+    suelo.save(os.path.join(IMG_DIR, "paso9_mantenimiento_suelo.png"))
+    altura.save(os.path.join(IMG_DIR, "paso9_mantenimiento_altura.png"))
 
 
 def main():
