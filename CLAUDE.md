@@ -222,9 +222,26 @@ cd "D:\@Proyect\Baliza\1 Firmware\Doc mplabx\18f2550_baliza_ V1.X"
 | `verificar` | correr el simulador y leer el resultado sin tragarse falsos verdes |
 | `simulador` | tocar el banco de pruebas o añadirle un escenario |
 | `verificar-protocolo` | tocar `Serial.c` o la app, o afirmar que un horario quedó programado |
-| `entregar` | preparar lo que sale hacia el responsable, el funcional o campo |
+### 5. Estándar de Documentación Corporativa y Manuales de Usuario
 
-Y el agente `firmware-pic` para los cambios en el firmware del PIC.
+* **Cero emojis informales:** Los manuales dirigidos al cliente final e instaladores deben mantener un tono estrictamente formal, corporativo y técnico (sin emojis decorativos en títulos, tablas ni textos).
+* **Validación Obligatoria contra Copia Base (`MANUAL_USUARIO_APP - copia.docx`):**
+  * Cuando se modifique o actualice la documentación, **siempre validar la estructura contra `MANUAL_USUARIO_APP - copia.docx` / `MANUAL_USUARIO_APP.docx`**.
+  * **Flujo Real de 10 Pasos de la App:**
+    * **Paso 1:** Instalación del APK (`Baliza_v3.X.apk`) y advertencia crítica de Play Protect (*Instalar de todas formas*).
+    * **Paso 2:** Acceso e Inicio de Sesión (Login `admin` / `admin`).
+    * **Paso 3:** Concesión de Permisos de Dispositivos Cercanos (Android 12+).
+    * **Paso 4:** Activación de Bluetooth desde la Aplicación.
+    * **Paso 5:** Emparejamiento Bluetooth en Ajustes del Teléfono (PIN `1234` / `0000`).
+    * **Paso 6:** Conexión con la Baliza (Botón DISPOSITIVO -> Verde `✓ JDY-31-SPP`).
+    * **Paso 7:** Función del Botón «LEER» y Consola de Datos.
+    * **Paso 8:** Sincronización de Hora y Programación en «1 Toque».
+    * **Paso 9:** Configuración Manual de Franjas y Selectores de Horario.
+    * **Paso 10:** Módulo de Diagnóstico y Modo de Prueba (2 Minutos a 1.0 Hz).
+* **Sin *Know-How* Interno para el Cliente Final:** No exponer nombres de microcontroladores (PIC18F2550), compiladores (XC8/C99), registros ni tramas internas. Indicar claramente el cambio de pila botón de litio estándar comercial **`CR2032` (3V)** para el reloj interno y la medición de voltaje para la batería principal de 12V.
+* **Sincronización MD -> DOCX:** El archivo `.md` es la fuente única de verdad. Ejecutar siempre `python generar_word.py <fichero.md>` y verificar con `python generar_word.py --revisar`.
+
+---
 
 ## Si falta una definición, no la inventes
 

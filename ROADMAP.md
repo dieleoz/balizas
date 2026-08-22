@@ -117,11 +117,8 @@ Quedan dos cabos, y los dos son baratos:
   - ✅ **Demostrado en hardware real (21-Ago-2026):** Comunicación bidireccional Android $\leftrightarrow$ JDY-31 $\leftrightarrow$ PIC18F2550 a 9600 baudios 8N1.
   - ✅ **Sincronización RTC 100% Funcional:** La trama `¿R[HHMM],C[DDMMAA-D]?` se genera automáticamente y ajusta los registros del DS1307 al segundo con la hora satelital/celular.
   - ✅ **App IT VIAL 30 v3.3 Liberada:** Ícono de escritorio **IT Vial** corregido para Android 8+, título completo en ActionBar sin recortes, botones de test verticales, botón de **1-Toque para Horario Escolar Oficial Completo (Placa: 06:00-09:00, 11:30-13:30, 15:00-16:30 Lun-Vie)**, sesión persistente y auto-verificación.
-- [x] **Fase 4.1 — Validación de Conectividad Móvil y RTC DS1307 en Banco:**
-  - ✅ **Demostrado en hardware real (21-Ago-2026):** Comunicación bidireccional Android $\leftrightarrow$ JDY-31 $\leftrightarrow$ PIC18F2550 a 9600 baudios 8N1.
-  - ✅ **Sincronización RTC 100% Funcional:** La trama `¿R[HHMM],C[DDMMAA-D]?` se genera automáticamente y ajusta los registros del DS1307 al segundo con la hora satelital/celular.
-  - ✅ **App IT VIAL 30 v3.3 Liberada:** Ícono de escritorio **IT Vial** corregido para Android 8+, título completo en ActionBar sin recortes, botones de test verticales, botón de **1-Toque para Horario Escolar Oficial Completo (Placa: 06:00-09:00, 11:30-13:30, 15:00-16:30 Lun-Vie)**, sesión persistente y auto-verificación.
-  - ✅ **Manual de Usuario Oficial Generado:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md) y [`Manuales/MANUAL_USUARIO_APP.docx`](Manuales/MANUAL_USUARIO_APP.docx) (con 18 capturas e ilustraciones HD, guía de instalación, diagnóstico de batería 12V y pila CR2032, y formato 100% corporativo para cliente final).
+  - ✅ **Manual de Usuario Oficial Generado y Alíneado:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md) y [`Manuales/MANUAL_USUARIO_APP.docx`](Manuales/MANUAL_USUARIO_APP.docx) (flujo de 10 pasos reales, validado contra copia base `MANUAL_USUARIO_APP - copia.docx`, 18 figuras HD, guía de batería 12V y pila CR2032, y formato 100% corporativo para cliente final).
+
 
 ---
 
