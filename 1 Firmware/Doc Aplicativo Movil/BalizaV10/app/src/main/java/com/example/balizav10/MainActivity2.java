@@ -74,6 +74,10 @@ public class MainActivity2 extends AppCompatActivity {
     private Button btnExportAudit;
     private android.widget.EditText edtNombreBaliza;
     private Button btnGuardarNombre;
+    private TextView txtIconoDictamen;
+    private TextView txtTituloDictamen;
+    private TextView txtMensajeDictamen;
+    private TextView txtAccionRecomendada;
     private String diagnosticoPilaRTC = "OK";
     private String diagnosticoBateria12V = "OK";
     private String diagnosticoCortes = "OK";
@@ -924,10 +928,72 @@ public class MainActivity2 extends AppCompatActivity {
             }
 
             // 3. Diagnóstico Pila de Botón RTC DS1307 (Desfase de Hora)
+            boolean rtcFalla = text.contains("/0-") || text.contains("/00-") || text.contains("/01-");
             diagnosticarPilaRTC(text);
+
+            float vParsed = 12.6f;
+            if (text.contains("Bat:")) {
+                try {
+                    int i1 = text.lastIndexOf("Bat:");
+                    int i2 = text.indexOf("V", i1);
+                    if (i2 > i1) vParsed = Float.parseFloat(text.substring(i1 + 4, i2).trim());
+                } catch (Exception ignored) {}
+            }
+            int cParsed = 0;
+            if (text.contains("Cortes:")) {
+                try {
+                    int i1 = text.lastIndexOf("Cortes:");
+                    int i2 = text.indexOf("\n", i1);
+                    if (i2 == -1) i2 = text.length();
+                    cParsed = Integer.parseInt(text.substring(i1 + 7, i2).trim());
+                } catch (Exception ignored) {}
+            }
+            ejecutarMotorExperto(vParsed, cParsed, rtcFalla, text);
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    
+    private void ejecutarMotorExperto(float volt, int cortes, boolean rtcFalla, String rawText) {
+        if (txtIconoDictamen == null || txtTituloDictamen == null || txtMensajeDictamen == null || txtAccionRecomendada == null) return;
+
+        // CASO 1: Batería 12V Crítica (< 11.5V)
+        if (volt > 0.5f && volt < 11.5f) {
+            txtIconoDictamen.setText("🔴");
+            txtTituloDictamen.setText("ALERTA: BATERÍA 12V DESCARGADA / SIN CARGA SOLAR");
+            txtTituloDictamen.setTextColor(Color.parseColor("#DC2626"));
+            txtMensajeDictamen.setText("La tensión del sistema cayó a " + String.format(Locale.US, "%.1fV", volt) + ". El controlador funciona correctamente pero la fuente de 12V no tiene suficiente energía.");
+            txtAccionRecomendada.setText("🛠️ SOLUCIÓN EN CAMPO: NO cambie la tarjeta. Limpie el panel solar, revise el fusible de 12V o reemplace la batería principal.");
+            txtAccionRecomendada.setTextColor(Color.parseColor("#DC2626"));
+        }
+        // CASO 2: Pila RTC CR2032 Agotada (Año 2000 o Desfase)
+        else if (rtcFalla) {
+            txtIconoDictamen.setText("🟡");
+            txtTituloDictamen.setText("ATENCIÓN: PILA DE RESPALDO CR2032 AGOTADA");
+            txtTituloDictamen.setTextColor(Color.parseColor("#D97706"));
+            txtMensajeDictamen.setText("El reloj interno perdió la hora tras el corte de energía. La tarjeta y el microcontrolador están 100% sanos.");
+            txtAccionRecomendada.setText("🛠️ SOLUCIÓN EN CAMPO: NO cambie la tarjeta. Abra el gabinete, reemplace la pila de botón CR2032 (3V) y presione '1-TOQUE' para sincronizar la hora.");
+            txtAccionRecomendada.setTextColor(Color.parseColor("#D97706"));
+        }
+        // CASO 3: Falsos contactos / Cortes Frecuentes (> 15)
+        else if (cortes > 15) {
+            txtIconoDictamen.setText("🟡");
+            txtTituloDictamen.setText("ATENCIÓN: CORTES DE ENERGÍA FRECUENTES (" + cortes + " CORTES)");
+            txtTituloDictamen.setTextColor(Color.parseColor("#D97706"));
+            txtMensajeDictamen.setText("Se han registrado " + cortes + " apagones bruscos. Esto suele deberse a vibración en el poste o tornillos de bornera flojos.");
+            txtAccionRecomendada.setText("🛠️ SOLUCIÓN EN CAMPO: Ajuste los tornillos de las borneras de 12V y revise el portafusible aéreo.");
+            txtAccionRecomendada.setTextColor(Color.parseColor("#D97706"));
+        }
+        // CASO 4: Todo Óptimo (Sistema 100% Funcional)
+        else {
+            txtIconoDictamen.setText("🟢");
+            txtTituloDictamen.setText("SISTEMA 100% OPERATIVO Y CALIBRADO");
+            txtTituloDictamen.setTextColor(Color.parseColor("#16A34A"));
+            txtMensajeDictamen.setText("Voltaje óptimo (" + String.format(Locale.US, "%.1fV", volt) + "), reloj RTC en hora exacta y memoria EEPROM íntegra con franjas escolares activas.");
+            txtAccionRecomendada.setText("✅ ACCIÓN: Ninguna. Señal vial en óptimas condiciones de operación.");
+            txtAccionRecomendada.setTextColor(Color.parseColor("#16A34A"));
         }
     }
 

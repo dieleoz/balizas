@@ -164,6 +164,71 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+                <!-- CARD DE AUTODIAGNÓSTICO EXPERTO Y SOLUCIÓN INMEDIATA -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/idCardAutoDiagnostico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="3dp"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FFFFFF"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:id="@+id/idTxtIconoDictamen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🟢"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/idTxtTituloDictamen"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="DICTAMEN TÉCNICO INMEDIATO"
+                        android:textColor="#0F172A"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/idTxtMensajeDictamen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Presione LEER para ejecutar el autodiagnóstico integral del sistema."
+                    android:textColor="#334155"
+                    android:textSize="11sp"
+                    android:lineSpacingExtra="2dp"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/idTxtAccionRecomendada"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#F8FAFC"
+                    android:padding="8dp"
+                    android:text="👉 Acción requerida: Ninguna. El equipo está listo para operar."
+                    android:textColor="#2563EB"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
         <!-- 4. DIAGNÓSTICO ENERGÉTICO Y AUDITORÍA -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
