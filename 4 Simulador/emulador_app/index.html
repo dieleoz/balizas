@@ -496,6 +496,27 @@ Presione DISPOSITIVO para conectar.</div>
     </div>
   </div>
 
+      <!-- MODAL PREVIEW DE CERTIFICADO DE AUDITORÍA -->
+    <div class="modal-overlay" id="auditModal">
+      <div class="modal-dialog" style="max-width:360px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h3 style="margin:0; font-size:13px; color:#1E40AF;">📄 Certificado de Auditoría Vial</h3>
+          <span style="cursor:pointer; font-size:16px; font-weight:bold; color:#64748B;" onclick="closeAuditModal()">✕</span>
+        </div>
+        <textarea id="txtAuditPreview" readonly style="width:100%; height:200px; font-size:10px; font-family:monospace; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:6px; margin-bottom:10px; resize:none; line-height:1.3; color:#0F172A;"></textarea>
+        
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button class="btn-full" onclick="enviarWhatsAppDirecto()" style="background:#22C55E; color:#FFF; font-weight:800; font-size:12px; margin:0;">
+            💬 Enviar por WhatsApp
+          </button>
+          <button class="btn-full" onclick="copiarCertificado()" style="background:#4F46E5; color:#FFF; font-weight:700; font-size:11px; margin:0;">
+            📋 Copiar Texto Completo
+          </button>
+          <button class="btn-full btn-test-off" onclick="closeAuditModal()" style="font-size:11px; margin:0;">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
   <!-- BEACON PREVIEW & TOOLS -->
   <div class="beacon-preview">
     <h3 style="color:#ECEFF1; font-size:16px;">Vista en Terreno de la Baliza Escolar</h3>
@@ -797,48 +818,66 @@ Presione DISPOSITIVO para conectar.</div>
     }
   }
 
+  let currentReportText = '';
+
+  function closeAuditModal() {
+    document.getElementById('auditModal').style.display = 'none';
+  }
+
   function cmdExportAudit() {
     const v = document.getElementById('lblVoltaje').textContent;
     const c = document.getElementById('lblCortes').textContent;
-    const consBox = document.getElementById('consoleBox'); const cons = consBox ? consBox.textContent : '';
+    const consBox = document.getElementById('consoleBox'); 
+    const cons = consBox ? consBox.textContent : '';
     const d = new Date().toLocaleString();
     const nom = document.getElementById('txtNombreBaliza').value || 'Col. San José - Km 4+200';
     const tipoVisita = document.getElementById('selTipoVisita').value === 'SUELO' ? 
       'Inspección Inalámbrica a Nivel de Suelo (Sin Escalera)' : 'Mantenimiento Preventivo Físico en Poste (Con Escalera)';
 
-    const rep = `========================================\n` +
-      `   LOG DE DIAGNÓSTICO Y SOPORTE IT VIAL  \n` +
-      `   BALIZA: 30 CUANDO ACTIVADA (v3.4)    \n` +
+    currentReportText = `========================================\n` +
+      `   CERTIFICADO DE AUDITORÍA VIAL SR30   \n` +
+      `   SEÑAL: 30 CUANDO ACTIVADA - IT VIAL  \n` +
       `========================================\n` +
       `UBICACIÓN / NOMBRE:  ${nom}\n` +
       `DIRECCIÓN MAC:       98:D3:31:F8:42:0A\n` +
-      `FECHA INSPECCIÓN:    ${d}\n` +
-      `MODO DE VISITA:      ${tipoVisita}\n` +
+      `FECHA DE INSPECCIÓN: ${d}\n` +
+      `MODALIDAD VISITA:    ${tipoVisita}\n` +
       `SISTEMA OPERATIVO:   Android 14 (SM-S901B)\n` +
       `----------------------------------------\n` +
-      `1. TELEMETRÍA Y AUTODIAGNÓSTICO EN CAMPO:\n` +
+      `1. TELEMETRÍA Y AUTODIAGNÓSTICO EN VIVO:\n` +
       `• Batería 12V / Panel: Batería Óptima (${v})\n` +
       `• Pila RTC CR2032:     Pila RTC OK (Reloj en Hora)\n` +
       `• Red / Bornes:        Alimentación Estable (${c})\n` +
-      `• Estado EEPROM:       100% Íntegra (0x00=0x06)\n` +
+      `• Memoria EEPROM:      100% Íntegra (0x00=0x06)\n` +
       `----------------------------------------\n` +
-      `2. CHECKLIST DE MANTENIMIENTO TÉCNICO:\n` +
+      `2. CHECKLIST DE MANTENIMIENTO PREVENTIVO:\n` +
       `[` + (document.getElementById('chkPanelSolar').checked ? 'X' : ' ') + `] Panel Solar limpio y fusible 12V verificado\n` +
       `[` + (document.getElementById('chkPilaRTC').checked ? 'X' : ' ') + `] Pila CR2032 (3V) verificada / cambiada\n` +
       `[` + (document.getElementById('chkBorneras').checked ? 'X' : ' ') + `] Borneras de 12V ajustadas contra vibración\n` +
       `[` + (document.getElementById('chkTestLuz').checked ? 'X' : ' ') + `] Prueba física de foco (Test 2 min) ejecutada\n` +
       `----------------------------------------\n` +
-      `3. REGISTRO EN MEMORIA DE LA BALIZA:\n` +
+      `3. HORARIOS OFICIALES VIGENTES EN BALIZA:\n` +
       cons + `\n` +
       `========================================\n` +
       `Generado por: App IT VIAL 30 (v3.4 Oficial)\n`;
 
+    document.getElementById('txtAuditPreview').value = currentReportText;
+    document.getElementById('auditModal').style.display = 'flex';
+  }
+
+  function copiarCertificado() {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(rep);
-      alert('✓ Log de Diagnóstico y Certificado copiado al portapapeles. Listo para enviar por WhatsApp o Correo.');
+      navigator.clipboard.writeText(currentReportText);
+      alert('✓ Certificado copiado al portapapeles.');
     } else {
-      alert(rep);
+      alert(currentReportText);
     }
+  }
+
+  function enviarWhatsAppDirecto() {
+    copiarCertificado();
+    const url = 'https://wa.me/?text=' + encodeURIComponent(currentReportText);
+    window.open(url, '_blank');
   }
 
   function limpiarConsola() {
