@@ -686,21 +686,82 @@ def gen_paso4_dialog_dispositivo():
 # 6. DETALLE: PROGRAMACIÓN 1-TOQUE
 # ==========================================
 def gen_detalle_horario_escolar():
-    w, h = 420, 240
+    """Tarjeta HORARIO DE ESTA PLACA.
+
+    Sustituye a la del 1-Toque, que grababa tres franjas fijas de un colegio
+    concreto. El horario va impreso en la placa de cada senal y puede llevar
+    hasta CUATRO franjas, asi que la figura tiene que ensenar las cuatro.
+    """
+    w, h = 420, 430
     img = Image.new("RGB", (w, h), "#FFFFFF")
     draw = ImageDraw.Draw(img)
-    
-    draw.rounded_rectangle([10, 10, w - 10, h - 10], radius=12, fill="#FFF9C4", outline="#FFA000", width=2)
-    draw.text((25, 25), "🏫 Horario Escolar Oficial (Placa)", fill="#D84315", font=FONTS["bold"])
-    draw.rounded_rectangle([w - 100, 22, w - 25, 48], radius=4, fill="#FFE082")
-    draw.text((w - 90, 28), "Lun a Vie", fill="#BF360C", font=FONTS["small_bold"])
-    
-    draw.text((25, 60), "• Alarma 1: 06:00 am — 09:00 am (Mañana)\n• Alarma 2: 11:30 am — 01:30 pm / 13:30 (Mediodía)\n• Alarma 3: 03:00 pm / 15:00 — 04:30 pm / 16:30 (Tarde)", fill="#4E342E", font=FONTS["small"])
-    
-    draw.rounded_rectangle([25, 145, w - 25, 195], radius=8, fill="#E65100")
-    draw.text((50, 160), "🏫 Programar Horario Escolar (1 Toque)", fill="#FFFFFF", font=FONTS["btn"])
-    
+
+    draw.rounded_rectangle([10, 10, w - 10, h - 10], radius=12,
+                           fill="#FFFFFF", outline="#CBD5E1", width=2)
+    draw.text((25, 24), "HORARIO DE ESTA PLACA", fill="#0F172A", font=FONTS["bold"])
+    draw.text((25, 48), "Copie lo que dice la placa atornillada a ESTA senal.",
+              fill="#B45309", font=FONTS["small"])
+    draw.text((25, 66), "Cada colegio tiene el suyo: hasta 4 franjas.",
+              fill="#B45309", font=FONTS["small"])
+
+    franjas = [("1", "06:00", "09:00", True),
+               ("2", "11:30", "13:30", True),
+               ("3", "15:00", "16:30", True),
+               ("4", "00:00", "00:00", False)]
+    y = 95
+    for num, ini, fin, activa in franjas:
+        # interruptor
+        col = "#15803D" if activa else "#94A3B8"
+        draw.rounded_rectangle([25, y + 6, 61, y + 26], radius=10, fill=col)
+        cx = 51 if activa else 35
+        draw.ellipse([cx - 8, y + 8, cx + 8, y + 24], fill="#FFFFFF")
+        draw.text((68, y + 8), num, fill="#0F172A", font=FONTS["bold"])
+
+        for x0, txt in ((92, ini), (250, fin)):
+            draw.rounded_rectangle([x0, y, x0 + 130, y + 32], radius=6,
+                                   fill="#E2E8F0", outline="#CBD5E1")
+            draw.text((x0 + 38, y + 7), txt, fill="#0F172A", font=FONTS["bold"])
+        draw.text((228, y + 8), "a", fill="#475569", font=FONTS["small"])
+        y += 42
+
+    draw.text((25, y + 4), "Dias:", fill="#0F172A", font=FONTS["small_bold"])
+    draw.rounded_rectangle([80, y, w - 25, y + 30], radius=6,
+                           fill="#FFFFFF", outline="#CBD5E1")
+    draw.text((92, y + 7), "Lunes a viernes", fill="#0F172A", font=FONTS["small"])
+
+    y += 44
+    draw.rounded_rectangle([25, y, w - 25, y + 46], radius=8, fill="#15803D")
+    draw.text((48, y + 15), "GRABAR ESTE HORARIO EN LA BALIZA",
+              fill="#FFFFFF", font=FONTS["btn"])
+
     img.save(os.path.join(IMG_DIR, "paso6_detalle_horario_escolar.png"))
+
+
+def gen_detalle_receso_escolar():
+    """Botones de receso. En vacaciones no hay escolares y el limite no rige:
+    una senal destellando semanas sin alumnos acostumbra al conductor."""
+    w, h = 420, 210
+    img = Image.new("RGB", (w, h), "#FFFFFF")
+    draw = ImageDraw.Draw(img)
+
+    draw.rounded_rectangle([10, 10, w - 10, h - 10], radius=12,
+                           fill="#FFFFFF", outline="#CBD5E1", width=2)
+    draw.text((25, 24), "RECESO ESCOLAR", fill="#0F172A", font=FONTS["bold"])
+    draw.text((25, 50), "En vacaciones no hay escolares y la restriccion",
+              fill="#475569", font=FONTS["small"])
+    draw.text((25, 68), "no rige. Apague la senal y reanude al volver.",
+              fill="#475569", font=FONTS["small"])
+
+    draw.rounded_rectangle([25, 100, 205, 150], radius=8, fill="#B45309")
+    draw.text((52, 118), "APAGAR (RECESO)", fill="#FFFFFF", font=FONTS["btn"])
+
+    draw.rounded_rectangle([215, 100, w - 25, 150], radius=8, fill="#1D4ED8")
+    draw.text((238, 118), "REANUDAR CLASES", fill="#FFFFFF", font=FONTS["btn"])
+
+    draw.text((25, 165), "Los dos piden confirmacion antes de actuar.",
+              fill="#B45309", font=FONTS["small"])
+
+    img.save(os.path.join(IMG_DIR, "paso6_detalle_receso_escolar.png"))
 
 
 # ==========================================
@@ -849,6 +910,96 @@ def gen_creditos_it_vial():
 
 
 
+
+
+def _tarjeta_mantenimiento(altura):
+    """Dibuja la tarjeta propuesta. altura=False -> inspeccion desde el suelo.
+
+    La idea que gobierna el diseno: los puntos que NO se pueden verificar en esa
+    modalidad no se muestran en gris, NO SE MUESTRAN. Si no estan en pantalla no
+    se pueden marcar por descuido, y un checklist que permite afirmar lo que no
+    se ha comprobado es peor que no tener checklist.
+    """
+    suelo_items = [
+        "Hora del equipo coincide con la del telefono",
+        "Horario grabado coincide con la placa",
+        "Tension de bateria en rango        12.6 V",
+        "Sin cortes de energia nuevos       2 cortes",
+        "Destello verificado (prueba 2 min)",
+        "Senal y placa legibles, sin danos",
+    ]
+    altura_items = [
+        "Panel solar limpio y sin sombra",
+        "Fusible de 12 V verificado",
+        "Borneras apretadas, sin falsos contactos",
+        "Pila CR2032 verificada o sustituida",
+        "Gabinete cerrado y sellado",
+        "Lente del foco limpia",
+    ]
+    items = suelo_items + (altura_items if altura else [])
+
+    w = 460
+    h = 190 + len(items) * 30 + (70 if not altura else 40)
+    img = Image.new("RGB", (w, h), "#FFFFFF")
+    draw = ImageDraw.Draw(img)
+    draw.rounded_rectangle([10, 10, w - 10, h - 10], radius=12,
+                           fill="#FFFFFF", outline="#CBD5E1", width=2)
+
+    draw.text((25, 24), "MANTENIMIENTO E INSPECCION", fill="#0F172A", font=FONTS["bold"])
+    draw.text((25, 50), "TIPO DE INSPECCION", fill="#475569", font=FONTS["small_bold"])
+
+    # Control de dos posiciones
+    y0, y1 = 70, 116
+    mitad = w // 2
+    sel_bg, off_bg = "#1D4ED8", "#F1F5F9"
+    draw.rounded_rectangle([25, y0, mitad, y1], radius=8,
+                           fill=(off_bg if altura else sel_bg))
+    draw.rounded_rectangle([mitad, y0, w - 25, y1], radius=8,
+                           fill=(sel_bg if altura else off_bg))
+    draw.text((52, y0 + 8), "A NIVEL DE SUELO",
+              fill=("#475569" if altura else "#FFFFFF"), font=FONTS["small_bold"])
+    draw.text((60, y0 + 26), "(sin subir)",
+              fill=("#94A3B8" if altura else "#DBEAFE"), font=FONTS["small"])
+    draw.text((mitad + 30, y0 + 8), "EN ALTURA (poste)",
+              fill=("#FFFFFF" if altura else "#475569"), font=FONTS["small_bold"])
+    draw.text((mitad + 34, y0 + 26), "escalera o canasta",
+              fill=("#DBEAFE" if altura else "#94A3B8"), font=FONTS["small"])
+
+    # Checklist
+    y = 138
+    for n, txt in enumerate(items, 1):
+        marcado = n <= (5 if not altura else 8)
+        draw.rounded_rectangle([28, y, 48, y + 20], radius=4,
+                               fill=("#15803D" if marcado else "#FFFFFF"),
+                               outline="#94A3B8", width=1)
+        if marcado:
+            draw.line([32, y + 10, 37, y + 15], fill="#FFFFFF", width=3)
+            draw.line([37, y + 15, 44, y + 5], fill="#FFFFFF", width=3)
+        draw.text((60, y + 2), "%d. %s" % (n, txt), fill="#0F172A", font=FONTS["small"])
+        y += 30
+
+    y += 8
+    if not altura:
+        draw.rounded_rectangle([25, y, w - 25, y + 52], radius=8,
+                               fill="#FEF3C7", outline="#F59E0B")
+        draw.text((40, y + 8), "Inspeccion a nivel de suelo.", fill="#92400E",
+                  font=FONTS["small_bold"])
+        draw.text((40, y + 28), "6 puntos requieren subir al poste y NO se han verificado.",
+                  fill="#92400E", font=FONTS["small"])
+        y += 62
+    draw.rounded_rectangle([25, y, w - 25, y + 44], radius=8, fill="#7C3AED")
+    draw.text((70, y + 13), "COMPARTIR ACTA DE INSPECCION",
+              fill="#FFFFFF", font=FONTS["btn"])
+    return img
+
+
+def gen_propuesta_mantenimiento():
+    _tarjeta_mantenimiento(False).save(
+        os.path.join(IMG_DIR, "propuesta_mant_suelo.png"))
+    _tarjeta_mantenimiento(True).save(
+        os.path.join(IMG_DIR, "propuesta_mant_altura.png"))
+
+
 def main():
     print("Generando capturas de pantalla para el Manual de Usuario...")
     gen_paso1_instalacion()
@@ -863,6 +1014,8 @@ def main():
     gen_paso4_pantalla_principal()
     gen_paso4_dialog_dispositivo()
     gen_detalle_horario_escolar()
+    gen_detalle_receso_escolar()
+    gen_propuesta_mantenimiento()
     gen_paso7_config_dropdowns()
     gen_paso7_dropdowns_combinados()
     gen_detalle_diagnostico_luz()

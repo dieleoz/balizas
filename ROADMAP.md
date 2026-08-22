@@ -70,6 +70,32 @@ horario programado coincide con la chapa atornillada. El simulador no puede sust
 
 ## Defectos abiertos
 
+### 4bis. El checklist de mantenimiento es decorativo
+
+Medido el 22-ago-2026. Las cuatro casillas existen en el layout pero **ninguna esta enlazada al
+codigo**: cero llamadas a `findViewById` sobre ellas, y el acta que se exporta **no las menciona**
+-- lleva telemetria, horarios y la caja negra UART, ni una casilla.
+
+El tecnico las marca, las ve marcadas, y no llegan a ningun sitio. Peor: una de ellas («Panel
+solar limpio y fusible 12V») **no se puede verificar desde el suelo**, asi que hoy se puede
+afirmar lo que no se ha comprobado.
+
+Propuesta completa, con mockups y las decisiones que hacen falta, en
+[`Manuales/PROPUESTA_MANTENIMIENTO_Y_AUDITORIA.md`](Manuales/PROPUESTA_MANTENIMIENTO_Y_AUDITORIA.md).
+
+### 4ter. El emulador web y la app han divergido
+
+Varias funciones se «vieron funcionando» en demos sin existir en el APK, porque lo que se
+enseñaba era el emulador. El selector suelo/altura es el caso claro: su commit (`ff40a2c`)
+toco un unico fichero, `4 Simulador/emulador_app/index.html`.
+
+Ahora la divergencia va al reves: el emulador conserva el 1-Toque viejo y no tiene ni las cuatro
+franjas ni el receso.
+
+**La regla que falta:** una funcion no esta hecha hasta que esta en el APK. El emulador no cuenta
+como implementacion, y las demos deberian hacerse sobre el APK.
+
+
 ### 5. ~~El equipo no sabe decir qué firmware lleva~~ — HECHO el 22-ago-2026
 
 El volcado de `¿L?` abre ahora con `FW 3.4`. Antes todos los binarios anunciaban

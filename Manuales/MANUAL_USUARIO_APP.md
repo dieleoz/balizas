@@ -19,6 +19,17 @@
 
 ## 1. Introducción y Propósito
 
+> **Sobre las figuras de este manual.** Las pantallas de la aplicación son
+> **ilustraciones generadas** (`generar_capturas_app.py`), no fotografías del teléfono.
+> Reproducen la disposición y los textos reales, pero los colores y proporciones exactos
+> pueden variar según el modelo. Las fotografías de la señal y de la placa sí son reales.
+
+
+![Figura 1: Señal reglamentaria «30 CUANDO ACTIVADA» instalada en poste escolar.](img/senal_vial_hd.png)
+
+![Figura 2: Placa metálica con el horario de esa instalación. Es la fuente de verdad.](img/placa_horario_hd.png)
+
+
 La aplicación móvil **IT VIAL 30 (v3.4)** es la herramienta oficial de auditoría, calibración y diagnóstico para las señales viales de zona escolar con límite de 30 km/h. Permite a los técnicos e interventores configurar horarios, auditar el estado de la batería de 12V y la pila de respaldo CR2032, y asignar nombres a los postes a través de Bluetooth sin necesidad de cables ni escaleras.
 
 ---
@@ -33,6 +44,29 @@ La interfaz ha sido diseñada bajo directivas ergonómicas para uso rudo en call
 ---
 
 ## 3. Guía de Conexión Bluetooth
+
+![Figura 3: Selección del «Instalador de paquetes» de Android.](img/paso1_instalacion_apk.png)
+
+![Figura 4: Ventana de confirmación de instalación.](img/paso1_confirmar_instalacion.png)
+
+![Figura 5: Progreso de instalación.](img/paso1_instalando_progreso.png)
+
+![Figura 6: Google Play Protect: hay que elegir «Instalar de todas formas».](img/paso1_play_protect_bloqueo.png)
+
+![Figura 7: Instalación completada.](img/paso1_instalacion_finalizada.png)
+
+![Figura 8: Pantalla de autenticación.](img/paso3_login_app.png)
+
+![Figura 9: Permisos de dispositivos cercanos (Android 12+).](img/paso2_permisos_dispositivos_cercanos.png)
+
+![Figura 10: Solicitud de habilitación del adaptador Bluetooth.](img/paso2_habilitar_bluetooth_dialog.png)
+
+![Figura 11: Emparejamiento en Ajustes del teléfono y PIN (1234 / 0000).](img/paso2_emparejamiento_bt.png)
+
+![Figura 12: Selección del módulo desde la aplicación.](img/paso4_dialog_dispositivos.png)
+
+![Figura 13: Pantalla principal de control y diagnóstico.](img/paso4_pantalla_principal.png)
+
 
 1. Active el Bluetooth en su teléfono móvil.
 2. Abra la aplicación y presione el botón rojo **`DISPOSITIVO`**.
@@ -53,6 +87,9 @@ La interfaz ha sido diseñada bajo directivas ergonómicas para uso rudo en call
 > de detectarlo desde el escritorio**: la aplicación confirmará igualmente que grabó.
 
 ### 4.1 Procedimiento
+
+![Figura 14: Tarjeta «HORARIO DE ESTA PLACA», con sus cuatro franjas.](img/paso6_detalle_horario_escolar.png)
+
 
 1. **Lea la placa** de la señal que tiene delante y anote sus franjas y sus días.
 2. En la tarjeta **HORARIO DE ESTA PLACA**, active con el interruptor las franjas que use esa
@@ -86,6 +123,9 @@ autoridad para cuando sí importa.
 | **APAGAR (RECESO)** | Apaga **todas** las franjas. La señal queda sin destellar las 24 horas. |
 | **REANUDAR CLASES** | Vuelve a grabar el horario que esté en pantalla. |
 
+![Figura 15: Botones de receso escolar.](img/paso6_detalle_receso_escolar.png)
+
+
 Los dos piden confirmación antes de actuar. Antes de apagar, **compruebe que el horario en
 pantalla es el de la placa**: es el que se restaurará al reanudar.
 
@@ -101,6 +141,11 @@ Para identificar cada baliza en un corredor vial con múltiples señales:
 ---
 
 ## 6. Motor de Autodiagnóstico y Dictamen en Campo
+
+![Figura 16: Configuración manual de franja horaria.](img/paso7_config_franja_detalle.png)
+
+![Figura 17: Menús desplegables de alarma, horas, minutos y días.](img/paso7_dropdowns_combinados.png)
+
 
 Al presionar **`LEER`**, la App ejecuta un análisis instantáneo y muestra el semáforo de dictamen técnico:
 
@@ -124,6 +169,9 @@ Para garantizar que los mantenimientos en campo se realicen formalmente, la app 
 ---
 
 ## 8. Prueba Física de Foco (Mando Directo)
+
+![Figura 18: Tarjeta de diagnóstico y prueba de luz.](img/paso8_detalle_diagnostico_luz.png)
+
 
 * **Activar Test (2 min):** Presione `💡 Activar Test (2 min)` para encender el destello ámbar a 1.0 Hz y verificar los LEDs y el circuito de potencia.
 * **Apagar Test:** Presione `⏹️ Apagar Test` para detener el destello inmediatamente.
@@ -151,6 +199,9 @@ si no aparece la línea, la baliza lleva un firmware antiguo y conviene reportar
 ---
 
 ## 10. Referencias Cruzadas del Proyecto
+
+![Figura 19: Canales oficiales de soporte técnico IT VIAL S.A.S.](img/portada_it_vial_creditos.png)
+
 
 * ⚙️ [Manual Técnico del Firmware C99](MANUAL_TECNICO_FIRMWARE_C99.md)
 * 📜 [Certificado Oficial del Firmware v3.4](CERTIFICADO_FIRMWARE_v3.4.md)
