@@ -111,6 +111,7 @@ public class MainActivity2 extends AppCompatActivity {
     private Button btnExportAudit;
     private android.widget.EditText edtNombreBaliza;
     private Button btnGuardarNombre;
+    private Button btnGuardarFranjaManual;
     private TextView txtIconoDictamen;
     private TextView txtTituloDictamen;
     private TextView txtMensajeDictamen;
@@ -319,6 +320,20 @@ public class MainActivity2 extends AppCompatActivity {
                 querypaired();
             }
         });
+
+        btnGuardarFranjaManual = (Button) findViewById(R.id.idBtnGuardarFranjaManual);
+        if (btnGuardarFranjaManual != null)
+        {
+            btnGuardarFranjaManual.setEnabled(false);
+            btnGuardarFranjaManual.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    if (btConf != null) btConf.performClick();
+                }
+            });
+        }
 
         btnRead.setOnClickListener(new View.OnClickListener()
         {
@@ -565,6 +580,7 @@ public class MainActivity2 extends AppCompatActivity {
                             // habilitar botones de acción
                             btnRead.setEnabled(true);
                             btConf.setEnabled(true);
+                            if (btnGuardarFranjaManual != null) btnGuardarFranjaManual.setEnabled(true);
                             if (btnTestLuz != null) btnTestLuz.setEnabled(true);
                             if (btnStopTest != null) btnStopTest.setEnabled(true);
                             if (btnGrabarPlaca != null) btnGrabarPlaca.setEnabled(true);

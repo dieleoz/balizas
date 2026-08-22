@@ -1084,6 +1084,18 @@
                         android:entries="@array/aSpHorario"
                         android:minHeight="48dp" />
                 </LinearLayout>
+
+                <Button
+                    android:id="@+id/idBtnGuardarFranjaManual"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="52dp"
+                    android:layout_marginTop="10dp"
+                    android:text="⚡ ENVIAR Y GRABAR ESTA FRANJA"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="#059669"
+                    android:textColor="#FFFFFF" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
