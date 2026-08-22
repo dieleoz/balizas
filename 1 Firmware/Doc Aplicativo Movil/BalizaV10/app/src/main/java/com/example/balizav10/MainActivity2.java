@@ -308,7 +308,7 @@ public class MainActivity2 extends AppCompatActivity {
             });
         }
 
-        btnCargarHorarioEscolar = (Button)findViewById(R.id.idBtnCargarHorarioEscolar);
+        btnCargarHorarioEscolar = (Button)findViewById(R.id.idBtnHorarioEscolar);
         if (btnCargarHorarioEscolar != null)
         {
             btnCargarHorarioEscolar.setEnabled(false);
@@ -867,14 +867,22 @@ public class MainActivity2 extends AppCompatActivity {
             Toast.makeText(this, "Ingrese un nombre o ubicación", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Guardar en EEPROM del PIC por Bluetooth
-        String tramaNombre = "\u00BFN" + nombre + "?\n\r";
-        sendData(tramaNombre);
-        // Guardar en preferencias locales asociadas a la MAC
-        if (addressDevice != null && !addressDevice.isEmpty()) {
-            getSharedPreferences("BalizasDB", MODE_PRIVATE).edit().putString(addressDevice, nombre).apply();
+        if (device == null) {
+            Toast.makeText(this, "Seleccione primero el dispositivo Bluetooth", Toast.LENGTH_SHORT).show();
+            return;
         }
-        Toast.makeText(this, "✓ Nombre grabado en la baliza", Toast.LENGTH_SHORT).show();
+        // Guardar en EEPROM del PIC por Bluetooth
+        sFrameHourCal = "";
+        sFrameConf = "\u00BFN" + nombre + "?\r\n";
+        bReadConf = true;
+        
+        String devAddr = device.getAddress();
+        if (devAddr != null && !devAddr.isEmpty()) {
+            getSharedPreferences("BalizasDB", MODE_PRIVATE).edit().putString(devAddr, nombre).apply();
+        }
+        mkmsg("\n[TX] Guardando Nombre: ¿N" + nombre + "?\n");
+        startClient();
+        Toast.makeText(this, "✓ Guardando nombre en la baliza...", Toast.LENGTH_SHORT).show();
     }
 
     private void parseTelemetry(String text) {
@@ -1027,7 +1035,7 @@ public class MainActivity2 extends AppCompatActivity {
         String logData = txtVoutput != null ? txtVoutput.getText().toString().trim() : "";
         String vData = txtVoltaje != null ? txtVoltaje.getText().toString() : "--";
         String cData = txtCortes != null ? txtCortes.getText().toString() : "--";
-        String devName = addressDevice != null && !addressDevice.isEmpty() ? addressDevice : "JDY-31-BALIZA";
+        String devName = device != null ? device.getAddress() : "JDY-31-BALIZA";
         String signName = edtNombreBaliza != null && !edtNombreBaliza.getText().toString().trim().isEmpty() ?
                 edtNombreBaliza.getText().toString().trim() : "Sin Asignar";
 
