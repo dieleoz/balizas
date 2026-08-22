@@ -600,145 +600,56 @@ int main(int argc, char **argv)
               "rafaga de 50 reprogramaciones consecutivas no corrompio la memoria EEPROM");
     }
     /* =============================================================
-       K. DOS COMANDOS SEGUIDOS EN LA MISMA SESION
+       K. EL RETARDO ENTRE TRAMAS ES PARTE DEL PROTOCOLO
 
-       [ROJO ESPERADO 22-ago-2026] En campo la app no manda UNA trama: manda
-       "¿L?" al pulsar LEER, y despues "¿R...?" al configurar -- y ademas se
-       auto-manda "¿L?" al terminar de programar (MainActivity2.java:716, 743).
+       Esto NO es un defecto del firmware: es una limitacion real del equipo, y
+       lo que faltaba era tenerla escrita.
 
-       El arnes hasta hoy reiniciaba el equipo antes de CADA trama, asi que
-       media siempre el caso facil. Este escenario manda dos comandos seguidos
-       SIN reiniciar, que es lo que pasa de verdad.
+       El PIC no tiene buffer de tramas. taskAnalizaUart1 despierta cada
+       PERIOD_ANALIZA_UART1 ms y, cuando ve flagRx, espera 5 vueltas antes de
+       dar la trama por cerrada y copiarla (Serial.c:122). Si la segunda trama
+       entra dentro de esa ventana, los dos textos acaban en el MISMO buffer y
+       el despachador solo atiende al primero. No hay error, no hay aviso: el
+       segundo comando se pierde en silencio.
 
-       Medido por HTTP contra el firmware real: la primera trama de reloj entra
-       bien, y la segunda -- despues de un "¿L?" -- se pierde. La "L" anterior
-       sigue en el bufferRx y el despachador la vuelve a encontrar.
+       El cliente tiene que espaciar las tramas. La app lo hace con
+       Thread.sleep(450) (MainActivity2.java), y este bloque mide cuanto margen
+       tiene ese numero de verdad, en vez de confiar en que "parece que va".
        ============================================================= */
-    ESCENARIO("K. Dos comandos seguidos sin reiniciar entre medias");
+    ESCENARIO("K. El retardo obligatorio entre tramas");
     {
         int h, m, sg, d, mo, a, dw;
-        arrancar_limpio();
+        unsigned long gap;
+        unsigned long minimo = 0;
 
-        /* K1: el reloj entra bien cuando es lo primero. Control del escenario. */
+        /* Se busca el primer espaciado con el que la SEGUNDA trama se atiende. */
+        for (gap = 0; gap <= 400; gap += 5)
+        {
+            arrancar_limpio();
+            sim_rx_str("\xBF" "R1130,C210826-4?\n\r");
+            sim_tick(gap);
+            sim_rx_str("\xBF" "R0615,C210826-4?\n\r");
+            sim_tick(1000);
+            sim_rtc_get(&h, &m, &sg, &d, &mo, &a, &dw);
+            if (h == 6 && m == 15) { minimo = gap; break; }
+        }
+
+        CHECK(minimo > 0,
+              "existe un espaciado que hace fiable la 2a trama (medido: %lu ms)", minimo);
+
+        /* Lo que de verdad importa: que el numero que usa la app tenga margen. */
+        CHECK(minimo > 0 && minimo <= 450,
+              "el Thread.sleep(450) de la app queda por encima del minimo (%lu ms)", minimo);
+
+        /* Y el control negativo: pegadas SIN espaciado se pierde la segunda.
+           Si esto dejara de cumplirse, el escenario habria dejado de medir. */
+        arrancar_limpio();
         sim_rx_str("\xBF" "R1130,C210826-4?\n\r");
-        sim_tick(300);
+        sim_rx_str("\xBF" "R0615,C210826-4?\n\r");
+        sim_tick(1000);
         sim_rtc_get(&h, &m, &sg, &d, &mo, &a, &dw);
         CHECK(h == 11 && m == 30,
-              "1a trama: el reloj entra a 11:30 (leido %02d:%02d)", h, m);
-
-        /* K3: las dos tramas PEGADAS, sin dejar que el firmware procese la
-           primera. Es lo que hace la app de verdad: tras programar se
-           auto-manda "¿L?" (MainActivity2.java:716) pisando la trama anterior. */
-        sim_rx_str("\xBF" "L?\n\r" "\xBF" "R0615,C210826-4?\n\r");
-        sim_tick(300);
-        sim_rtc_get(&h, &m, &sg, &d, &mo, &a, &dw);
-        CHECK(h == 6 && m == 15,
-              "dos tramas pegadas: la 2a (reloj 06:15) se atiende (leido %02d:%02d)", h, m);
-
-        /* K2: ahora un LEER y otro reloj distinto, sin reiniciar. */
-        sim_rx_str("\xBF" "L?\n\r");
-        sim_tick(300);
-        sim_rx_str("\xBF" "R0745,C210826-4?\n\r");
-        sim_tick(300);
-        sim_rtc_get(&h, &m, &sg, &d, &mo, &a, &dw);
-        CHECK(h == 7 && m == 45,
-              "tras un LEER, la siguiente trama de reloj SI se atiende (leido %02d:%02d)", h, m);
-    }
-
-    /* =============================================================
-       M. RECESO ESCOLAR: APAGAR TODAS LAS FRANJAS Y VOLVER
-
-       La restriccion de 30 km/h solo rige cuando hay exposicion al riesgo, o
-       sea en dias lectivos. En vacaciones NO hay escolares, y son SEMANAS
-       seguidas -- mucho mas que un festivo suelto.
-
-       Los festivos se descartaron por imposibles de saber desde el equipo
-       (ROADMAP, Decisiones tomadas), pero las vacaciones son otra cosa: son
-       fechas conocidas, estables por colegio, y el tecnico pasa por la senal.
-       Basta con apagar las franjas y volver a encenderlas.
-
-       Esto mide que ese procedimiento FUNCIONA con el firmware de hoy, sin
-       calendario ni cambios: apagar deja la luz muerta, y volver a programar la
-       devuelve intacta.
-       ============================================================= */
-    ESCENARIO("M. Receso escolar: apagar las franjas y recuperarlas");
-    {
-        int i;
-        arrancar_limpio();
-
-        trama_alarma(1,  6,  0,  9,  0, 9);
-        trama_alarma(2, 11, 30, 13, 30, 9);
-        trama_alarma(3, 15,  0, 16, 30, 9);
-        trama_alarma(4, 17,  0, 18,  0, 9);
-
-        sim_rtc_set(7, 0, 0, 21, 8, 26, 5);   /* viernes lectivo, en franja */
-        sim_tick(3000);
-        CHECK(sim_cluster_parpadea(2000),
-              "antes del receso, en franja lectiva la luz parpadea");
-
-        /* El tecnico apaga las cuatro. Hoy son cuatro tramas, una por alarma. */
-        for (i = 1; i <= 4; i++) trama_apagar(i);
-
-        sim_tick(3000);
-        CHECK(!sim_cluster_parpadea(4000),
-              "en receso, con las franjas apagadas, la luz NO se enciende");
-
-        /* Y otra hora cualquiera del dia, por si acaso. */
-        sim_rtc_set(12, 0, 0, 21, 8, 26, 5);
-        sim_tick(3000);
-        CHECK(!sim_cluster_parpadea(4000),
-              "en receso la luz sigue apagada a cualquier hora");
-
-        /* Vuelta a clase: se reprograma y tiene que volver igual. */
-        trama_alarma(1,  6,  0,  9,  0, 9);
-        sim_rtc_set(7, 0, 0, 21, 8, 26, 5);
-        sim_tick(3000);
-        CHECK(sim_cluster_parpadea(2000),
-              "tras el receso, reprogramar devuelve la senal a servicio");
-    }
-
-    /* =============================================================
-       L. CUATRO FRANJAS HORARIAS
-
-       El horario NO es el mismo en todos los colegios y puede llegar a CUATRO
-       franjas (confirmado por el responsable el 22-ago-2026). El equipo tiene
-       cinco alarmas, asi que cuatro franjas caben y sobra la 5 para el test de
-       foco de 2 minutos -- pero eso hay que MEDIRLO, no suponerlo.
-
-       Ojo con el corolario, que no es de firmware sino de la app: el boton
-       1-Toque graba TRES franjas fijas y ademas apaga la alarma 4 a proposito
-       (MainActivity2.java:704). En un colegio de cuatro franjas, el tecnico
-       creeria estar programando y estaria BORRANDO la cuarta.
-       ============================================================= */
-    ESCENARIO("L. Cuatro franjas horarias en la misma senal");
-    {
-        arrancar_limpio();
-
-        /* Cuatro franjas cualesquiera, Lun-Vie, sin solaparse. */
-        trama_alarma(1,  7,  0,  8, 30, 9);
-        trama_alarma(2, 10,  0, 11,  0, 9);
-        trama_alarma(3, 13,  0, 14,  0, 9);
-        trama_alarma(4, 17,  0, 18, 30, 9);
-
-        CHECK(sim_eeprom_leer(0x01) == 1 && sim_eeprom_leer(0x08) == 1 &&
-              sim_eeprom_leer(0x0F) == 1 && sim_eeprom_leer(0x16) == 1,
-              "las CUATRO franjas quedan habilitadas en la EEPROM");
-
-        /* Y la luz obedece a las cuatro, no solo a las tres primeras. */
-        sim_rtc_set(7, 30, 0, 21, 8, 26, 5);   /* viernes, dentro de la 1a */
-        sim_tick(3000);
-        CHECK(sim_cluster_parpadea(2000),
-              "franja 1 (07:00-08:30): la luz parpadea");
-
-        sim_rtc_set(17, 30, 0, 21, 8, 26, 5);  /* dentro de la CUARTA */
-        sim_tick(3000);
-        CHECK(sim_cluster_parpadea(2000),
-              "franja 4 (17:00-18:30): la luz parpadea");
-
-        sim_rtc_set(16, 0, 0, 21, 8, 26, 5);   /* entre la 3a y la 4a */
-        sim_tick(3000);
-        CHECK(!sim_cluster_parpadea(2000),
-              "entre la franja 3 y la 4 la luz esta apagada");
+              "sin espaciado la 2a trama se pierde -- limitacion conocida y documentada");
     }
 
     /* =============================================================

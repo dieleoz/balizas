@@ -224,6 +224,26 @@ estado de la tarea, no una alarma.
 Códigos de días: **8** diario · **9** lunes a viernes · **10** fin de semana. Los valores 1..7
 serían días concretos y **no están implementados** — ver ROADMAP, pendiente 4.
 
+## El retardo entre tramas no es opcional
+
+El PIC **no tiene buffer de tramas**. `taskAnalizaUart1` despierta cada milisegundo y, al ver
+`flagRx`, espera **5 vueltas** antes de cerrar la trama y copiarla (`Serial.c:122`). Dos tramas
+que entren dentro de esa ventana acaban en el **mismo buffer**, y solo se atiende a la
+primera. **El segundo comando se pierde sin error ni aviso.**
+
+No es un defecto que arreglar: es una limitación real del equipo, y quien escriba un cliente
+tiene que respetarla.
+
+| | |
+|---|---|
+| Mínimo medido (arnés, bloque `K`) | **25 ms** |
+| Lo que usa la app (`RETARDO_TRAMA_MS`) | **450 ms** |
+
+Los 25 ms salen del simulador, donde los bytes entran instantáneos; en el equipo real hay que
+sumar el tiempo de hilo, que a 9600 baudios son ya unos 26 ms para una trama de 25
+caracteres. **No bajes el retardo de la app** para que «vaya más rápido»: ese margen es lo
+único que separa esto de perder comandos en campo.
+
 ## Convenciones
 
 - **Comentarios y mensajes de commit en español.** Los comentarios explican **por qué**, no qué:

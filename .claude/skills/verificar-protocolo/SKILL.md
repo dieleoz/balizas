@@ -119,3 +119,26 @@ cambio se puede hacer conservando el formato, se hace conservandolo.
 
 Para correr el simulador y leer el resultado, la skill [`verificar`](../verificar/SKILL.md).
 Para anadir un escenario nuevo, la skill [`simulador`](../simulador/SKILL.md).
+
+## El retardo entre tramas NO es opcional
+
+El PIC no tiene buffer de tramas. `taskAnalizaUart1` despierta cada milisegundo y, al ver
+`flagRx`, espera **5 vueltas** antes de cerrar la trama y copiarla (`Serial.c:122`). Dos
+tramas que entren dentro de esa ventana acaban en el **mismo buffer**, y el despachador
+—que mira el caracter pegado al `0xBF`— solo atiende a la primera.
+
+**El segundo comando se pierde sin error ni aviso.** Es el modo de fallo mas caro de este
+proyecto: la app dice que programo, nadie ve nada raro, y la senal se queda con el horario
+viejo hasta que alguien la mire a las 6 de la manana.
+
+| | |
+|---|---|
+| Minimo medido (arnes, bloque `K`) | **25 ms** |
+| Lo que usa la app (`Thread.sleep(450)`) | **450 ms** |
+
+Los 25 ms salen del simulador, donde los bytes entran instantaneos. En el equipo real hay
+que sumar el tiempo de hilo: a 9600 baudios una trama de ~25 caracteres son ya unos 26 ms.
+**No bajes el retardo de la app** para que "vaya mas rapido": el margen es lo unico que
+separa esto de perder comandos en campo.
+
+Si escribes un cliente nuevo —un script, un terminal, una prueba— **espacia las tramas**.

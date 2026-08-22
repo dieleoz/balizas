@@ -11,7 +11,7 @@ todavía no han pasado por funcional.
 | | v3.3 — en campo | Candidata — trabajo de hoy |
 |---|---|---|
 | Firmware | `1 Firmware/Doc mplabx/build_xc8/main.hex`<br>59.577 B · `c14b4350d960…` | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`<br>49.133 B · `889c0188914b…` |
-| App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>3.869.517 B · `6ecc13944c69…` |
+| App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>6.080.041 B · `bb2aedd9d130…` |
 | Funcional | Aprobada | **Pendiente** |
 
 **Las parejas no se mezclan.** App v3.3 con firmware v3.3.
@@ -39,46 +39,27 @@ Nuevo binario: **3.869.517 B**, `6ecc13944c69…`. Bajo de 6,07 MB a 3,87 MB, y 
 **no se perdio nada**: mismas 695 entradas y mismo tamano descomprimido (6.809.576 B). La
 diferencia era solo compresion.
 
-### 3. El botón «1-Toque» graba el horario de OTRO colegio — BLOQUEANTE
+### 3. ~~El botón «1-Toque» graba el horario de OTRO colegio~~ — HECHO el 22-ago-2026
 
-Es el defecto más peligroso encontrado hoy, y no está en el firmware sino en la app.
+Era el defecto más peligroso de la sesión. El botón se llamaba «Programar Horario Escolar
+(1 Toque)» y grababa **tres franjas escritas a fuego en el código** —las de una instalación
+concreta— y además mandaba `¿A4,E0,?`, apagando la cuarta. En cualquier otro colegio eso
+grababa un horario que no era el de esa chapa y borraba una franja sin avisar, con la app
+confirmando «grabado con éxito».
 
-El botón se llama **«Programar Horario Escolar (1 Toque)»**, como si programase *el* horario
-escolar. Lo que hace en realidad (`MainActivity2.java:686-709`) es grabar **tres franjas fijas
-en el código**:
+**Sustituido por la tarjeta «HORARIO DE ESTA PLACA»:**
 
-```
-¿A1,E1,I0600,F0900,D9,?     06:00 - 09:00  Lun-Vie
-¿A2,E1,I1130,F1330,D9,?     11:30 - 13:30  Lun-Vie
-¿A3,E1,I1500,F1630,D9,?     15:00 - 16:30  Lun-Vie
-¿A4,E0,?                    <- APAGA la alarma 4
-¿A5,E0,?                    <- APAGA la alarma 5
-```
+* **Cuatro franjas**, cada una con su interruptor y sus dos horas.
+* Las horas se ponen con un **reloj a pantalla completa**, no con desplegables diminutos:
+  esto se usa en la calle, con sol y a veces subido a una escalera.
+* Selector de días: lunes a viernes · todos los días · sábado y domingo.
+* **Confirmación antes de escribir.** Se enseña la lista exacta de lo que se va a grabar y
+  se pide comprobarla contra la placa. Esto gobierna una señal escolar: no se escribe sin
+  que alguien lo lea.
+* La **alarma 5 no se toca**: queda reservada al test de foco de 2 minutos.
 
-
-Esas son las franjas de **una instalación concreta**. Pero el horario **es distinto en cada
-colegio y puede tener hasta cuatro franjas**. Así que en cualquier señal que no sea la de
-referencia, pulsar 1-Toque:
-
-1. Graba **un horario que no es el de esa chapa** — la señal pasa a decir 30 km/h a horas que
-   no rigen, y a no decirlo cuando sí rigen.
-2. **Borra la cuarta franja** sin avisar, porque manda `¿A4,E0,?` explícitamente.
-
-Y lo peor es que **no hay forma de notarlo desde el teléfono**: la app confirma «¡Horario
-Escolar Grabado con Éxito!» igual. El técnico se va convencido.
-
-**El firmware no es el límite:** medido el 22-ago-2026 (arnés, bloque `L`), las cuatro franjas
-se graban y la luz obedece a las cuatro. Sobra la alarma 5 para el test de foco.
-
-Lo que hace falta es que el 1-Toque **deje de llevar un horario dentro**: que lo tome de lo que
-el técnico lee en la chapa que tiene delante, con las cuatro franjas disponibles y sin apagar
-nada que no se le haya pedido apagar. Eso es un cambio de app y de UI, y va por funcional.
-
-> **Y no es solo un defecto técnico: es un incumplimiento normativo.** El Manual de
-> Señalización Vial obliga a ajustar los horarios *estrictamente a la realidad operativa del
-> centro educativo*, y avisa de que un horario sobredimensionado o desactualizado
-> **acostumbra al conductor** y le resta autoridad a la señal. Programar el horario de otro
-> colegio es exactamente eso. Ver [`Manuales/NORMATIVA.md`](Manuales/NORMATIVA.md).
+El texto de la tarjeta lo dice sin rodeos: *«No hay un horario estándar: cada colegio tiene
+el suyo y puede llevar hasta 4 franjas»*.
 
 ### 4. Validar la pareja nueva junta contra una señal real
 
@@ -89,53 +70,32 @@ horario programado coincide con la chapa atornillada. El simulador no puede sust
 
 ## Defectos abiertos
 
-### 5. Dos tramas pegadas: la segunda se pierde — el único rojo del arnés
-
-Es el **único rojo vivo** (bloque `K`). Si dos tramas llegan sin que el firmware alcance a
-procesar la primera, **la segunda no se atiende**: las letras de la primera siguen en el
-buffer de análisis y el despachador vuelve a encontrarlas.
-
-**Espaciadas funcionan** — el firmware limpia su buffer bien (`Serial.c:128`). El problema es
-solo el solapamiento.
-
-**En la app de hoy no muerde**, y conviene saber por qué: todas las rutas de envío meten un
-`Thread.sleep(450)` entre tramas (13 pausas para 11 escrituras). Es decir, **la app lo está
-tapando con un retardo**, no es que el firmware esté bien.
-
-Por qué sigue importando: cualquier cliente que no ponga ese retardo —otra app, un script de
-pruebas, un terminal serie, o una versión futura que «optimice» los tiempos— pierde comandos
-en silencio. Y ese es el modo de fallo peor de este proyecto: el comando se pierde, nadie da
-error, y la señal se queda con el horario viejo.
-
-### 6. La versión de XC8 del binario de la v3.3 no está registrada
+### 5. La versión de XC8 del binario de la v3.3 no está registrada
 
 `build_xc8/` conserva el `.hex` pero **no el `.map`**, así que del binario que está en la calle
 no consta con qué compilador se hizo. Por la regla 4, el compilador, su driver y sus banderas
 son parte del entregable. Se recupera recompilando y comparando, o se anota si alguien lo sabe.
 
-### 7. Los 1 kΩ en serie en `MCU_TX`
+### 6. Los 1 kΩ en serie en `MCU_TX`
 
 El `RXD` del módulo Bluetooth es de 3,3 V y se ataca con 5 V sin adaptación. No es un fallo —el
 enlace funciona— es un riesgo que mata módulos a las semanas. Va en el arnés de cables, **no en
 la PCB**, que está fabricada.
 
-### 8. Un botón de «receso escolar» en la app — pequeño y con efecto grande
+### 7. ~~Un botón de «receso escolar»~~ — HECHO el 22-ago-2026
 
-Las vacaciones sí importan y **sí se pueden resolver**: no son un día suelto sino **semanas
-seguidas** de señal anunciando lo que no rige, y a diferencia de los festivos las fechas se
-saben, son estables por colegio y el técnico pasa por la señal.
+En vacaciones no hay escolares y la restricción no rige, y son **semanas seguidas** de señal
+anunciando lo que no aplica — mucho más acostumbramiento del conductor que un festivo suelto.
 
-**El firmware ya lo permite tal cual está.** Medido el 22-ago-2026 (arnés, bloque `M`): con las
-franjas apagadas la luz no se enciende a ninguna hora, y reprogramar devuelve la señal a
-servicio intacta. No hace falta tocar el PIC.
+Añadidos **APAGAR (RECESO)** y **REANUDAR CLASES**. El primero apaga las cinco alarmas de una
+vez, con confirmación que avisa de que la señal quedará muerta las 24 horas; el segundo
+reprograma el horario que hay en pantalla.
 
-Lo que falta es de la app: hoy hay que apagar las alarmas **una por una** desde la
-configuración manual, que en campo es donde se olvida una. Un botón que mande las cinco
-tramas de golpe —y otro para restaurar el horario de la placa— hace el procedimiento fiable.
+Antes había que apagar las alarmas **una por una** desde la configuración manual, que en campo
+es exactamente donde se olvida una. El firmware ya lo permitía sin cambios: medido en el
+arnés, bloque `M`.
 
-Va junto al arreglo del 1-Toque (pendiente 3): son la misma pantalla y la misma revisión.
-
-### 9. Códigos de día 1..7 — no implementado
+### 8. Códigos de día 1..7 — no implementado
 
 Solo existen **8** (diario), **9** (lunes a viernes) y **10** (fin de semana).
 
@@ -199,6 +159,34 @@ verde, y se pondrá rojo justo el día que alguien implemente la temperatura del
 
 ## Decisiones tomadas
 
+### El retardo entre tramas es del protocolo, no un defecto — 22-ago-2026
+
+Se anotó como defecto que dos tramas pegadas hacen perder la segunda. **No lo es: es una
+limitación real del equipo**, y lo que faltaba era tenerla escrita.
+
+El PIC no tiene buffer de tramas. `taskAnalizaUart1` despierta cada milisegundo y, al ver
+`flagRx`, espera **5 vueltas** antes de dar la trama por cerrada y copiarla (`Serial.c:122`).
+Si la segunda entra dentro de esa ventana, los dos textos acaban en el **mismo buffer** y el
+despachador solo atiende al primero. Sin error y sin aviso.
+
+**Medido, no supuesto** (arnés, bloque `K`, que barre el espaciado hasta encontrar el mínimo):
+
+| | |
+|---|---|
+| Mínimo con el que la 2ª trama se atiende | **25 ms** |
+| Lo que usa la app (`Thread.sleep(450)`) | **450 ms** — 18× de margen |
+
+> ⚠️ **Los 25 ms son del simulador, y ahí los bytes entran instantáneos.** En el equipo real
+> hay que sumarle el tiempo de hilo: a 9600 baudios una trama de ~25 caracteres tarda unos
+> **26 ms solo en transmitirse**. El mínimo real es mayor; los 450 ms de la app están
+> holgadamente por encima y no hay motivo para bajarlos.
+
+**Lo que esto obliga:** cualquier cliente del protocolo —otra app, un script, un terminal
+serie— **tiene que espaciar las tramas**. No es opcional y no se detecta si se incumple: el
+comando se pierde en silencio y la señal se queda con el horario viejo. Está escrito en la
+skill `verificar-protocolo`.
+
+
 ### Los festivos NO se contemplan — decidido el 22-ago-2026
 
 Se planteó que la placa puede decir «días hábiles» y que el equipo, con el código **9**
@@ -235,6 +223,7 @@ Antes de grabar un PIC se comprueba el **SHA-256**, nunca el nombre.
 
 * Manual de usuario: [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md)
 * Manual técnico: [`Manuales/MANUAL_TECNICO_FIRMWARE_C99.md`](Manuales/MANUAL_TECNICO_FIRMWARE_C99.md)
+* Compilar la app Android: [`Manuales/COMPILAR_APP.md`](Manuales/COMPILAR_APP.md)
 * Compilar y grabar: [`Manuales/COMPILAR_Y_GRABAR.md`](Manuales/COMPILAR_Y_GRABAR.md)
 * Restricciones de la tarjeta: [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md)
 * Paquete de la v3.3: [`Release_v3.3/LEEME_RELEASE_v3.3.md`](Release_v3.3/LEEME_RELEASE_v3.3.md)

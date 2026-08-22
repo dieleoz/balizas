@@ -67,6 +67,43 @@ public class MainActivity2 extends AppCompatActivity {
     private Button btnTestLuz;
     private Button btnStopTest;
     private Button btnCargarHorarioEscolar;
+
+    // --- Horario de la placa: hasta CUATRO franjas ---------------------------
+    // El horario NO es el mismo en todos los colegios: va impreso en la placa
+    // atornillada a cada senal. Estos valores son solo el punto de partida que
+    // ve el tecnico; los edita contra la placa que tiene delante.
+    private androidx.appcompat.widget.SwitchCompat[] swFranja =
+            new androidx.appcompat.widget.SwitchCompat[4];
+    private Button[] btnFranjaIni = new Button[4];
+    private Button[] btnFranjaFin = new Button[4];
+    private int[] hIni = { 6, 11, 15, 0 };
+    private int[] mIni = { 0, 30,  0, 0 };
+    private int[] hFin = { 9, 13, 16, 0 };
+    private int[] mFin = { 0, 30, 30, 0 };
+    private Spinner spDiasPlaca;
+    private Button btnGrabarPlaca, btnReceso, btnReanudar;
+
+    // Codigos de dia del firmware: 8 diario, 9 lunes a viernes, 10 fin de semana.
+    private static final int[] COD_DIAS = { 9, 8, 10 };
+
+    // Cola de tramas a enviar. Se manda una por una y CON PAUSA -- ver
+    // enviarSecuencia() y el porque en RETARDO_TRAMA_MS.
+    private java.util.ArrayList<String> tramasPendientes = new java.util.ArrayList<String>();
+    private boolean bEnviarSecuencia = false;
+
+    // EL RETARDO ENTRE TRAMAS NO ES OPCIONAL, y no es prudencia: es una
+    // limitacion real del PIC. No tiene buffer de tramas -- taskAnalizaUart1
+    // despierta cada milisegundo y espera 5 vueltas antes de cerrar la trama y
+    // copiarla (Serial.c:122). Si la siguiente entra dentro de esa ventana, las
+    // dos acaban en el MISMO buffer y el firmware solo atiende a la primera:
+    // el segundo comando se pierde SIN ERROR NI AVISO, y la senal se queda con
+    // el horario viejo.
+    //
+    // Minimo medido en el arnes (bloque K): 25 ms. Pero ahi los bytes entran
+    // instantaneos; en el equipo real hay que sumar el tiempo de hilo, que a
+    // 9600 baudios son ya unos 26 ms para una trama de 25 caracteres.
+    // NO BAJAR ESTE NUMERO para que "vaya mas rapido".
+    private static final int RETARDO_TRAMA_MS = 450;
     private TextView txtVoltaje;
     private TextView txtEstadoBat;
     private TextView txtCortes;
@@ -308,24 +345,7 @@ public class MainActivity2 extends AppCompatActivity {
             });
         }
 
-        btnCargarHorarioEscolar = (Button)findViewById(R.id.idBtnHorarioEscolar);
-        if (btnCargarHorarioEscolar != null)
-        {
-            btnCargarHorarioEscolar.setEnabled(false);
-            btnCargarHorarioEscolar.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    if (device == null)
-                    {
-                        Toast.makeText(MainActivity2.this, "Seleccione primero el dispositivo Bluetooth", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    programarHorarioEscolar();
-                }
-            });
-        }
+        montarTarjetaHorarioPlaca();
 
         //setup the bluetooth adapter.
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -338,7 +358,9 @@ public class MainActivity2 extends AppCompatActivity {
             btnDevice.setEnabled(false);
             if (btnTestLuz != null) btnTestLuz.setEnabled(false);
             if (btnStopTest != null) btnStopTest.setEnabled(false);
-            if (btnCargarHorarioEscolar != null) btnCargarHorarioEscolar.setEnabled(false);
+            if (btnGrabarPlaca != null) btnGrabarPlaca.setEnabled(false);
+            if (btnReceso != null)      btnReceso.setEnabled(false);
+            if (btnReanudar != null)    btnReanudar.setEnabled(false);
         }
 
     }//fin onCreate
@@ -492,7 +514,9 @@ public class MainActivity2 extends AppCompatActivity {
                             btConf.setEnabled(true);
                             if (btnTestLuz != null) btnTestLuz.setEnabled(true);
                             if (btnStopTest != null) btnStopTest.setEnabled(true);
-                            if (btnCargarHorarioEscolar != null) btnCargarHorarioEscolar.setEnabled(true);
+                            if (btnGrabarPlaca != null) btnGrabarPlaca.setEnabled(true);
+                            if (btnReceso != null)      btnReceso.setEnabled(true);
+                            if (btnReanudar != null)    btnReanudar.setEnabled(true);
 
                             Toast.makeText(MainActivity2.this, "Conectando a " + dName + "...", Toast.LENGTH_SHORT).show();
 
@@ -524,19 +548,224 @@ public class MainActivity2 extends AppCompatActivity {
         }
     }//fin querypaired
 
-    public void programarHorarioEscolar()
+    // ====================================================================
+    //  HORARIO DE LA PLACA
+    //
+    //  El boton anterior grababa TRES franjas fijas escritas en el codigo -- las
+    //  de una instalacion concreta -- y ademas apagaba la alarma 4. En cualquier
+    //  otro colegio eso grababa un horario que no era el de esa chapa y borraba
+    //  la cuarta franja sin avisar, con la app confirmando "grabado con exito".
+    //
+    //  Ahora el horario lo pone el tecnico copiandolo de la placa que tiene
+    //  delante, y se le ensena lo que se va a grabar ANTES de tocar la baliza.
+    // ====================================================================
+
+    private void montarTarjetaHorarioPlaca()
     {
-        bHorarioEscolarFull = true;
+        int[] idSw  = { R.id.idSwF1,     R.id.idSwF2,     R.id.idSwF3,     R.id.idSwF4 };
+        int[] idIni = { R.id.idBtnF1Ini, R.id.idBtnF2Ini, R.id.idBtnF3Ini, R.id.idBtnF4Ini };
+        int[] idFin = { R.id.idBtnF1Fin, R.id.idBtnF2Fin, R.id.idBtnF3Fin, R.id.idBtnF4Fin };
+
+        for (int i = 0; i < 4; i++)
+        {
+            final int k = i;
+            swFranja[i]     = (androidx.appcompat.widget.SwitchCompat) findViewById(idSw[i]);
+            btnFranjaIni[i] = (Button) findViewById(idIni[i]);
+            btnFranjaFin[i] = (Button) findViewById(idFin[i]);
+
+            if (btnFranjaIni[i] != null)
+            {
+                btnFranjaIni[i].setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) { pedirHora(k, true); }
+                });
+            }
+            if (btnFranjaFin[i] != null)
+            {
+                btnFranjaFin[i].setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) { pedirHora(k, false); }
+                });
+            }
+        }
+
+        spDiasPlaca = (Spinner) findViewById(R.id.idSpDiasPlaca);
+        if (spDiasPlaca != null)
+        {
+            ArrayAdapter<String> ad = new ArrayAdapter<String>(this,
+                    android.R.layout.simple_spinner_item,
+                    new String[] { "Lunes a viernes", "Todos los dias", "Sabado y domingo" });
+            ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spDiasPlaca.setAdapter(ad);
+        }
+
+        btnGrabarPlaca = (Button) findViewById(R.id.idBtnGrabarPlaca);
+        btnReceso      = (Button) findViewById(R.id.idBtnReceso);
+        btnReanudar    = (Button) findViewById(R.id.idBtnReanudar);
+
+        if (btnGrabarPlaca != null)
+        {
+            btnGrabarPlaca.setEnabled(false);
+            btnGrabarPlaca.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { confirmarYGrabar(false); }
+            });
+        }
+        if (btnReanudar != null)
+        {
+            btnReanudar.setEnabled(false);
+            btnReanudar.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { confirmarYGrabar(false); }
+            });
+        }
+        if (btnReceso != null)
+        {
+            btnReceso.setEnabled(false);
+            btnReceso.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { confirmarYGrabar(true); }
+            });
+        }
+
+        // Compatibilidad: el boton viejo ya no esta en el layout.
+        btnCargarHorarioEscolar = (Button) findViewById(R.id.idBtnGrabarPlaca);
+    }
+
+    /** Selector de hora con reloj grande, en vez de dos desplegables diminutos:
+     *  esto se usa en la calle, con sol y a veces subido a una escalera. */
+    private void pedirHora(final int franja, final boolean esInicio)
+    {
+        int h = esInicio ? hIni[franja] : hFin[franja];
+        int m = esInicio ? mIni[franja] : mFin[franja];
+
+        new android.app.TimePickerDialog(this,
+            new android.app.TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(android.widget.TimePicker view, int hh, int mm)
+                {
+                    if (esInicio) { hIni[franja] = hh; mIni[franja] = mm; }
+                    else          { hFin[franja] = hh; mFin[franja] = mm; }
+                    refrescarBotonesFranja();
+                }
+            }, h, m, true).show();
+    }
+
+    private void refrescarBotonesFranja()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (btnFranjaIni[i] != null)
+                btnFranjaIni[i].setText(String.format(Locale.US, "%02d:%02d", hIni[i], mIni[i]));
+            if (btnFranjaFin[i] != null)
+                btnFranjaFin[i].setText(String.format(Locale.US, "%02d:%02d", hFin[i], mFin[i]));
+        }
+    }
+
+    private int codigoDiasSeleccionado()
+    {
+        int pos = (spDiasPlaca != null) ? spDiasPlaca.getSelectedItemPosition() : 0;
+        if (pos < 0 || pos >= COD_DIAS.length) pos = 0;
+        return COD_DIAS[pos];
+    }
+
+    private String nombreDiasSeleccionado()
+    {
+        int cod = codigoDiasSeleccionado();
+        if (cod == 8)  return "todos los dias";
+        if (cod == 10) return "sabado y domingo";
+        return "lunes a viernes";
+    }
+
+    /** Arma la lista de tramas. receso=true apaga TODAS las franjas. */
+    private java.util.ArrayList<String> armarTramas(boolean receso)
+    {
+        java.util.ArrayList<String> t = new java.util.ArrayList<String>();
+
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdfH = new SimpleDateFormat("HHmm", Locale.US);
+        SimpleDateFormat sdfD = new SimpleDateFormat("ddMMyy-u", Locale.US);
+        t.add("\u00bfR" + sdfH.format(cal.getTime()) + ",C" + sdfD.format(cal.getTime()) + "?\r\n");
+
+        int dias = codigoDiasSeleccionado();
+        for (int i = 0; i < 4; i++)
+        {
+            boolean activa = !receso && swFranja[i] != null && swFranja[i].isChecked();
+            if (activa)
+            {
+                t.add(String.format(Locale.US, "\u00bfA%d,E1,I%02d%02d,F%02d%02d,D%d,?\r\n",
+                        i + 1, hIni[i], mIni[i], hFin[i], mFin[i], dias));
+            }
+            else
+            {
+                t.add(String.format(Locale.US, "\u00bfA%d,E0,?\r\n", i + 1));
+            }
+        }
+
+        // La alarma 5 queda para el test de foco de 2 minutos. Solo se toca en
+        // receso, donde la senal tiene que quedar muerta del todo.
+        if (receso) t.add("\u00bfA5,E0,?\r\n");
+
+        return t;
+    }
+
+    /** Ensena EXACTAMENTE lo que se va a grabar antes de tocar la baliza.
+     *  Esto gobierna una senal escolar: no se escribe sin que alguien lo lea. */
+    private void confirmarYGrabar(final boolean receso)
+    {
+        if (device == null)
+        {
+            Toast.makeText(this, "Seleccione primero el dispositivo Bluetooth", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        if (receso)
+        {
+            sb.append("La senal quedara APAGADA las 24 horas.\n\n");
+            sb.append("Ninguna franja destellara hasta que pulse REANUDAR CLASES.\n\n");
+            sb.append("Usar solo en vacaciones o receso escolar.");
+        }
+        else
+        {
+            int n = 0;
+            sb.append("Se grabara en la baliza:\n\n");
+            for (int i = 0; i < 4; i++)
+            {
+                if (swFranja[i] != null && swFranja[i].isChecked())
+                {
+                    n++;
+                    sb.append(String.format(Locale.US, "  Franja %d:  %02d:%02d  a  %02d:%02d\n",
+                            i + 1, hIni[i], mIni[i], hFin[i], mFin[i]));
+                }
+            }
+            if (n == 0)
+            {
+                sb.append("  (ninguna franja activa)\n");
+                sb.append("\nLa senal no destellara nunca.\n");
+            }
+            sb.append("\nDias: ").append(nombreDiasSeleccionado()).append("\n");
+            sb.append("\nCompruebe que coincide EXACTAMENTE con la placa\n");
+            sb.append("atornillada a esta senal antes de continuar.");
+        }
+
+        new AlertDialog.Builder(this)
+            .setTitle(receso ? "Apagar por receso escolar" : "Confirmar horario")
+            .setMessage(sb.toString())
+            .setNegativeButton("Cancelar", null)
+            .setPositiveButton(receso ? "Apagar" : "Grabar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface d, int w) { enviarSecuencia(armarTramas(receso), receso); }
+            })
+            .show();
+    }
+
+    private void enviarSecuencia(java.util.ArrayList<String> tramas, boolean receso)
+    {
+        tramasPendientes = tramas;
+        bEnviarSecuencia = true;
         bReadConf = true;
         sFrameHourCal = "";
         sFrameConf = "";
 
         mkmsg("\n========================================\n"
-            + "🏫 GRABANDO HORARIO ESCOLAR OFICIAL\n"
-            + "• Alarma 1: 06:00 -> 09:00 (Lun-Vie)\n"
-            + "• Alarma 2: 11:30 -> 13:30 (Lun-Vie)\n"
-            + "• Alarma 3: 15:00 -> 16:30 (Lun-Vie)\n"
-            + "• Alarma 4: OFF  |  Alarma 5: OFF\n"
+            + (receso ? "RECESO ESCOLAR: apagando la senal\n"
+                      : "GRABANDO EL HORARIO DE LA PLACA\n")
             + "========================================\n");
 
         startClient();
@@ -666,54 +895,28 @@ public class MainActivity2 extends AppCompatActivity {
                     inStream.read(buffer);
                 }
 
-                if (bHorarioEscolarFull)
+                if (bEnviarSecuencia)
                 {
-                    bHorarioEscolarFull = false;
-                    Calendar cal = Calendar.getInstance();
-                    SimpleDateFormat sdfH = new SimpleDateFormat("HHmm", Locale.US);
-                    SimpleDateFormat sdfD = new SimpleDateFormat("ddMMyy-u", Locale.US);
-                    String sHour = sdfH.format(cal.getTime());
-                    String sDate = sdfD.format(cal.getTime());
+                    bEnviarSecuencia = false;
+                    int total = tramasPendientes.size();
 
-                    // 1. Sincronizar Reloj
-                    mkmsg("1/6 Sincronizando RTC con hora oficial...\n");
-                    outStream.write(("¿R" + sHour + ",C" + sDate + "?\r\n").getBytes("ISO-8859-1"));
-                    outStream.flush();
-                    try { Thread.sleep(450); } catch (Exception ignored) {}
+                    for (int i = 0; i < total; i++)
+                    {
+                        String trama = tramasPendientes.get(i);
+                        mkmsg((i + 1) + "/" + total + " " + trama.trim() + "\n");
+                        outStream.write(trama.getBytes("ISO-8859-1"));
+                        outStream.flush();
 
-                    // 2. Alarma 1 (06:00 a 09:00 Lun-Vie)
-                    mkmsg("2/6 Grabando Alarma 1 (06:00 - 09:00 Lun-Vie)...\n");
-                    outStream.write("¿A1,E1,I0600,F0900,D9,?\r\n".getBytes("ISO-8859-1"));
-                    outStream.flush();
-                    try { Thread.sleep(450); } catch (Exception ignored) {}
+                        // OBLIGATORIO. Ver RETARDO_TRAMA_MS: sin esta pausa el
+                        // PIC junta dos tramas en un buffer y pierde la segunda
+                        // sin dar error.
+                        try { Thread.sleep(RETARDO_TRAMA_MS); } catch (Exception ignored) {}
+                    }
 
-                    // 3. Alarma 2 (11:30 a 13:30 Lun-Vie)
-                    mkmsg("3/6 Grabando Alarma 2 (11:30 - 13:30 Lun-Vie)...\n");
-                    outStream.write("¿A2,E1,I1130,F1330,D9,?\r\n".getBytes("ISO-8859-1"));
-                    outStream.flush();
-                    try { Thread.sleep(450); } catch (Exception ignored) {}
+                    mkmsg("\nEnviado. Verificando contra la baliza con \u00bfL?...\n\n");
+                    try { Thread.sleep(RETARDO_TRAMA_MS); } catch (Exception ignored) {}
 
-                    // 4. Alarma 3 (15:00 a 16:30 Lun-Vie)
-                    mkmsg("4/6 Grabando Alarma 3 (15:00 - 16:30 Lun-Vie)...\n");
-                    outStream.write("¿A3,E1,I1500,F1630,D9,?\r\n".getBytes("ISO-8859-1"));
-                    outStream.flush();
-                    try { Thread.sleep(450); } catch (Exception ignored) {}
-
-                    // 5. Alarma 4 (OFF)
-                    mkmsg("5/6 Desactivando Alarmas 4 y 5 (OFF)...\n");
-                    outStream.write("¿A4,E0,?\r\n".getBytes("ISO-8859-1"));
-                    outStream.flush();
-                    try { Thread.sleep(450); } catch (Exception ignored) {}
-
-                    // 6. Alarma 5 (OFF)
-                    outStream.write("¿A5,E0,?\r\n".getBytes("ISO-8859-1"));
-                    outStream.flush();
-                    try { Thread.sleep(450); } catch (Exception ignored) {}
-
-                    mkmsg("✓ ¡Todas las franjas escolares enviadas!\nVerificando EEPROM con comando ¿L?...\n\n");
-                    try { Thread.sleep(400); } catch (Exception ignored) {}
-
-                    outStream.write("¿L?\r\n".getBytes("ISO-8859-1"));
+                    outStream.write("\u00bfL?\r\n".getBytes("ISO-8859-1"));
                     outStream.flush();
                 }
                 else if (bReadConf)

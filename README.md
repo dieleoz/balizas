@@ -60,7 +60,7 @@ certificado. De ahi salen otros dos binarios:
 | | Fichero | Tamano | SHA-256 (12) |
 |---|---|---|---|
 | Firmware | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex` | 49.133 B | `889c0188914b` |
-| App | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk` | 3.869.517 B | `6ecc13944c69` |
+| App | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk` | 6.080.041 B | `bb2aedd9d130` |
 
 **Son la base de la proxima version, no una version.** Tres cosas tienen que pasar antes de
 que puedan llamarse v3.4 y salir a campo:
@@ -91,7 +91,7 @@ Segun `Release_v3.3/LEEME_RELEASE_v3.3.md`, la v3.3 lleva:
 
 **App** (`Baliza_v3.3.apk`, 3.859.625 B)
 
-6. **1-Toque** que graba tres franjas FIJAS (06:00-09:00, 11:30-13:30, 15:00-16:30 L-V) — las de un colegio concreto. ⚠️ Ver ROADMAP: no sirve para un colegio con otro horario ni para uno de cuatro franjas.
+6. **1-Toque** que graba tres franjas FIJAS (06:00-09:00, 11:30-13:30, 15:00-16:30 L-V) — las de un colegio concreto. Sustituido en la candidata por la tarjeta «Horario de esta placa».
 7. **Test de luz de 2 minutos** a 1.0 Hz con apagado rapido.
 8. **Tema oscuro de alto contraste** para visibilidad diurna bajo sol.
 
@@ -141,6 +141,7 @@ pin**. Verde aquí no es entregable y no autoriza a grabar. En concreto no dice 
 
 * 📱 **Instalador de campo (v3.3, el aprobado):** [`1 Firmware/Baliza_v3.3.apk`](1%20Firmware/Baliza_v3.3.apk)
 * 🔧 **Compilacion de trabajo (NO aprobada):** [`7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`](7%20sw%20apk/Baliza_IT_VIAL_30_v3.4.apk)
+* 🔧 **Compilar la app (cadena, dependencias, trampas):** [`Manuales/COMPILAR_APP.md`](Manuales/COMPILAR_APP.md)
 * 📖 **Manual de Usuario de la App:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md)
 * ⚙️ **Manual Técnico del Firmware C99:** [`Manuales/MANUAL_TECNICO_FIRMWARE_C99.md`](Manuales/MANUAL_TECNICO_FIRMWARE_C99.md)
 * 📜 **Certificado Oficial de Calibración y Pruebas:** [`Manuales/CERTIFICADO_FIRMWARE_v3.4.md`](Manuales/CERTIFICADO_FIRMWARE_v3.4.md)
