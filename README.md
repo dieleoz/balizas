@@ -29,12 +29,13 @@ flowchart LR
 | **Compilador Firmware** | **MPLAB XC8 v2.36** en **C99** (`--std=c99`) |
 | **Memoria Flash PIC** | **17.407 Bytes (53.1%)** (Libres: 15.361 B / 46.9%) |
 | **Memoria RAM PIC** | **568 Bytes (27.7%)** (Libres: 1.480 B / 72.3%) |
-| **Binario Universal PIC** | [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex) |
+| **Binario Universal PIC** (nuevo, aun **sin desplegar**) | [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex) |
+| **Binario que corre HOY en la calle** | [`1 Firmware/Doc mplabx/18f2550_baliza__V1.X.production.hex`](1%20Firmware/Doc%20mplabx/18f2550_baliza__V1.X.production.hex) |
 | **Mapa de Memoria Simbólico** | [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.map`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.map) |
 | **Hash SHA-256 (.hex)** | `048856FC78E858A97FB831B34EE6032CE0CC4594D101F9E40A6EFFD4E68EC419` |
 | **Instalador Android (APK)** | [`7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`](7%20sw%20apk/Baliza_IT_VIAL_30_v3.4.apk) |
 | **Hash SHA-256 (.apk)** | `55E208611E66EF9D0D4383B3346CE8C284677B975CE4745D1D9D3DE8890A3E0C` |
-| **Cobertura de Pruebas** | **58 de 58 Comprobaciones (100% PASS)** + **100.000 Ciclos Estrés** + **6 Meses Simulación** |
+| **Cobertura de Pruebas** | **58 de 58 (PASS)** — medido el **22-ago-2026** con `python "4 Simulador/correr.py"` |
 
 ---
 
@@ -67,6 +68,23 @@ python "4 Simulador/test_suite_e2e.py"
 python "4 Simulador/servidor_interactivo.py"
 # Abrir en el navegador: http://localhost:8080
 ```
+
+---
+
+### Qué NO cubren esas 58 comprobaciones
+
+El arnés compila los `.c` reales del firmware y los ejercita en el PC, pero **no toca un solo
+pin**. Verde aquí no es entregable y no autoriza a grabar. En concreto no dice nada de:
+
+* **El ADC.** Hay un defecto vivo por aquí: la temperatura se lee de **AN3**, y `main.c` deja
+  `PCFG = 0b1011`, que solo habilita AN0–AN2. La lectura de temperatura es basura. **La
+  telemetría de batería va por `AN1` y no está afectada** — esa se lee bien. Detalle y
+  arreglo propuesto en [`ROADMAP.md`](ROADMAP.md), pendiente 1.
+* **El I²C y el DS1307.** El reloj simulado siempre responde. Una pila `CR2032` agotada o unas
+  pull-ups mal no existen en el simulador.
+* **Que el módulo Bluetooth empareje.** Al arnés se le meten las tramas directamente.
+* **Que el horario grabado coincida con la chapa atornillada a esa señal.** Esto es lo que más
+  importa y **solo lo puede comprobar una persona con la señal delante**.
 
 ---
 

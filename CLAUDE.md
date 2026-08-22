@@ -27,17 +27,18 @@ día no rige.
 | Área | Carpeta | Estado |
 |---|---|---|
 | Firmware PIC | `1 Firmware/Doc mplabx/18f2550_baliza_ V1.X/` | Es el que va a producción. **Sin `nbproject/`** — ver regla 4 |
-| Binario instalado | `1 Firmware/Doc mplabx/*.production.hex` | Lo que corre hoy en la calle. XC8 **v2.46**, Free, `Og1` |
+| Binario instalado | `1 Firmware/Doc mplabx/*.production.hex` | Lo que corre hoy en la calle (oct-2025, 61.008 B) |
+| Binario nuevo | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex` | Compilado ago-2026, **aún sin desplegar**. XC8 **v2.36** — leído de su propio `.map` |
 | App Android | `1 Firmware/Doc Aplicativo Movil/BalizaV10/` | Gradle + Java nativo. **No es App Inventor** |
 | Tarjeta | `2 Hardware tarjeta/` | KiCad y gerbers. **Fabricada y montada** — ver regla 1 |
-| Simulador | `4 Simulador/` | 33 comprobaciones, corre en un segundo |
+| Simulador | `4 Simulador/` | 58 comprobaciones, corre en un segundo |
 | Bluetooth | `5 HW bluetooth/` | Solo el datasheet del **SoC**, no el del módulo |
 
 Punto de entrada: **[README.md](README.md)**. Qué falta y en qué orden:
 **[ROADMAP.md](ROADMAP.md)**. En qué quedó la última sesión y las cifras del día:
 **[ESTADO.md](ESTADO.md)**.
 
-**El Bluetooth ya no bloquea** (ROADMAP 0.1): el **SIG0109A funciona** — verificado el
+**El Bluetooth ya no bloquea**: el **SIG0109A funciona** — verificado el
 21-ago-2026 con un `¿L?` que devolvió el volcado legible. El *«no lo reconoce»* era buscarlo por
 el nombre equivocado, no una avería. Lo que queda vivo de ahí es un riesgo, no un fallo: el
 `RXD` de 3,3 V del módulo está atacado con **5 V sin adaptación**, y eso mata módulos a las
@@ -69,13 +70,17 @@ Hay señales montadas en la calle. Cuando el firmware y la placa no coincidan, *
 firmware**: no se rediseña el hardware, no se corta una pista, no se añade un componente. Lo
 que hay es lo que hay, y está descrito en [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md).
 
-Hoy hay **dos desajustes medidos**:
+Auditado el **22-ago-2026**: de los dos desajustes que hubo, **queda uno vivo**.
 
-- **El buzzer.** La placa lo tiene en `RC1`; `Buzzer.h:24` ataca `RC0`, que en la tarjeta es la
-  línea del pulsador. En `Buzzer.c:162` está la línea correcta **comentada**: alguien lo supo y
-  se deshizo. No lo vuelvas a deshacer.
-- **La temperatura.** El sensor entra por `AN3`, y `main.c` pone `PCFG = 0b1011`, que solo
-  habilita AN0–AN2. Y la fórmula usa factor 10 donde el sensor pide 100.
+- **La temperatura — VIVO.** El sensor entra por `AN3` (`Aplicacion.c:236` llama a
+  `ADC_read(3)`), y `main.c:175` pone `PCFG = 0b1011`, que solo habilita AN0–AN2. AN3 queda
+  digital y la conversión devuelve basura. **La fórmula ya se arregló** y hoy es correcta
+  (`(ADC * 5000) / 1024`, décimas de grado para un LM35); lo que falta es habilitar el canal.
+  El simulador **no lo puede ver**: devuelve el valor que se le pida y nunca mira `PCFG`. Por
+  eso sobrevivió a 58 comprobaciones en verde. Ver ROADMAP, pendiente 1.
+- **El buzzer — YA ARREGLADO (verificado 22-ago-2026).** `Buzzer.h:24` ataca `LATC1` y
+  `pinConfBuzzer()` pone `TRISC1 = 0` / `TRISC0 = 1`, que es lo que pide la placa. Coincide.
+  **No lo "arregles" otra vez hacia `RC0`**: esa era la versión rota.
 
 La medida de **tensión sí es correcta** —el divisor da factor 6 y el firmware aplica 6— y no se
 toca.
@@ -174,7 +179,7 @@ así que quien busque `strAlarmas` no lo encuentra. Y `strAlarm` (sin `as`) es *
 estado de la tarea, no una alarma.
 
 Códigos de días: **8** diario · **9** lunes a viernes · **10** fin de semana. Los valores 1..7
-serían días concretos y **no están implementados** — ver ROADMAP 2.2.
+serían días concretos y **no están implementados** — ver ROADMAP, pendiente 4.
 
 ## Convenciones
 
@@ -193,13 +198,19 @@ serían días concretos y **no están implementados** — ver ROADMAP 2.2.
 
 ## Qué NO se versiona
 
-Instaladores (`6 Sw pic/` son 1,3 GB), APK, artefactos de `build/` y `dist/`, `obj/` del
-simulador, y el estado local de los IDE. El criterio y el porqué de cada bloque están escritos
-en [`.gitignore`](.gitignore).
+Instaladores (`6 Sw pic/` son 1,3 GB), el JDK y el Android SDK de `7 sw apk/` (casi 750 MB),
+artefactos de `build/` y `dist/`, `obj/` del simulador, y el estado local de los IDE. El
+criterio y el porqué de cada bloque están escritos en [`.gitignore`](.gitignore).
 
 **Sí** se versionan: los `.md`, el código, los ficheros de KiCad y los gerbers sueltos, las
-fotos, y el `.production.hex` — que son 60 KB de texto y la única forma de saber, dentro de seis
-meses, qué estaba corriendo en la calle.
+fotos, los dos `.hex`, el `.map` del binario que se entrega, y **el APK de campo vigente**
+(`7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`).
+
+> **El corolario, que ya costó una entrega rota:** si el README o el ROADMAP **enlazan** un
+> fichero, ese fichero **tiene que estar versionado**. El 22-ago-2026 los dos enlazaban el APK
+> y el `.map` estando ambos en `.gitignore`: para cualquiera que clonara el repositorio, el
+> entregable no existía. Añadir el enlace y añadir la excepción en `.gitignore` van en el
+> mismo commit.
 
 ## Comandos
 

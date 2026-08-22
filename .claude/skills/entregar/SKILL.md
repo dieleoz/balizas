@@ -70,9 +70,14 @@ Si el documento reporta un resultado de verificacion, el orden es: **que hace ho
 instalado**, si paso prueba fisica o no —con esas palabras, no con una cifra que lo insinue—,
 que esta pendiente o roto, y solo despues las novedades.
 
-Abrir con «24 de 33 en verde» hace que quien lo reciba no llegue a la linea que dice que los 9
-rojos incluyen que la luz no parpadea como se definio y que una trama malformada tumba el
-equipo.
+Abrir con «58 de 58 en verde» hace que quien lo reciba no llegue a la linea que dice que el
+arnes **no mide el ADC**, y que por eso las 58 pasan con la lectura de temperatura devolviendo
+basura (AN3 sin habilitar en `PCFG`). La cifra no miente; lo que engana es ponerla primero.
+
+Y el caso limite, que es el que se cuela: **una cifra perfecta engana mas que una mala.** Un
+«24 de 33» invita a preguntar por los 9. Un «58 de 58» cierra la conversacion. Cuando el
+resultado sea redondo, la frase que lo acompana no es de celebracion sino de alcance: **que
+quedo sin medir**.
 
 ## 6. Lo que no puede faltar en un manual de este proyecto
 
