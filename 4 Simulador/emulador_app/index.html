@@ -555,7 +555,15 @@ Presione DISPOSITIVO para conectar.</div>
         body: JSON.stringify({ trama: trama })
       });
       const data = await res.json();
-      return data.respuesta || '';
+      let raw = data.respuesta || '';
+      // Limpiar etiquetas internas de depuración del simulador
+      raw = raw.replace(/\[TX_START\]/g, '')
+               .replace(/\[TX_END\]/g, '')
+               .replace(/\[SIM_OK\]/g, '')
+               .replace(/\[SIM_LISTO\]/g, '')
+               .replace(/\[LAMP\]:\d+/g, '')
+               .trim();
+      return raw;
     } catch (e) {
       console.warn('Backend local no disponible, simulando...', e);
       return 'OK';
