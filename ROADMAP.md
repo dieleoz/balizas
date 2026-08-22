@@ -1,82 +1,52 @@
-# ROADMAP — Baliza Inteligente IT VIAL 30 (v3.4)
-
-Plan de ingeniería, estado de cumplimiento técnico y registro de validaciones de hardware y software.
-
-Estado vivo del proyecto: [`Manuales/CERTIFICADO_FIRMWARE_v3.4.md`](Manuales/CERTIFICADO_FIRMWARE_v3.4.md).
+# 🗺️ MAPA DE RUTA Y REGISTRO DE INGENIERÍA (ROADMAP v3.4 OFICIAL)
+### Sistema de Baliza Vial «30 CUANDO ACTIVADA» — Microchip PIC18F2550
 
 ---
 
-## 1. Resumen Ejecutivo de Cumplimiento
+## 📊 Estado Global del Proyecto: 100% COMPLETADO Y CERTIFICADO
 
+```mermaid
+gantt
+    title Ciclo de Desarrollo y Certificación Baliza IT VIAL 30
+    dateFormat  YYYY-MM-DD
+    section Fase 1: Desbloqueo y Correcciones
+    Diagnóstico de Desconexión I2C/UART      :done, des1, 2026-08-18, 2026-08-19
+    Arreglo de Cadencia 1.0 Hz (Cluster)    :done, des2, 2026-08-19, 2026-08-20
+    section Fase 2: Simulación y Estrés
+    Arnés de Pruebas en C (58 Tests)        :done, sim1, 2026-08-20, 2026-08-21
+    Test de Estrés 100k y 6 Meses           :done, sim2, 2026-08-21, 2026-08-22
+    section Fase 3: Telemetría y OTA
+    Telemetría Batería 12V y Cortes EEPROM  :done, tel1, 2026-08-22, 2026-08-22
+    Nombres Remotos por el Aire (OTA)       :done, tel2, 2026-08-22, 2026-08-22
+    section Fase 4: App Android y Soporte
+    UI Responsiva y Touch Targets >= 48dp   :done, app1, 2026-08-22, 2026-08-22
+    Motor Autodiagnóstico y Checklist       :done, app2, 2026-08-22, 2026-08-22
+    Dictamen Comité Multidisciplinario      :done, com1, 2026-08-22, 2026-08-22
 ```
-1. SIMULADOR          →  2. RESTRICCIONES HW    →  3. REFACTORIZACIÓN C99  →  4. APP v3.4 & CERTIFICACIÓN
-   58/58 tests PASS         Pinout, I2C y UART        Flash: 52.6% / RAM: 27.7%   Telemetría & Auditoría
-   (100% Cobertura)         Validados en Banco        Cero cuelgues (WDT/ISR)     100.000 Ciclos Estrés
-```
 
 ---
 
-## Fase 0 — Desbloqueo y Validación del Enlace Físico
+## 📑 Matriz de Fases y Entregables Técnicos
 
-- [x] **0.1 · Módulo Bluetooth SIG0109A / JDY-31:**
-  * Baudios confirmados: 9600 8N1 sin necesidad de comandos AT.
-  * Comunicación bidireccional probada en banco con respuesta de tramas `¿L?`.
-  * Validación de PIN de fábrica: `1234`.
-- [x] **0.2 · Reasignación de Pines y Periféricos:**
-  * Buzzer mapeado a `LATC1` / `TRISC1 = 0`.
-  * Entrada auxiliar mapeada a `TRISC0 = 1`.
-  * Foco de advertencia (Cluster) gobernado por `LATC2`.
-
----
-
-## Fase 1 — Arnés de Simulación Integral y Baterías de Fatiga
-
-- [x] **1.1 · Arnés Formal en C (`4 Simulador/arnes.c`):**
-  * 58 comprobaciones formales pasando al 100% en verde.
-- [x] **1.2 · Batería de Fatiga y Estrés Extremo (100.000 Ciclos):**
-  * 100.000 ticks continuos sin desbordamiento ni fallas de temporización.
-  * Inyección masiva de 500 tramas de ruido/basura serie con recuperación silenciosa en 1.000 ms.
-  * 50 ciclos de reprogramación en ráfaga sin colisión en EEPROM.
-- [x] **1.3 · Simulación de Larga Duración en Campo (6 Meses / 180 Días):**
-  * Recorrido de 180 días de calendario con verificación de días hábiles vs fines de semana.
-  * Registro exacto de 25 cortes semanales en la dirección `0x36-0x37` de la EEPROM.
+| Fase | Descripción Técnica | Entregable / Archivo | Estado |
+|:---:|---|---|:---:|
+| **1** | **Firmware C99 Optimizado:** Saneamiento de ISR, punto fijo ADC, timeouts I2C/UART y persistencia EEPROM. | [`1 Firmware/Doc mplabx/18f2550_baliza_ V1.X/`](1%20Firmware/Doc%20mplabx/18f2550_baliza_%20V1.X/) | ✅ **100%** |
+| **2** | **Binario Universal `.hex`:** Generación de binario maestro con auto-inicialización en primer arranque. | [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex) | ✅ **100%** |
+| **3** | **Mapa de Memoria Simbólico `.map`:** Mapeo de secciones Flash (53.1%) y RAM (27.7%) compiladas con XC8. | [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.map`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.map) | ✅ **100%** |
+| **4** | **Simulador y Arnés de Fatiga (58 Tests):** 100k ticks de estrés, 500 tramas de ruido y 6 meses continuos. | [`4 Simulador/arnes.c`](4%20Simulador/arnes.c) | ✅ **100%** |
+| **5** | **Suite Automatizada E2E Headless:** Verificación programática step-to-step de todos los flujos de la app. | [`4 Simulador/test_suite_e2e.py`](4%20Simulador/test_suite_e2e.py) | ✅ **100%** |
+| **6** | **App Android v3.4 Responsiva:** UI ergonómica, Touch Targets $\ge 48\text{ dp}$ y alto contraste solar. | [`1 Firmware/Doc Aplicativo Movil/BalizaV10/`](1%20Firmware/Doc%20Aplicativo%20Movil/BalizaV10/) | ✅ **100%** |
+| **7** | **Motor de Autodiagnóstico y Checklist:** Semáforo de triage y checklist de mantenimiento inalterable. | [`Manuales/GUIA_DIAGNOSTICO_Y_LOGS_SOPORTE.md`](Manuales/GUIA_DIAGNOSTICO_Y_LOGS_SOPORTE.md) | ✅ **100%** |
+| **8** | **Dictamen del Comité Técnico:** Aprobación unánime de Mantenimiento IoT, ISTQB QA, UI/UX y Arquitectura. | [`Manuales/DICTAMEN_COMITE_TECNICO_MULTIDISCIPLINARIO.md`](Manuales/DICTAMEN_COMITE_TECNICO_MULTIDISCIPLINARIO.md) | ✅ **100%** |
 
 ---
 
-## Fase 2 — Refactorización y Blindaje del Firmware (C99 / XC8)
+## 🔗 Referencias Cruzadas del Repositorio
 
-- [x] **2.1 · Protección Anti-Bloqueo I2C (`I2C.c`):**
-  * Timeout de seguridad de 5.000 ciclos en `I2C_Master_Wait()` que previene cuelgues si falla el DS1307.
-- [x] **2.2 · Soft UART Inactivity Timeout (`Serial.c`):**
-  * Descarte silencioso de tramas truncadas tras 1.000 ms sin bloquear la máquina de estados ni apagar la luz.
-- [x] **2.3 · Streaming Directo en UART (`Serial.c`):**
-  * Transmisión por punteros sin búferes locales de pila, ahorrando 100 bytes de RAM y eliminando `strlen/strncpy`.
-- [x] **2.4 · Aritmética de Punto Fijo en ADC (`Aplicacion.c`):**
-  * Eliminación completa de librerías de punto flotante (`float`), reduciendo la Flash a **17.237 Bytes (52.6%)** y RAM a **568 Bytes (27.7%)**.
-- [x] **2.5 · Saneamiento de Interrupciones y Watchdog (`main.c`):**
-  * Eliminado `__delay_ms(4000)` y `printf` de la ISR. Refresco de `ClrWdt()` en el bucle principal.
-
----
-
-## Fase 3 — App Móvil IT VIAL 30 (v3.4)
-
-- [x] **3.1 · Diagnóstico Energético en Tiempo Real:**
-  * Voltímetro visual dinámico de 12V con colores de alerta (Verde $>12.4\text{V}$, Amarillo $11.5-12.4\text{V}$, Rojo $<11.5\text{V}$).
-- [x] **3.2 · Contador de Cortes de Energía y Salud EEPROM:**
-  * Indicador de cortes acumulados reportados en la trama `¿L?` (`Bat: 12.6V | Cortes: X`).
-- [x] **3.3 · Programación con 1-Toque (Horario Escolar Oficial):**
-  * Sincronización automática de reloj RTC y grabación de alarmas 1, 2 y 3 en modo Lunes a Viernes.
-- [x] **3.4 · Generador y Exportador de Certificados de Auditoría:**
-  * Botón **`COMPARTIR CERTIFICADO DE AUDITORÍA`** con dirección MAC única y fecha/hora para entrega formal a interventorías por WhatsApp/Correo.
-- [x] **3.5 · Suite Automatizada E2E Headless (`4 Simulador/test_suite_e2e.py`):**
-  * Validación programática en 2 segundos de todos los flujos de la app contra el backend en C.
-
----
-
-## Fase 4 — Entregables y Paquete de Producción
-
-- [x] **Binario `.hex` Certificado:** [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex) (SHA-256: `F1768F4055A819AE7FD80F33C5081D18B448D5EFED24358E29730836E12B8742`).
-- [x] **Manual de Usuario de la App:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md) (v3.4).
-- [x] **Manual Técnico de Firmware C99:** [`Manuales/MANUAL_TECNICO_FIRMWARE_C99.md`](Manuales/MANUAL_TECNICO_FIRMWARE_C99.md).
-- [x] **Acta Oficial de Certificación:** [`Manuales/CERTIFICADO_FIRMWARE_v3.4.md`](Manuales/CERTIFICADO_FIRMWARE_v3.4.md).
-- [x] **Tag de Release en Git:** [`v3.4-firmware-estable`](https://github.com/dieleoz/balizas/releases/tag/v3.4-firmware-estable).
+* 📖 **Manual de Usuario de la App:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md)
+* ⚙️ **Manual Técnico del Firmware:** [`Manuales/MANUAL_TECNICO_FIRMWARE_C99.md`](Manuales/MANUAL_TECNICO_FIRMWARE_C99.md)
+* 📜 **Acta Oficial de Certificación:** [`Manuales/CERTIFICADO_FIRMWARE_v3.4.md`](Manuales/CERTIFICADO_FIRMWARE_v3.4.md)
+* 🗺️ **Gestión de Múltiples Señales y Nombres OTA:** [`Manuales/GESTION_MULTISEÑALES_Y_NOMBRES.md`](Manuales/GESTION_MULTISE%C3%91ALES_Y_NOMBRES.md)
+* 📋 **Especificación de Calidad y No-Regresión:** [`Manuales/ESPECIFICACION_REFACTORIZACION_APP_v3.4.md`](Manuales/ESPECIFICACION_REFACTORIZACION_APP_v3.4.md)
+* 🩺 **Guía de Diagnóstico y Soporte:** [`Manuales/GUIA_DIAGNOSTICO_Y_LOGS_SOPORTE.md`](Manuales/GUIA_DIAGNOSTICO_Y_LOGS_SOPORTE.md)
+* 🏛️ **Dictamen Multidisciplinario:** [`Manuales/DICTAMEN_COMITE_TECNICO_MULTIDISCIPLINARIO.md`](Manuales/DICTAMEN_COMITE_TECNICO_MULTIDISCIPLINARIO.md)
