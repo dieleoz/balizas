@@ -471,16 +471,7 @@
         </div>
       </details>
 
-      <!-- 7. CONSOLA DE TERMINAL UART (AL FINAL, COLAPSABLE) -->
-      <details class="card" style="cursor:pointer;">
-        <summary style="font-size:11px; font-weight:800; color:#64748B; padding:2px 0;">
-          📟 Terminal de Datos Serie (Para Soporte Técnico)
-        </summary>
-        <div style="margin-top:8px; cursor:default;">
-          <div class="console-box" id="consoleBox">--- SISTEMA IT VIAL 30 v3.4 ---
-Presione DISPOSITIVO para conectar.</div>
-        </div>
-      </details>
+
 
     </div>
 
@@ -808,6 +799,11 @@ Presione DISPOSITIVO para conectar.</div>
       alert(rep);
     }
   }
+
+  function limpiarConsola() {
+    document.getElementById('consoleBox').textContent = '--- SISTEMA IT VIAL 30 v3.4 ---';
+  }
+
 </script>
 </body>
 </html>
