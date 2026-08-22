@@ -44,7 +44,7 @@ día no rige.
 | Candidata (mejoras de hoy) | `BALIZA_18F2550_V1_CORREGIDO.hex` + `Baliza_IT_VIAL_30_v3.4.apk` | 49.068 B / 6.066.074 B. **Sin funcional** — ver ROADMAP |
 | App Android | `1 Firmware/Doc Aplicativo Movil/BalizaV10/` | Gradle + Java nativo. **No es App Inventor** |
 | Tarjeta | `2 Hardware tarjeta/` | KiCad y gerbers. **Fabricada y montada** — ver regla 1 |
-| Simulador | `4 Simulador/` | 63 comprobaciones, corre en un segundo |
+| Simulador | `4 Simulador/` | 75 comprobaciones, corre en un segundo |
 | Bluetooth | `5 HW bluetooth/` | Solo el datasheet del **SoC**, no el del módulo |
 
 Punto de entrada: **[README.md](README.md)**. Qué falta y en qué orden:
@@ -112,19 +112,15 @@ Hay señales montadas en la calle. Cuando el firmware y la placa no coincidan, *
 firmware**: no se rediseña el hardware, no se corta una pista, no se añade un componente. Lo
 que hay es lo que hay, y está descrito en [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md).
 
-Auditado el **22-ago-2026**: de los dos desajustes que hubo, **queda uno vivo**.
+Auditado el **22-ago-2026**: los dos desajustes que había están resueltos o reclasificados.
 
-- **La temperatura — NO SE MIDE.** Medido el 22-ago-2026, y no es lo que decía este
-  documento: la baliza no lee mal la temperatura, **no la lee nunca**. El estado
-  `ST_READ_TEMP_AP` está escrito pero **ningún sitio transiciona a él**; `ap.uiCntTemp` se
-  asigna una vez en el arranque y no se incrementa ni se compara jamás, y `ap.uiTempDec` no lo
-  lee nadie. Es código muerto de punta a punta.
-  Debajo hay un segundo defecto, **latente**: `AN3` no está habilitado como analógico por el
-  `PCFG` de `ADC_init()`. Hoy no hace daño porque esa lectura no se ejecuta; morderá el día
-  que alguien implemente la transición sin arreglar el `PCFG` antes.
-  ⚠️ **Y el valor de arreglo que propone `Manuales/HARDWARE.md` (`0b1010`) está en duda**: según
-  la tabla del PIC18F2550 daría AN0–AN2 y dejaría AN3 fuera igual. Confirmar contra el
-  datasheet antes de tocarlo. Ver ROADMAP y `Adc.c`.
+- **La temperatura NO ES UN DEFECTO: es una función que nadie ha pedido.** Medido el
+  22-ago-2026. La baliza no mide mal la temperatura — **no la mide**: `ST_READ_TEMP_AP` es
+  código muerto, nadie transiciona a él, y **la app no muestra temperatura en ninguna
+  pantalla**. Ningún usuario ve un número equivocado.
+  No lo «arregles» por tu cuenta. Si algún día se pide, antes hay que habilitar `AN3` en el
+  `PCFG` — y **el valor que propone `Manuales/HARDWARE.md` (`0b1010`) está en duda**, porque
+  según la tabla del PIC18F2550 dejaría AN3 fuera igual. Ver ROADMAP, «Mejoras posibles».
 - **El buzzer — YA ARREGLADO (verificado 22-ago-2026).** `Buzzer.h:24` ataca `LATC1` y
   `pinConfBuzzer()` pone `TRISC1 = 0` / `TRISC0 = 1`, que es lo que pide la placa. Coincide.
   **No lo "arregles" otra vez hacia `RC0`**: esa era la versión rota.

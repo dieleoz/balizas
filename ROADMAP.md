@@ -89,36 +89,23 @@ horario programado coincide con la chapa atornillada. El simulador no puede sust
 
 ## Defectos abiertos
 
-### 5. La temperatura no se mide — y son dos defectos, no uno
+### 5. Dos tramas pegadas: la segunda se pierde — el único rojo del arnés
 
-Medido el 22-ago-2026 con el bloque `I` del arnés, que **no se podía escribir hasta ese día**:
-`ADC_init()` vivía en `main.c`, el único `.c` que el arnés no compila, así que el `PCFG` era
-invisible para el simulador. Se extrajo a `Adc.c` — **el binario resultante es byte a byte
-idéntico**, el refactor no cambió una sola instrucción.
+Es el **único rojo vivo** (bloque `K`). Si dos tramas llegan sin que el firmware alcance a
+procesar la primera, **la segunda no se atiende**: las letras de la primera siguen en el
+buffer de análisis y el despachador vuelve a encontrarlas.
 
-**4a. La lectura de temperatura es código muerto.** El estado `ST_READ_TEMP_AP` está escrito,
-pero **ningún sitio transiciona a él**: `ap.uiCntTemp` se asigna una vez en el arranque y no se
-incrementa ni se compara jamás, y `ap.uiTempDec` no lo lee nadie. La baliza **no mide la
-temperatura** — no es que la mida mal. Nadie está viendo un número equivocado, porque no hay
-número.
+**Espaciadas funcionan** — el firmware limpia su buffer bien (`Serial.c:128`). El problema es
+solo el solapamiento.
 
-**4b. `AN3` no está habilitado como analógico** por el `PCFG` de `ADC_init()`, y `Aplicacion.c`
-lo leería con `ADC_read(3)`. Hoy es **latente**: no hace daño porque 4a impide que esa lectura
-se ejecute. Morderá el día que se implemente la transición sin arreglar esto antes — y ese es
-justo el orden en que alguien lo haría.
+**En la app de hoy no muerde**, y conviene saber por qué: todas las rutas de envío meten un
+`Thread.sleep(450)` entre tramas (13 pausas para 11 escrituras). Es decir, **la app lo está
+tapando con un retardo**, no es que el firmware esté bien.
 
-> ⚠️ **El valor de arreglo que circula está en duda.** `Manuales/HARDWARE.md` propone
-> `PCFG = 0b1010`. Según la tabla del PIC18F2455/2550/4455/4550 el número de canales analógicos
-> es `(13 - PCFG)`, con lo que `0b1010` daría AN0–AN2 y **dejaría AN3 fuera igual**; haría falta
-> `0b1001`. Las dos fuentes del repositorio se contradicen, y `HARDWARE.md` se apoya en el
-> comentario del propio código (`//Entradas Analogicas a0, a1, a2`), que es circular.
-> **No hay datasheet del PIC en el repositorio.** Aplicar `0b1010` a ciegas dejaría el defecto
-> vivo con todo el mundo creyendo que se arregló, que es peor que no tocarlo.
->
-> **Pregunta concreta a resolver antes de tocar nada:** en el PIC18F2550, ¿qué valor de
-> `ADCON1<PCFG>` habilita AN0 a AN3 como analógicas?
-
-Los dos rojos están en el arnés, fechados, y se quedan hasta que se resuelvan.
+Por qué sigue importando: cualquier cliente que no ponga ese retardo —otra app, un script de
+pruebas, un terminal serie, o una versión futura que «optimice» los tiempos— pierde comandos
+en silencio. Y ese es el modo de fallo peor de este proyecto: el comando se pierde, nadie da
+error, y la señal se queda con el horario viejo.
 
 ### 6. La versión de XC8 del binario de la v3.3 no está registrada
 
@@ -181,6 +168,34 @@ Solo existen **8** (diario), **9** (lunes a viernes) y **10** (fin de semana).
   **Arreglado despachando por el carácter pegado al delimitador `0xBF`**, que es donde la app
   pone siempre el comando. No cambia el protocolo y cuesta **26 bytes** de Flash (53,1% → 53,2%).
   El bloque `J` del arnés queda como guardia de no-regresión.
+
+## Mejoras posibles — nadie las ha pedido
+
+Esto **no son defectos** y no bloquean nada. Se anotan para que quien las encuentre en el
+código sepa que están así a propósito, y no las «arregle» por su cuenta.
+
+### La temperatura no está implementada
+
+Hay un sensor LM35 en la tarjeta, cableado a `AN3`, y en `Aplicacion.c` hay un estado
+`ST_READ_TEMP_AP` escrito con su fórmula correcta. Pero **nadie transiciona a ese estado**:
+`ap.uiCntTemp` se asigna una vez al arrancar y no se compara jamás, y `ap.uiTempDec` no lo
+lee nadie. **La app tampoco muestra temperatura en ninguna pantalla.**
+
+O sea: no es que la baliza mida mal la temperatura. Es que **la temperatura no existe como
+función**, nadie la ha pedido, y ningún usuario ve un número equivocado.
+
+Si algún día se pide, hay que saber dos cosas antes de escribir una línea:
+
+1. **`AN3` no está habilitado como analógico** por el `PCFG` de `ADC_init()`. Implementar la
+   lectura sin arreglar eso primero da basura con toda la apariencia de un dato bueno.
+2. **El valor de `PCFG` que circula está en duda.** `Manuales/HARDWARE.md` propone `0b1010`;
+   según la tabla del PIC18F2550 eso daría AN0–AN2 y dejaría AN3 fuera igual. Hay que
+   confirmarlo contra el datasheet, que no está en el repositorio.
+
+El arnés no exige esta función —un banco que pide funcionalidad no solicitada genera rojos
+que nadie arregla y que acaban tapando los que importan—, pero **sí guarda el invariante**
+(bloque `I`): si el firmware lee un canal, ese canal tiene que estar habilitado. Hoy está en
+verde, y se pondrá rojo justo el día que alguien implemente la temperatura del modo malo.
 
 ## Decisiones tomadas
 

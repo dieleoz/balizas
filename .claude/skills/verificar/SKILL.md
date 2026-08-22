@@ -132,15 +132,20 @@ bit que va a `LATC2`. **No toca un solo pin real.** En concreto no dice nada de:
   desde el 22-ago-2026 (`Buzzer.h:24` ataca `LATC1`, que es lo que pide la placa), pero eso lo
   sabemos por haber leido el fuente, **no porque el arnes lo mida**. La tarjeta esta fabricada
   y es fija: se cambia el firmware, no la placa.
-- **El ADC — desde el 22-ago-2026 SI lo mide, en parte** (bloque `I`), y merece leerse porque
-  es el mejor ejemplo de este documento. Durante 58 comprobaciones en verde nadie vio que la
-  baliza **no mide la temperatura**: el estado que la lee es codigo muerto, ningun sitio
-  transiciona a el. No se podia ver porque `ADC_init()` vivia en `main.c`, **el unico `.c` que
-  el arnes no compila**. Se saco a `Adc.c` y el defecto aparecio en rojo el mismo dia.
-  La leccion: cuando algo no se puede medir, no es que este bien -- es que no se esta mirando.
-  **Si un `.c` del firmware queda fuera de `FUENTES_FW`, todo lo que decida ese archivo es un
-  punto ciego permanente.** Hoy siguen fuera `main.c`, `EEprom.c`, `DS1307.c` e `I2C.c`.
-  Lo que el bloque `I` aun NO mide: que el pin entregue de verdad la tension del LM35.
+- **El ADC — desde el 22-ago-2026 lo mide en parte** (bloque `I`), y la historia de ese
+  bloque ensena dos cosas distintas.
+  La primera: durante 58 comprobaciones en verde nadie vio que la lectura de temperatura es
+  codigo muerto. No se podia ver porque `ADC_init()` vivia en `main.c`, **el unico `.c` que el
+  arnes no compila**. Se saco a `Adc.c` y aparecio el mismo dia. Cuando algo no se puede
+  medir, no es que este bien: es que no se esta mirando. **Si un `.c` queda fuera de
+  `FUENTES_FW`, todo lo que decida ese archivo es un punto ciego permanente** -- hoy siguen
+  fuera `main.c`, `EEprom.c`, `DS1307.c` e `I2C.c`.
+  La segunda, y es la que mas se repite: **el bloque nacio EXIGIENDO funcionalidad que nadie
+  habia pedido** (que AN3 estuviera habilitado, que la temperatura se leyera) y produjo dos
+  rojos que nadie iba a arreglar nunca. Un arnes asi acaba tapando los rojos que si importan.
+  Se reescribio como INVARIANTE: *si el firmware lee un canal, ese canal esta habilitado*.
+  Verde hoy, y rojo el dia que alguien implemente la temperatura del modo malo.
+  **Antes de anadir un escenario, pregunta si mide un requisito real o un deseo tuyo.**
 - **El I2C y el DS1307.** El reloj simulado siempre responde y siempre corre. Una pila
   agotada, unas pull-ups mal o el bit de reloj parado no existen aqui.
 - **El Bluetooth.** El simulador le mete las tramas directamente. Que el modulo empareje es

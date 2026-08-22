@@ -804,56 +804,43 @@ int main(int argc, char **argv)
     }
 
     /* =============================================================
-       I. EL CANAL DE TEMPERATURA
+       I. INVARIANTE DEL ADC: no se lee un canal que el PCFG dejo digital
 
-       [ROJO ESPERADO 22-ago-2026] Dos rojos, y son defectos distintos que
-       conviene no confundir:
+       OJO CON LO QUE ESTE BLOQUE EXIGE Y LO QUE NO. Nacio el 22-ago-2026
+       pidiendo que AN3 estuviera habilitado y que la temperatura se leyera. Eso
+       estaba MAL PLANTEADO: la temperatura NO ES UN DEFECTO, es una funcion que
+       nadie ha pedido -- la app no la muestra en ninguna pantalla, y el estado
+       ST_READ_TEMP_AP es codigo muerto al que nadie transiciona.
 
-       I2 - AN3 no esta habilitado como analogico. El PCFG que deja ADC_init()
-            no lo incluye, y Aplicacion.c lo lee con ADC_read(3). Hoy es un
-            defecto LATENTE: no hace dano porque, por I4, esa lectura no llega
-            a ejecutarse nunca. Mordera el dia que se implemente I4 sin
-            arreglar esto antes.
+       Un arnes que exige funcionalidad no solicitada produce rojos que nadie va
+       a arreglar, y esos rojos acaban tapando los que si importan.
 
-       I4 - La lectura de temperatura es CODIGO MUERTO. El estado
-            ST_READ_TEMP_AP existe y esta escrito, pero ningun sitio
-            transiciona a el: ap.uiCntTemp se asigna una vez en el arranque y
-            no se incrementa ni se compara jamas, y ap.uiTempDec no lo lee
-            nadie. La baliza no mide la temperatura -- no es que la mida mal.
-
-       Este escenario no se podia escribir hasta hoy: ADC_init() vivia en
-       main.c, el unico .c que el arnes no compila. Por eso el asunto entero
-       sobrevivio a 58 comprobaciones en verde.
+       Lo que si es un invariante de verdad, y es lo que se mide aqui: SI el
+       firmware lee un canal analogico, ese canal tiene que estar habilitado en
+       el PCFG. Hoy se cumple, porque solo se lee AN1 (bateria) y AN1 esta
+       habilitado. Y se pondra en rojo solo el dia que alguien implemente la
+       lectura de temperatura sin habilitar AN3 antes -- que es exactamente el
+       error que hay que evitar, y la unica razon por la que este bloque existe.
        ============================================================= */
-    ESCENARIO("I. El canal de temperatura");
+    ESCENARIO("I. Invariante del ADC: solo se leen canales habilitados");
     {
         arrancar_limpio();
 
-        /* I1: la bateria, que es el canal que SI funciona. Va primero para que
-           cualquier cambio del PCFG que la rompa se note de inmediato. */
+        /* Control: el canal que SI se usa esta habilitado. Si esto cae, el
+           voltimetro de bateria ha dejado de funcionar. */
         CHECK(sim_adc_canal_habilitado(1),
               "AN1 (tension de bateria) esta habilitado como analogico");
 
-        /* I2: el defecto latente. */
-        CHECK(sim_adc_canal_habilitado(3),
-              "AN3 (LM35 de temperatura) esta habilitado como analogico");
-
         sim_adc_set(1, 512);
         sim_adc_set(3, 300);
-        sim_tick(20000);   /* TIME_READ_TEMP son 4500 ticks: sobraria de largo */
+        sim_tick(20000);
 
-        /* I3: verde de verdad, y verificable: la bateria si se lee, asi que el
-           contador de lecturas funciona y el verde de abajo significa algo. */
+        /* Y que la medida OCURRIO, para que el invariante de abajo signifique
+           algo: sin una sola lectura, "no se leyo nada malo" es verde vacio. */
         CHECK(sim_adc_lecturas(1) > 0,
-              "la tarea lee el canal de bateria (AN1) durante la operacion normal");
+              "la tarea lee el canal de bateria durante la operacion normal");
 
-        /* I4: el codigo muerto. */
-        CHECK(sim_adc_lecturas(3) > 0,
-              "la tarea llega a leer el canal de temperatura (AN3) alguna vez");
-
-        /* I5: mientras I4 siga en rojo, esto es verde por omision -- no se lee
-           un canal deshabilitado porque no se lee ninguno. Queda escrito para
-           que el dia que I4 se arregle sin tocar el PCFG, este pase a rojo. */
+        /* EL INVARIANTE. */
         CHECK(!sim_adc_hubo_lectura_de_canal_deshabilitado(),
               "el firmware no leyo ningun canal que su propio PCFG dejo digital");
     }
