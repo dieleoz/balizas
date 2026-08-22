@@ -696,14 +696,43 @@
   async function cmdTestLight(start) {
     if (!isConnected) { openBtModal(); return; }
     if (start) {
-      log('TX: ¿T? (Activar Test Luz)');
-      await enviarTramaBackend('\xBF\x54\x3F\n\r');
+      const dNow = new Date();
+      const dEnd = new Date(dNow.getTime() + 2 * 60 * 1000);
+      
+      const hi = String(dNow.getHours()).padStart(2, '0');
+      const mi = String(dNow.getMinutes()).padStart(2, '0');
+      const hf = String(dEnd.getHours()).padStart(2, '0');
+      const mf = String(dEnd.getMinutes()).padStart(2, '0');
+      
+      const dd = String(dNow.getDate()).padStart(2, '0');
+      const mo = String(dNow.getMonth() + 1).padStart(2, '0');
+      const yy = String(dNow.getFullYear()).slice(-2);
+      
+      log(`==============================`);
+      log(`⚡ ACTIVANDO TEST DE LUZ (2 MIN)`);
+      log(`TX: Sincronizando Reloj: ¿R${hi}${mi}${dd}${mo}${yy}06,?`);
+      await enviarTramaBackend(`\xBF\x52${hi}${mi}${dd}${mo}${yy}06\x2C\x3F\n\r`);
+      
+      const tramaTest = `\xBF\x41\x35\x2C\x45\x31\x2C\x49${hi}${mi}\x2C\x46${hf}${mf}\x2C\x44\x38\x2C\x3F\n\r`;
+      log(`TX: ¿A5,E1,I${hi}${mi},F${hf}${mf},D8,? (Alarma 5 Test Activa)`);
+      const resp = await enviarTramaBackend(tramaTest);
+      log(`RX: ${resp || 'OK'}`);
+      log(`💡 Destello Ámbar Activado a 1.0 Hz (500ms ON / 500ms OFF)`);
+      log(`==============================`);
+      
       document.getElementById('chkTestLuz').checked = true;
       startFlashing(120);
+      await cmdRead();
     } else {
-      log('TX: ¿A? (Apagar Test Luz)');
-      await enviarTramaBackend('\xBF\x41\x3F\n\r');
+      log(`==============================`);
+      log(`⛔ APAGANDO TEST DE LUZ`);
+      log(`TX: ¿A5,E0,? (Alarma 5 Test Desactivada)`);
+      const resp = await enviarTramaBackend(`\xBF\x41\x35\x2C\x45\x30\x2C\x3F\n\r`);
+      log(`RX: ${resp || 'OK'}`);
+      log(`⏹️ Destello Apagado.`);
+      log(`==============================`);
       stopFlashing();
+      await cmdRead();
     }
   }
 
