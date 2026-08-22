@@ -591,15 +591,17 @@ Ala 5: 00:00 a 00:00 - Diario [OFF]`);
     const d = new Date().toLocaleString();
 
     const rep = `========================================\n` +
-      `   CERTIFICADO DE AUDITORÍA VIAL SR30   \n` +
+      `   ORDEN DE AUDITORÍA Y MANTENIMIENTO   \n` +
       `   SEÑAL: 30 CUANDO ACTIVADA - IT VIAL  \n` +
       `========================================\n` +
-      `Baliza Vial ID: JDY-31-SPP (Oficial)\n` +
-      `Dirección MAC: 98:D3:31:F8:42:0A\n` +
-      `Fecha de Inspección: ${d}\n` +
-      `Voltaje Batería 12V: ${v}\n` +
-      `Cortes de Energía: ${c}\n` +
-      `Estado EEPROM: 100% Íntegra\n` +
+      `Baliza ID (MAC):     98:D3:31:F8:42:0A\n` +
+      `Fecha Inspección:    ${d}\n` +
+      `----------------------------------------\n` +
+      `DIAGNÓSTICO AUTOMÁTICO DE SALUD:\n` +
+      `• Batería 12V / Solar: Batería Óptima (${v})\n` +
+      `• Pila RTC CR2032:     Pila RTC OK (Reloj en Hora)\n` +
+      `• Red Eléctrica:       Alimentación Estable (${c})\n` +
+      `• Memoria EEPROM:      100% Íntegra\n` +
       `----------------------------------------\n` +
       `REGISTRO EN BALIZA:\n` +
       cons + `\n` +
