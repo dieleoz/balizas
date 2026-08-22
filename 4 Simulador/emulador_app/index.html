@@ -11,7 +11,7 @@
     --accent-red: #DC2626;
     --accent-green: #16A34A;
     --accent-amber: #D97706;
-    --bg-gray: #F1F5F9;
+    --bg-gray: #F8FAFC;
     --card-bg: #FFFFFF;
     --text-color: #0F172A;
     --text-muted: #64748B;
@@ -28,7 +28,7 @@
   }
   .emulator-container {
     display: flex;
-    gap: 30px;
+    gap: 24px;
     max-width: 1050px;
     width: 100%;
     align-items: flex-start;
@@ -44,7 +44,7 @@
     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
     display: flex;
     flex-direction: column;
-    height: 760px;
+    height: 780px;
   }
   .status-bar {
     background: var(--dark-blue);
@@ -96,7 +96,6 @@
   .btn-device { background: var(--accent-red); }
   .btn-device.connected { background: var(--accent-green); }
   .btn-read { background: #2563EB; }
-  .btn-config { background: #059669; }
 
   .app-body {
     flex: 1;
@@ -110,7 +109,7 @@
     background: var(--card-bg);
     border-radius: 10px;
     padding: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     border: 1px solid #E2E8F0;
   }
   .card-header {
@@ -122,28 +121,15 @@
     margin-bottom: 6px;
     display: flex;
     justify-content: space-between;
-  }
-
-  .console-box {
-    background: #0B1120;
-    color: #22C55E;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 11px;
-    padding: 10px;
-    border-radius: 8px;
-    height: 120px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    line-height: 1.4;
-    border: 1px solid #1E293B;
+    align-items: center;
   }
 
   .btn-full {
     width: 100%;
-    padding: 10px;
+    padding: 11px;
     border-radius: 8px;
     border: none;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     color: #FFF;
@@ -151,14 +137,27 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    margin-top: 4px;
     transition: filter 0.2s;
   }
   .btn-full:active { filter: brightness(0.9); }
-  .btn-one-touch { background: var(--primary-blue); font-size: 12px; }
+  .btn-one-touch { background: var(--primary-blue); font-size: 13px; box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.3); }
   .btn-audit { background: #4F46E5; }
   .btn-test-on { background: var(--accent-amber); }
   .btn-test-off { background: #475569; }
+
+  .console-box {
+    background: #0B1120;
+    color: #22C55E;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    height: 90px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.3;
+    border: 1px solid #1E293B;
+  }
 
   .form-row { display: flex; gap: 6px; margin-bottom: 6px; }
   .form-group { flex: 1; display: flex; flex-direction: column; gap: 3px; }
@@ -274,7 +273,7 @@
   .dev-controls {
     width: 100%;
     background: #0F172A;
-    padding: 16px;
+    padding: 14px;
     border-radius: 12px;
     font-size: 12px;
     border: 1px solid #334155;
@@ -302,80 +301,94 @@
       <span id="statTime">12:00</span>
       <span>📶 100% 🔋</span>
     </div>
+    
+    <!-- BARRA PRINCIPAL DE ACCIONES -->
     <div class="action-bar">
       <div class="action-bar-title">
         <div class="logo-t">t</div>
         <span>IT VIAL 30</span>
       </div>
-      <div style="display:flex; gap:4px;">
+      <div style="display:flex; gap:6px;">
         <button class="btn-top btn-device" id="btnDevice" onclick="openBtModal()">Dispositivo</button>
-        <button class="btn-top btn-read" id="btnRead" onclick="cmdRead()">LEER</button>
-        <button class="btn-top btn-config" id="btnConfig" onclick="cmdConfig()">CONFIG</button>
+        <button class="btn-top btn-read" id="btnRead" onclick="cmdRead()">LEER (¿L?)</button>
       </div>
     </div>
 
     <div class="app-body">
-      <!-- CONSOLE -->
-      <div class="card">
+      
+      <!-- 1. IDENTIFICADOR Y NOMBRE DEL POSTE (OTA) -->
+      <div class="card" style="border-left: 4px solid #3B82F6;">
         <div class="card-header">
-          <span>Consola de Datos (v3.4)</span>
-          <span style="font-size:10px; color:#22C55E;" id="connStatus">● Desconectado</span>
-        </div>
-        <div class="console-box" id="consoleBox">--- SISTEMA IT VIAL 30 v3.4 ---
-Presione DISPOSITIVO para conectar.</div>
-      </div>
-
-      <!-- NOMBRE / UBICACIÓN OTA -->
-      <div class="card">
-        <div class="card-header">
-          <span>Nombre / Ubicación de la Señal</span>
+          <span>Identificador de Baliza (OTA)</span>
+          <span id="connStatus" style="font-size:10px; color:#64748B; font-weight:700;">Desconectado</span>
         </div>
         <div style="display:flex; gap:6px;">
-          <input type="text" id="txtNombreBaliza" value="Col. San José - Km 4+200" placeholder="Ej: Col. San José - Km 4+200" style="flex:1;" />
+          <input type="text" id="txtNombreBaliza" value="Col. San José - Km 4+200" placeholder="Nombre o Ubicación" style="flex:1;" />
           <button class="btn-top" onclick="cmdGuardarNombre()" style="background:#2563EB;">GUARDAR</button>
         </div>
       </div>
 
-      <!-- MOTOR DE AUTODIAGNOSTICO EXPERTO -->
+      <!-- 2. MOTOR DE AUTODIAGNÓSTICO EXPERTO (PRIMER PANTALLAZO) -->
       <div class="card" id="cardAutoDiag" style="border-left: 4px solid #16A34A;">
         <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
           <span id="lblIconoDictamen" style="font-size:16px;">🟢</span>
           <span id="lblTituloDictamen" style="font-size:12px; font-weight:800; color:#16A34A;">SISTEMA 100% OPERATIVO</span>
         </div>
         <div id="lblMensajeDictamen" style="font-size:11px; color:#334155; margin-bottom:6px; line-height:1.3;">
-          Presione LEER para ejecutar el autodiagnóstico integral de telemetría y reloj.
+          Voltaje óptimo (12.6V), reloj RTC en hora y franjas escolares activas.
         </div>
         <div id="lblAccionDictamen" style="background:#F8FAFC; padding:6px 8px; border-radius:6px; font-size:11px; font-weight:700; color:#16A34A;">
-          ✅ ACCIÓN EN CAMPO: Señal en óptimas condiciones de operación.
+          ✅ ACCIÓN EN CAMPO: Señal lista para operar. No requiere intervención.
         </div>
       </div>
 
-      <!-- DIAGNÓSTICO ENERGÉTICO -->
+      <!-- 3. ACCIÓN PRINCIPAL EN CAMPO: 1-TOQUE (DESTACADO ARRIBA) -->
+      <div class="card" style="background: linear-gradient(135deg, #1E40AF 0%, #1E3A8A 100%); color:#FFF;">
+        <div style="font-size:11px; font-weight:800; color:#93C5FD; text-transform:uppercase; margin-bottom:4px;">
+          Programación Rápida (Norma Vial)
+        </div>
+        <div style="font-size:10px; color:#DBEAFE; margin-bottom:8px; line-height:1.3;">
+          Sincroniza reloj y activa las 3 franjas escolares oficiales:<br/>
+          <b>06:00 - 09:00</b> | <b>11:30 - 13:30</b> | <b>15:00 - 16:30</b> (L-V)
+        </div>
+        <button class="btn-full" id="btn1Toque" onclick="cmdOneTouch()" style="background:#3B82F6; color:#FFF; font-weight:800; font-size:12px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+          ⚡ Programar Horario Escolar (1 Toque)
+        </button>
+        <div id="badgeStatus1Toque" style="display:none; background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:8px; border-radius:6px; font-size:11px; font-weight:700; margin-top:8px; text-align:center; line-height:1.4;">
+          ✓ ¡Horario Escolar Grabado con Éxito en EEPROM!
+        </div>
+      </div>
+
+      <!-- 4. TELEMETRÍA DE BATERÍA Y PRUEBA DE FOCO DIRECTA -->
       <div class="card">
         <div class="card-header">
-          <span>Telemetría de Batería y Cortes</span>
+          <span>Telemetría y Prueba en Terreno</span>
         </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:#F8FAFC; padding:8px; border-radius:6px;">
           <div>
             <div style="font-size:10px; color:#64748B;">Batería 12V / Panel:</div>
-            <div id="lblVoltaje" style="font-size:18px; font-weight:900; color:#10B981;">12.6 V</div>
+            <div id="lblVoltaje" style="font-size:16px; font-weight:900; color:#10B981;">12.6 V</div>
           </div>
           <div>
             <div style="font-size:10px; color:#64748B;">Cortes Registrados:</div>
-            <div id="lblCortes" style="font-size:18px; font-weight:900; color:#3B82F6;">2 cortes</div>
+            <div id="lblCortes" style="font-size:16px; font-weight:900; color:#3B82F6;">2 cortes</div>
           </div>
         </div>
-        <button class="btn-full btn-audit" onclick="cmdExportAudit()">
-          📤 COMPARTIR CERTIFICADO DE AUDITORÍA
-        </button>
+
+        <div style="display:flex; gap:6px;">
+          <button class="btn-full btn-test-on" style="flex:1;" onclick="cmdTestLight(true)">💡 Test Foco (2 min)</button>
+          <button class="btn-full btn-test-off" style="flex:1;" onclick="cmdTestLight(false)">⏹️ Apagar</button>
+        </div>
+        <div id="testTimerBadge" style="font-size:10px; color:#D97706; font-weight:700; text-align:center; margin-top:4px;"></div>
       </div>
 
-      <!-- CHECKLIST DE MANTENIMIENTO CON MODO SUELO / POSTE -->
+      <!-- 5. AUDITORÍA, CHECKLIST Y EXPORTAR (CIERRE DE INSPECCIÓN) -->
       <div class="card">
         <div class="card-header">
-          <span>Auditoría y Mantenimiento</span>
+          <span>Auditoría y Checklist de Mantenimiento</span>
           <span id="lblFechaUltimaVisita" style="font-size:10px; color:#2563EB; font-weight:700;">Visita: 22/08/2026</span>
         </div>
+        
         <div style="background:#EFF6FF; border:1px solid #BFDBFE; padding:6px 8px; border-radius:6px; margin-bottom:8px; font-size:10px; font-weight:700; color:#1E40AF; display:flex; justify-content:space-between; align-items:center;">
           <span>Tipo de Inspección:</span>
           <select id="selTipoVisita" style="font-size:10px; padding:2px 4px; border:1px solid #93C5FD; border-radius:4px; font-weight:700; background:#FFF; color:#1E40AF;" onchange="onCambioTipoVisita()">
@@ -383,95 +396,92 @@ Presione DISPOSITIVO para conectar.</div>
             <option value="POSTE">🪜 Con Escalera (Mantenimiento Físico)</option>
           </select>
         </div>
-        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
-          <input type="checkbox" id="chkPanelSolar" checked /> 1. Panel solar limpio y fusible 12V verificado
-        </label>
-        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
-          <input type="checkbox" id="chkPilaRTC" checked /> 2. Pila de botón CR2032 (3V) verificada / OK
-        </label>
-        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
-          <input type="checkbox" id="chkBorneras" checked /> 3. Borneras ajustadas (sin falsos contactos)
-        </label>
-        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; cursor:pointer;">
-          <input type="checkbox" id="chkTestLuz" /> 4. Prueba física de destello ejecutada
-        </label>
-      </div>
 
-      <!-- 1-TOQUE CON FEEDBACK VISUAL INMEDIATO -->
-      <div class="card" id="card1Toque">
-        <div class="card-header">Horario Escolar Oficial (1-Toque)</div>
-        <button class="btn-full btn-one-touch" id="btn1Toque" onclick="cmdOneTouch()">
-          ⚡ Programar Horario Escolar (1 Toque)
+        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
+          <input type="checkbox" id="chkPanelSolar" /> 1. Panel solar limpio y fusible 12V verificado
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
+          <input type="checkbox" id="chkPilaRTC" /> 2. Pila de botón CR2032 (3V) verificada / OK
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
+          <input type="checkbox" id="chkBorneras" /> 3. Borneras ajustadas (sin falsos contactos)
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:8px; cursor:pointer;">
+          <input type="checkbox" id="chkTestLuz" checked /> 4. Prueba física de destello ejecutada
+        </label>
+
+        <button class="btn-full btn-audit" onclick="cmdExportAudit()">
+          📤 COMPARTIR CERTIFICADO DE AUDITORÍA (WHATSAPP)
         </button>
-        <div id="badgeStatus1Toque" style="display:none; background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:8px; border-radius:6px; font-size:11px; font-weight:700; margin-top:8px; text-align:center; line-height:1.4;">
-          ✓ ¡Horario Escolar Grabado con Éxito en EEPROM!<br/>
-          <span style="font-size:10px; font-weight:600; color:#047857;">• 06:00 - 09:00  |  • 11:30 - 13:30  |  • 15:00 - 16:30 (L-V)</span>
-        </div>
       </div>
 
-      <!-- TEST LUZ -->
-      <div class="card">
-        <div class="card-header">
-          <span>Prueba Física de Foco en Campo</span>
-          <span id="testTimerBadge" style="font-size:10px; color:#D97706;"></span>
-        </div>
-        <div style="display:flex; gap:6px;">
-          <button class="btn-full btn-test-on" style="flex:1;" onclick="cmdTestLight(true)">💡 Test 2 Min</button>
-          <button class="btn-full btn-test-off" style="flex:1;" onclick="cmdTestLight(false)">⏹️ Apagar</button>
-        </div>
-      </div>
-
-      <!-- MANUAL CONFIG -->
-      <div class="card">
-        <div class="card-header">Configuración Manual de Franja</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Alarma N°</label>
-            <select id="selAlarm">
-              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Estado</label>
-            <select id="selState">
-              <option value="1">ON (Activa)</option><option value="0">OFF (Inactiva)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Inicio (HH:MM)</label>
-            <div style="display:flex; gap:2px;">
-              <select id="selHIni"><option value='00'>00</option><option value='01'>01</option><option value='02'>02</option><option value='03'>03</option><option value='04'>04</option><option value='05'>05</option><option value='06'>06</option><option value='07'>07</option><option value='08'>08</option><option value='09'>09</option><option value='10'>10</option><option value='11'>11</option><option value='12'>12</option><option value='13'>13</option><option value='14'>14</option><option value='15'>15</option><option value='16'>16</option><option value='17'>17</option><option value='18'>18</option><option value='19'>19</option><option value='20'>20</option><option value='21'>21</option><option value='22'>22</option><option value='23'>23</option></select>
-              <select id="selMIni"><option value='00'>00</option><option value='01'>01</option><option value='02'>02</option><option value='03'>03</option><option value='04'>04</option><option value='05'>05</option><option value='06'>06</option><option value='07'>07</option><option value='08'>08</option><option value='09'>09</option><option value='10'>10</option><option value='11'>11</option><option value='12'>12</option><option value='13'>13</option><option value='14'>14</option><option value='15'>15</option><option value='16'>16</option><option value='17'>17</option><option value='18'>18</option><option value='19'>19</option><option value='20'>20</option><option value='21'>21</option><option value='22'>22</option><option value='23'>23</option><option value='24'>24</option><option value='25'>25</option><option value='26'>26</option><option value='27'>27</option><option value='28'>28</option><option value='29'>29</option><option value='30'>30</option><option value='31'>31</option><option value='32'>32</option><option value='33'>33</option><option value='34'>34</option><option value='35'>35</option><option value='36'>36</option><option value='37'>37</option><option value='38'>38</option><option value='39'>39</option><option value='40'>40</option><option value='41'>41</option><option value='42'>42</option><option value='43'>43</option><option value='44'>44</option><option value='45'>45</option><option value='46'>46</option><option value='47'>47</option><option value='48'>48</option><option value='49'>49</option><option value='50'>50</option><option value='51'>51</option><option value='52'>52</option><option value='53'>53</option><option value='54'>54</option><option value='55'>55</option><option value='56'>56</option><option value='57'>57</option><option value='58'>58</option><option value='59'>59</option></select>
+      <!-- 6. AJUSTE AVANZADO: CONFIGURACIÓN MANUAL DE FRANJAS (COLAPSABLE / ABAJO) -->
+      <details class="card" style="cursor:pointer;">
+        <summary style="font-size:11px; font-weight:800; color:#334155; padding:2px 0;">
+          ⚙️ Ajuste Manual Avanzado de Franjas (Opcional)
+        </summary>
+        <div style="margin-top:10px; cursor:default;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Alarma N°</label>
+              <select id="selAlarm">
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Estado</label>
+              <select id="selState">
+                <option value="1">ON (Activa)</option><option value="0">OFF (Inactiva)</option>
+              </select>
             </div>
           </div>
-          <div class="form-group">
-            <label>Fin (HH:MM)</label>
-            <div style="display:flex; gap:2px;">
-              <select id="selHFin"><option value='00'>00</option><option value='01'>01</option><option value='02'>02</option><option value='03'>03</option><option value='04'>04</option><option value='05'>05</option><option value='06'>06</option><option value='07'>07</option><option value='08'>08</option><option value='09'>09</option><option value='10'>10</option><option value='11'>11</option><option value='12'>12</option><option value='13'>13</option><option value='14'>14</option><option value='15'>15</option><option value='16'>16</option><option value='17'>17</option><option value='18'>18</option><option value='19'>19</option><option value='20'>20</option><option value='21'>21</option><option value='22'>22</option><option value='23'>23</option></select>
-              <select id="selMFin"><option value='00'>00</option><option value='01'>01</option><option value='02'>02</option><option value='03'>03</option><option value='04'>04</option><option value='05'>05</option><option value='06'>06</option><option value='07'>07</option><option value='08'>08</option><option value='09'>09</option><option value='10'>10</option><option value='11'>11</option><option value='12'>12</option><option value='13'>13</option><option value='14'>14</option><option value='15'>15</option><option value='16'>16</option><option value='17'>17</option><option value='18'>18</option><option value='19'>19</option><option value='20'>20</option><option value='21'>21</option><option value='22'>22</option><option value='23'>23</option><option value='24'>24</option><option value='25'>25</option><option value='26'>26</option><option value='27'>27</option><option value='28'>28</option><option value='29'>29</option><option value='30'>30</option><option value='31'>31</option><option value='32'>32</option><option value='33'>33</option><option value='34'>34</option><option value='35'>35</option><option value='36'>36</option><option value='37'>37</option><option value='38'>38</option><option value='39'>39</option><option value='40'>40</option><option value='41'>41</option><option value='42'>42</option><option value='43'>43</option><option value='44'>44</option><option value='45'>45</option><option value='46'>46</option><option value='47'>47</option><option value='48'>48</option><option value='49'>49</option><option value='50'>50</option><option value='51'>51</option><option value='52'>52</option><option value='53'>53</option><option value='54'>54</option><option value='55'>55</option><option value='56'>56</option><option value='57'>57</option><option value='58'>58</option><option value='59'>59</option></select>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Inicio (HH:MM)</label>
+              <div style="display:flex; gap:2px;">
+                <select id="selHIni"></select>
+                <select id="selMIni"></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Fin (HH:MM)</label>
+              <div style="display:flex; gap:2px;">
+                <select id="selHFin"></select>
+                <select id="selMFin"></select>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="form-group" style="margin-bottom:8px;">
-          <label>Días</label>
-          <select id="selDays">
-            <option value="9">Lun-Vie (Lunes a Viernes)</option>
-            <option value="8">Diario (Todos los días)</option>
-            <option value="10">Sab-Dom (Fin de semana)</option>
-          </select>
-        </div>
+          <div class="form-group" style="margin-bottom:8px;">
+            <label>Días</label>
+            <select id="selDays">
+              <option value="9">Lun-Vie (Lunes a Viernes)</option>
+              <option value="8">Diario (Todos los días)</option>
+              <option value="10">Sab-Dom (Fin de semana)</option>
+            </select>
+          </div>
 
-        <button class="btn-full" onclick="cmdConfig()" style="background:#059669; font-size:12px;">
-          💾 GUARDAR / ENVIAR ESTA FRANJA (CONFIG)
-        </button>
-        <div id="badgeStatusManual" style="display:none; background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:8px; border-radius:6px; font-size:11px; font-weight:700; margin-top:8px; text-align:center; line-height:1.4;">
-          ✓ ¡Franja horaria grabada exitosamente en la EEPROM!
+          <button class="btn-full" onclick="cmdConfig()" style="background:#059669; font-size:11px;">
+            💾 GUARDAR ESTA FRANJA EN BALIZA
+          </button>
+          <div id="badgeStatusManual" style="display:none; background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:6px; border-radius:6px; font-size:10px; font-weight:700; margin-top:6px; text-align:center;">
+            ✓ ¡Franja guardada en EEPROM!
+          </div>
         </div>
-      </div>
+      </details>
+
+      <!-- 7. CONSOLA DE TERMINAL UART (AL FINAL, COLAPSABLE) -->
+      <details class="card" style="cursor:pointer;">
+        <summary style="font-size:11px; font-weight:800; color:#64748B; padding:2px 0;">
+          📟 Terminal de Datos Serie (Para Soporte Técnico)
+        </summary>
+        <div style="margin-top:8px; cursor:default;">
+          <div class="console-box" id="consoleBox">--- SISTEMA IT VIAL 30 v3.4 ---
+Presione DISPOSITIVO para conectar.</div>
+        </div>
+      </details>
+
     </div>
 
     <!-- MODAL BLUETOOTH -->
@@ -517,6 +527,14 @@ Presione DISPOSITIVO para conectar.</div>
   let testCountdown = null;
   let testSecLeft = 0;
 
+  // Poblar 24 horas y 60 minutos
+  const hOpts = Array.from({length:24}, (_,i)=>`<option value="${String(i).padStart(2,'0')}">${String(i).padStart(2,'0')}</option>`).join('');
+  const mOpts = Array.from({length:60}, (_,i)=>`<option value="${String(i).padStart(2,'0')}">${String(i).padStart(2,'0')}</option>`).join('');
+  document.getElementById('selHIni').innerHTML = hOpts;
+  document.getElementById('selHFin').innerHTML = hOpts;
+  document.getElementById('selMIni').innerHTML = mOpts;
+  document.getElementById('selMFin').innerHTML = mOpts;
+
   function updateClock() {
     const d = new Date();
     const h = String(d.getHours()).padStart(2, '0');
@@ -535,7 +553,7 @@ Presione DISPOSITIVO para conectar.</div>
     const btn = document.getElementById('btnDevice');
     btn.textContent = `✓ Conectado`;
     btn.className = 'btn-top btn-device connected';
-    document.getElementById('connStatus').textContent = '● Conectado (' + name + ')';
+    document.getElementById('connStatus').textContent = '● ' + name;
     document.getElementById('connStatus').style.color = '#22C55E';
     log('✓ Conexión establecida con ' + name + ' a 9600 baudios.');
     cmdRead();
@@ -556,7 +574,6 @@ Presione DISPOSITIVO para conectar.</div>
       });
       const data = await res.json();
       let raw = data.respuesta || '';
-      // Limpiar etiquetas internas de depuración del simulador
       raw = raw.replace(/\[TX_START\]/g, '')
                .replace(/\[TX_END\]/g, '')
                .replace(/\[SIM_OK\]/g, '')
@@ -574,7 +591,7 @@ Presione DISPOSITIVO para conectar.</div>
     if (!isConnected) { openBtModal(); return; }
     log('TX: ¿L?');
     const resp = await enviarTramaBackend('\xBF\x4C\x3F\n\r');
-    log('RX:\n' + resp);
+    if (resp) log('RX:\n' + resp);
 
     // Parse Telemetry
     if (resp.includes('Bat:')) {
@@ -605,7 +622,7 @@ Presione DISPOSITIVO para conectar.</div>
     document.getElementById('lblTituloDictamen').textContent = 'SISTEMA 100% OPERATIVO';
     document.getElementById('lblTituloDictamen').style.color = '#16A34A';
     document.getElementById('cardAutoDiag').style.borderLeftColor = '#16A34A';
-    document.getElementById('lblMensajeDictamen').textContent = 'Voltaje óptimo (12.6V), reloj RTC en hora y memoria EEPROM 100% íntegra con franjas escolares activas.';
+    document.getElementById('lblMensajeDictamen').textContent = 'Voltaje óptimo (12.6V), reloj RTC en hora y memoria EEPROM íntegra con franjas escolares activas.';
     document.getElementById('lblAccionDictamen').textContent = '✅ ACCIÓN EN CAMPO: Señal lista para operar. No requiere intervención.';
     document.getElementById('lblAccionDictamen').style.color = '#16A34A';
   }
@@ -637,10 +654,10 @@ Presione DISPOSITIVO para conectar.</div>
     await enviarTramaBackend(`\xBF\x41\x35\x2C\x45\x30\x2C\x3F\n\r`);
 
     log(`✓ Horario Escolar Oficial Grabado en EEPROM con éxito.`);
+
     const badge = document.getElementById('badgeStatus1Toque');
     if (badge) {
       badge.style.display = 'block';
-      badge.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       setTimeout(() => { badge.style.display = 'none'; }, 8000);
     }
     await cmdRead();
@@ -671,25 +688,9 @@ Presione DISPOSITIVO para conectar.</div>
     if (badge) {
       badge.textContent = `✓ ¡Alarma ${num} grabada exitosamente en EEPROM! (${st === '1' ? 'Activa' : 'Inactiva'})`;
       badge.style.display = 'block';
-      badge.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       setTimeout(() => { badge.style.display = 'none'; }, 6000);
     }
     await cmdRead();
-  }
-
-  function onCambioTipoVisita() {
-    const tipo = document.getElementById('selTipoVisita').value;
-    if (tipo === 'SUELO') {
-      document.getElementById('chkPanelSolar').checked = false;
-      document.getElementById('chkPilaRTC').checked = false;
-      document.getElementById('chkBorneras').checked = false;
-      document.getElementById('chkTestLuz').checked = true;
-    } else {
-      document.getElementById('chkPanelSolar').checked = true;
-      document.getElementById('chkPilaRTC').checked = true;
-      document.getElementById('chkBorneras').checked = true;
-      document.getElementById('chkTestLuz').checked = true;
-    }
   }
 
   async function cmdGuardarNombre() {
@@ -720,7 +721,7 @@ Presione DISPOSITIVO para conectar.</div>
     isFlashing = true;
     testSecLeft = seconds;
     const badge = document.getElementById('testTimerBadge');
-    badge.textContent = `(Activo: ${testSecLeft}s)`;
+    badge.textContent = `(Test Activo: ${testSecLeft}s)`;
     
     const lens = document.getElementById('lampLens');
     let state = false;
@@ -736,7 +737,7 @@ Presione DISPOSITIVO para conectar.</div>
         stopFlashing();
         log('INFO: Test de Luz de 2 Minutos concluido.');
       } else {
-        badge.textContent = `(Activo: ${testSecLeft}s)`;
+        badge.textContent = `(Test Activo: ${testSecLeft}s)`;
       }
     }, 1000);
   }
@@ -749,12 +750,29 @@ Presione DISPOSITIVO para conectar.</div>
     document.getElementById('testTimerBadge').textContent = '';
   }
 
+  function onCambioTipoVisita() {
+    const tipo = document.getElementById('selTipoVisita').value;
+    if (tipo === 'SUELO') {
+      document.getElementById('chkPanelSolar').checked = false;
+      document.getElementById('chkPilaRTC').checked = false;
+      document.getElementById('chkBorneras').checked = false;
+      document.getElementById('chkTestLuz').checked = true;
+    } else {
+      document.getElementById('chkPanelSolar').checked = true;
+      document.getElementById('chkPilaRTC').checked = true;
+      document.getElementById('chkBorneras').checked = true;
+      document.getElementById('chkTestLuz').checked = true;
+    }
+  }
+
   function cmdExportAudit() {
     const v = document.getElementById('lblVoltaje').textContent;
     const c = document.getElementById('lblCortes').textContent;
     const cons = document.getElementById('consoleBox').textContent;
     const d = new Date().toLocaleString();
     const nom = document.getElementById('txtNombreBaliza').value || 'Col. San José - Km 4+200';
+    const tipoVisita = document.getElementById('selTipoVisita').value === 'SUELO' ? 
+      'Inspección Inalámbrica a Nivel de Suelo (Sin Escalera)' : 'Mantenimiento Preventivo Físico en Poste (Con Escalera)';
 
     const rep = `========================================\n` +
       `   LOG DE DIAGNÓSTICO Y SOPORTE IT VIAL  \n` +
@@ -763,6 +781,7 @@ Presione DISPOSITIVO para conectar.</div>
       `UBICACIÓN / NOMBRE:  ${nom}\n` +
       `DIRECCIÓN MAC:       98:D3:31:F8:42:0A\n` +
       `FECHA INSPECCIÓN:    ${d}\n` +
+      `MODO DE VISITA:      ${tipoVisita}\n` +
       `SISTEMA OPERATIVO:   Android 14 (SM-S901B)\n` +
       `----------------------------------------\n` +
       `1. TELEMETRÍA Y AUTODIAGNÓSTICO EN CAMPO:\n` +
