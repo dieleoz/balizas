@@ -11,7 +11,8 @@
     --accent-red: #DC2626;
     --accent-green: #16A34A;
     --accent-amber: #D97706;
-    --bg-gray: #F8FAFC;
+    --accent-purple: #4F46E5;
+    --bg-gray: #F1F5F9;
     --card-bg: #FFFFFF;
     --text-color: #0F172A;
     --text-muted: #64748B;
@@ -23,33 +24,33 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 16px;
     color: var(--text-color);
   }
   .emulator-container {
     display: flex;
     gap: 24px;
-    max-width: 1050px;
+    max-width: 1100px;
     width: 100%;
     align-items: flex-start;
   }
 
   /* Phone Frame */
   .phone-frame {
-    width: 380px;
+    width: 410px;
     background: var(--bg-gray);
-    border: 10px solid #1E293B;
-    border-radius: 36px;
+    border: 12px solid #1E293B;
+    border-radius: 40px;
     overflow: hidden;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
     display: flex;
     flex-direction: column;
-    height: 780px;
+    height: 840px;
   }
   .status-bar {
     background: var(--dark-blue);
     color: #94A3B8;
-    padding: 6px 14px;
+    padding: 6px 16px;
     font-size: 11px;
     display: flex;
     justify-content: space-between;
@@ -62,6 +63,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-bottom: 1px solid #334155;
   }
   .action-bar-title {
     display: flex;
@@ -109,7 +111,7 @@
     background: var(--card-bg);
     border-radius: 10px;
     padding: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     border: 1px solid #E2E8F0;
   }
   .card-header {
@@ -126,7 +128,8 @@
 
   .btn-full {
     width: 100%;
-    padding: 11px;
+    min-height: 44px;
+    padding: 10px;
     border-radius: 8px;
     border: none;
     font-size: 12px;
@@ -140,22 +143,21 @@
     transition: filter 0.2s;
   }
   .btn-full:active { filter: brightness(0.9); }
-  .btn-one-touch { background: var(--primary-blue); font-size: 13px; box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.3); }
-  .btn-audit { background: #4F46E5; }
+  .btn-audit { background: var(--accent-purple); }
   .btn-test-on { background: var(--accent-amber); }
   .btn-test-off { background: #475569; }
 
   .console-box {
-    background: #0B1120;
+    background: #020617;
     color: #22C55E;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 10px;
+    font-size: 11px;
     padding: 8px;
     border-radius: 6px;
-    height: 90px;
+    height: 115px;
     overflow-y: auto;
     white-space: pre-wrap;
-    line-height: 1.3;
+    line-height: 1.35;
     border: 1px solid #1E293B;
   }
 
@@ -172,11 +174,42 @@
     font-weight: 600;
   }
 
+  /* Franja Row Component */
+  .franja-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 0;
+    border-bottom: 1px solid #F1F5F9;
+  }
+  .franja-row:last-child { border-bottom: none; }
+  .switch-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #0F172A;
+    min-width: 48px;
+    cursor: pointer;
+  }
+  .time-input {
+    width: 78px;
+    padding: 6px 4px;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    background: #F8FAFC;
+    color: #0F172A;
+  }
+
   /* Modal */
   .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.65);
     display: none;
     align-items: center;
     justify-content: center;
@@ -188,10 +221,10 @@
     border-radius: 12px;
     padding: 16px;
     width: 100%;
-    max-width: 320px;
+    max-width: 360px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
   }
-  .modal-dialog h3 { font-size: 13px; margin-bottom: 12px; color: var(--text-color); }
+  .modal-dialog h3 { font-size: 13px; margin-bottom: 8px; color: var(--text-color); }
   .bt-item {
     padding: 10px;
     border-bottom: 1px solid #F1F5F9;
@@ -211,7 +244,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 18px;
     border: 1px solid #334155;
   }
   .sign-board {
@@ -280,15 +313,16 @@
   }
   .dev-controls h4 { margin-bottom: 8px; color: #818CF8; font-size: 13px; }
   .btn-tool {
-    padding: 6px 12px;
+    padding: 6px 10px;
     background: #3B82F6;
     color: #FFF;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 700;
-    margin-right: 6px;
+    margin-right: 4px;
     margin-bottom: 6px;
+    font-size: 11px;
   }
 </style>
 </head>
@@ -316,21 +350,20 @@
 
     <div class="app-body">
       
-      <!-- PANTALLA PRINCIPAL DE TELEMETRÍA Y CONSOLA (SIEMPRE VISIBLE) -->
+      <!-- 1. PANTALLA PRINCIPAL DE TELEMETRÍA Y CONSOLA (SIEMPRE VISIBLE) -->
       <div class="card" style="background:#0F172A; border: 2px solid #1E293B; padding:10px;">
         <div class="card-header" style="color:#94A3B8; margin-bottom:4px; font-size:10px;">
           <span>📟 Pantalla de Baliza IT VIAL 30 (v3.4)</span>
           <span id="connStatus" style="font-size:10px; color:#64748B; font-weight:800;">● Desconectado</span>
         </div>
-        <div class="console-box" id="consoleBox" style="height:125px; font-size:11px; background:#020617; border:1px solid #1E293B;">--- SISTEMA IT VIAL 30 v3.4 ---
+        <div class="console-box" id="consoleBox">--- SISTEMA IT VIAL 30 v3.4 ---
 Presione DISPOSITIVO para conectar.</div>
       </div>
 
-      <!-- 1. IDENTIFICADOR Y NOMBRE DEL POSTE (OTA) -->
+      <!-- 2. IDENTIFICADOR Y NOMBRE DEL POSTE (OTA) -->
       <div class="card" style="border-left: 4px solid #3B82F6;">
         <div class="card-header">
           <span>Identificador de Baliza (OTA)</span>
-          <span id="connStatus" style="font-size:10px; color:#64748B; font-weight:700;">Desconectado</span>
         </div>
         <div style="display:flex; gap:6px;">
           <input type="text" id="txtNombreBaliza" value="Col. San José - Km 4+200" placeholder="Nombre o Ubicación" style="flex:1;" />
@@ -338,38 +371,101 @@ Presione DISPOSITIVO para conectar.</div>
         </div>
       </div>
 
-      <!-- 2. MOTOR DE AUTODIAGNÓSTICO EXPERTO (PRIMER PANTALLAZO) -->
+      <!-- 3. MOTOR DE AUTODIAGNÓSTICO EXPERTO -->
       <div class="card" id="cardAutoDiag" style="border-left: 4px solid #16A34A;">
         <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
           <span id="lblIconoDictamen" style="font-size:16px;">🟢</span>
           <span id="lblTituloDictamen" style="font-size:12px; font-weight:800; color:#16A34A;">SISTEMA 100% OPERATIVO</span>
         </div>
         <div id="lblMensajeDictamen" style="font-size:11px; color:#334155; margin-bottom:6px; line-height:1.3;">
-          Voltaje óptimo (12.6V), reloj RTC en hora y franjas escolares activas.
+          Voltaje óptimo (12.6V), reloj RTC en hora y memoria EEPROM íntegra.
         </div>
         <div id="lblAccionDictamen" style="background:#F8FAFC; padding:6px 8px; border-radius:6px; font-size:11px; font-weight:700; color:#16A34A;">
           ✅ ACCIÓN EN CAMPO: Señal lista para operar. No requiere intervención.
         </div>
       </div>
 
-      <!-- 3. ACCIÓN PRINCIPAL EN CAMPO: 1-TOQUE (DESTACADO ARRIBA) -->
-      <div class="card" style="background: linear-gradient(135deg, #1E40AF 0%, #1E3A8A 100%); color:#FFF;">
-        <div style="font-size:11px; font-weight:800; color:#93C5FD; text-transform:uppercase; margin-bottom:4px;">
-          Programación Rápida (Norma Vial)
+      <!-- 4. HORARIO DE ESTA PLACA (4 FRANJAS ESCOLARES + RECESO) -->
+      <div class="card" style="border-left: 4px solid #F59E0B;">
+        <div class="card-header">
+          <span>HORARIO DE ESTA PLACA</span>
+          <span style="font-size:10px; color:#B45309; font-weight:800;">4 Franjas</span>
         </div>
-        <div style="font-size:10px; color:#DBEAFE; margin-bottom:8px; line-height:1.3;">
-          Sincroniza reloj y activa las 3 franjas escolares oficiales:<br/>
-          <b>06:00 - 09:00</b> | <b>11:30 - 13:30</b> | <b>15:00 - 16:30</b> (L-V)
+        <div style="font-size:10px; color:#64748B; margin-bottom:8px; line-height:1.3;">
+          Copie lo que dice la placa atornillada a ESTA señal (máx. 4 franjas):
         </div>
-        <button class="btn-full" id="btn1Toque" onclick="cmdOneTouch()" style="background:#3B82F6; color:#FFF; font-weight:800; font-size:12px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-          ⚡ Programar Horario Escolar (1 Toque)
+
+        <!-- Selector de Días -->
+        <div style="margin-bottom:8px;">
+          <label style="font-size:10px; font-weight:700; color:#475569;">Días de Aplicación:</label>
+          <select id="selDiasPlaca" style="width:100%; margin-top:2px;">
+            <option value="9">Lunes a Viernes (Estándar Escolar)</option>
+            <option value="8">Diario (Todos los días)</option>
+            <option value="10">Fin de Semana (Sábado y Domingo)</option>
+          </select>
+        </div>
+
+        <!-- Franja 1 -->
+        <div class="franja-row">
+          <label class="switch-label">
+            <input type="checkbox" id="swF1" checked /> F1
+          </label>
+          <input type="time" id="tF1Ini" value="06:00" class="time-input" />
+          <span style="font-size:11px; font-weight:700; color:#64748B;">a</span>
+          <input type="time" id="tF1Fin" value="09:00" class="time-input" />
+        </div>
+
+        <!-- Franja 2 -->
+        <div class="franja-row">
+          <label class="switch-label">
+            <input type="checkbox" id="swF2" checked /> F2
+          </label>
+          <input type="time" id="tF2Ini" value="11:30" class="time-input" />
+          <span style="font-size:11px; font-weight:700; color:#64748B;">a</span>
+          <input type="time" id="tF2Fin" value="13:30" class="time-input" />
+        </div>
+
+        <!-- Franja 3 -->
+        <div class="franja-row">
+          <label class="switch-label">
+            <input type="checkbox" id="swF3" checked /> F3
+          </label>
+          <input type="time" id="tF3Ini" value="15:00" class="time-input" />
+          <span style="font-size:11px; font-weight:700; color:#64748B;">a</span>
+          <input type="time" id="tF3Fin" value="16:30" class="time-input" />
+        </div>
+
+        <!-- Franja 4 -->
+        <div class="franja-row">
+          <label class="switch-label">
+            <input type="checkbox" id="swF4" /> F4
+          </label>
+          <input type="time" id="tF4Ini" value="18:00" class="time-input" />
+          <span style="font-size:11px; font-weight:700; color:#64748B;">a</span>
+          <input type="time" id="tF4Fin" value="20:00" class="time-input" />
+        </div>
+
+        <!-- Botón Grabar Placa -->
+        <button class="btn-full" onclick="cmdGrabarHorarioPlaca()" style="background:#2563EB; font-weight:800; font-size:12px; margin-top:8px;">
+          ⚡ GRABAR HORARIO DE ESTA PLACA (450ms)
         </button>
-        <div id="badgeStatus1Toque" style="display:none; background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:8px; border-radius:6px; font-size:11px; font-weight:700; margin-top:8px; text-align:center; line-height:1.4;">
-          ✓ ¡Horario Escolar Grabado con Éxito en EEPROM!
+
+        <!-- Botones Receso y Reanudación -->
+        <div style="display:flex; gap:6px; margin-top:6px;">
+          <button class="btn-full" onclick="cmdRecesoEscolar()" style="flex:1; background:#DC2626; font-size:11px;">
+            🏖️ Receso (Apagar)
+          </button>
+          <button class="btn-full" onclick="cmdReanudarClases()" style="flex:1; background:#059669; font-size:11px;">
+            🔔 Reanudar Clases
+          </button>
+        </div>
+
+        <div id="badgeStatusPlaca" style="display:none; background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:8px; border-radius:6px; font-size:11px; font-weight:700; margin-top:8px; text-align:center; line-height:1.3;">
+          ✓ ¡Horario de placa grabado exitosamente en EEPROM!
         </div>
       </div>
 
-      <!-- 4. TELEMETRÍA DE BATERÍA Y PRUEBA DE FOCO DIRECTA -->
+      <!-- 5. TELEMETRÍA DE BATERÍA Y PRUEBA DE FOCO DIRECTA -->
       <div class="card">
         <div class="card-header">
           <span>Telemetría y Prueba en Terreno</span>
@@ -392,14 +488,19 @@ Presione DISPOSITIVO para conectar.</div>
         <div id="testTimerBadge" style="font-size:10px; color:#D97706; font-weight:700; text-align:center; margin-top:4px;"></div>
       </div>
 
-      
-      <!-- 5. AUDITORÍA, CHECKLIST Y EXPORTAR (CIERRE DE INSPECCIÓN) -->
+      <!-- 6. AUDITORÍA, CHECKLIST Y EXPORTAR (5 PUNTOS OFICIALES) -->
       <div class="card">
         <div class="card-header">
           <span>Auditoría y Checklist de Mantenimiento</span>
           <span id="lblFechaUltimaVisita" style="font-size:10px; color:#2563EB; font-weight:700;">Visita: 22/08/2026</span>
         </div>
         
+        <!-- Campo Nombre del Técnico / Cuadrilla -->
+        <div style="margin-bottom:8px;">
+          <label style="font-size:10px; font-weight:700; color:#475569;">👨‍🔧 Técnico / Inspector Responsable:</label>
+          <input type="text" id="txtNombreTecnico" value="Ing. Diego Zúñiga - Cuadrilla 01" placeholder="Nombre del Técnico" style="width:100%; margin-top:2px;" onchange="guardarNombreTecnicoLocal()" />
+        </div>
+
         <div style="background:#EFF6FF; border:1px solid #BFDBFE; padding:6px 8px; border-radius:6px; margin-bottom:8px; font-size:10px; font-weight:700; color:#1E40AF; display:flex; justify-content:space-between; align-items:center;">
           <span>Tipo de Inspección:</span>
           <select id="selTipoVisita" style="font-size:10px; padding:2px 4px; border:1px solid #93C5FD; border-radius:4px; font-weight:700; background:#FFF; color:#1E40AF;" onchange="onCambioTipoVisita()">
@@ -409,16 +510,19 @@ Presione DISPOSITIVO para conectar.</div>
         </div>
 
         <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
-          <input type="checkbox" id="chkPanelSolar" /> 1. Panel solar limpio y fusible 12V verificado
+          <input type="checkbox" id="chkEstadoFisico" checked /> 1. Estado Físico: Señal, lámina reflectiva y poste OK
         </label>
         <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
-          <input type="checkbox" id="chkPilaRTC" /> 2. Pila de botón CR2032 (3V) verificada / OK
+          <input type="checkbox" id="chkPanelSolar" /> 2. Panel solar limpio, orientado y fusible 12V verificado
         </label>
         <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
-          <input type="checkbox" id="chkBorneras" /> 3. Borneras ajustadas (sin falsos contactos)
+          <input type="checkbox" id="chkPilaRTC" /> 3. Pila de botón CR2032 (3V) verificada / OK
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:4px; cursor:pointer;">
+          <input type="checkbox" id="chkBorneras" /> 4. Borneras ajustadas (sin falsos contactos)
         </label>
         <label style="display:flex; align-items:center; gap:8px; font-size:11px; color:#475569; margin-bottom:8px; cursor:pointer;">
-          <input type="checkbox" id="chkTestLuz" checked /> 4. Prueba física de destello ejecutada
+          <input type="checkbox" id="chkTestLuz" checked /> 5. Prueba física de destello (Test 2 min) ejecutada
         </label>
 
         <button class="btn-full btn-audit" onclick="cmdExportAudit()">
@@ -426,10 +530,10 @@ Presione DISPOSITIVO para conectar.</div>
         </button>
       </div>
 
-      <!-- 6. CONFIGURACIÓN MANUAL DE FRANJAS -->
+      <!-- 7. CONFIGURACIÓN MANUAL DE FRANJAS -->
       <div class="card">
         <div class="card-header">
-          <span>Configuración Manual de Franja</span>
+          <span>Configuración Manual Avanzada</span>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -480,8 +584,6 @@ Presione DISPOSITIVO para conectar.</div>
         </div>
       </div>
 
-
-
     </div>
 
     <!-- MODAL BLUETOOTH -->
@@ -494,16 +596,15 @@ Presione DISPOSITIVO para conectar.</div>
         <button class="btn-full btn-test-off" style="margin-top:10px;" onclick="closeBtModal()">Cancelar</button>
       </div>
     </div>
-  </div>
 
-      <!-- MODAL PREVIEW DE CERTIFICADO DE AUDITORÍA -->
+    <!-- MODAL PREVIEW DE CERTIFICADO DE AUDITORÍA -->
     <div class="modal-overlay" id="auditModal">
       <div class="modal-dialog" style="max-width:360px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <h3 style="margin:0; font-size:13px; color:#1E40AF;">📄 Certificado de Auditoría Vial</h3>
           <span style="cursor:pointer; font-size:16px; font-weight:bold; color:#64748B;" onclick="closeAuditModal()">✕</span>
         </div>
-        <textarea id="txtAuditPreview" readonly style="width:100%; height:200px; font-size:10px; font-family:monospace; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:6px; margin-bottom:10px; resize:none; line-height:1.3; color:#0F172A;"></textarea>
+        <textarea id="txtAuditPreview" readonly style="width:100%; height:210px; font-size:10px; font-family:monospace; background:#F8FAFC; border:1px solid #CBD5E1; border-radius:6px; padding:6px; margin-bottom:10px; resize:none; line-height:1.3; color:#0F172A;"></textarea>
         
         <div style="display:flex; flex-direction:column; gap:6px;">
           <button class="btn-full" onclick="enviarWhatsAppDirecto()" style="background:#22C55E; color:#FFF; font-weight:800; font-size:12px; margin:0;">
@@ -516,6 +617,7 @@ Presione DISPOSITIVO para conectar.</div>
         </div>
       </div>
     </div>
+  </div>
 
   <!-- BEACON PREVIEW & TOOLS -->
   <div class="beacon-preview">
@@ -532,11 +634,12 @@ Presione DISPOSITIVO para conectar.</div>
     <div class="dev-controls">
       <h4>Simulador Conectado al Backend en C</h4>
       <p style="color:#94A3B8; font-size:11px; margin-bottom:10px;">
-        Este emulador envía tramas reales al microcontrolador simulado (<code>arnes.exe</code>) mediante HTTP/UART.
+        Este emulador envía tramas reales al microcontrolador simulado (<code>arnes.exe</code>) respetando el retardo obligatorio de 450 ms entre tramas.
       </p>
       <button class="btn-tool" onclick="cmdRead()">Botón LEER (¿L?)</button>
-      <button class="btn-tool" onclick="cmdOneTouch()">Botón 1-Toque</button>
-      <button class="btn-tool" onclick="cmdTestLight(true)">Test Luz (¿T?)</button>
+      <button class="btn-tool" onclick="cmdGrabarHorarioPlaca()">Grabar Placa (450ms)</button>
+      <button class="btn-tool" onclick="cmdRecesoEscolar()">Receso Vacacional</button>
+      <button class="btn-tool" onclick="cmdTestLight(true)">Test Luz (2 min)</button>
     </div>
   </div>
 </div>
@@ -547,8 +650,20 @@ Presione DISPOSITIVO para conectar.</div>
   let flashTimer = null;
   let testCountdown = null;
   let testSecLeft = 0;
+  const RETARDO_TRAMA_MS = 450;
 
-  // Poblar 24 horas y 60 minutos
+  // Restaurar nombre del técnico de LocalStorage
+  const savedTecnico = localStorage.getItem('itvial_tecnico_nombre');
+  if (savedTecnico) {
+    document.getElementById('txtNombreTecnico').value = savedTecnico;
+  }
+
+  function guardarNombreTecnicoLocal() {
+    const val = document.getElementById('txtNombreTecnico').value.trim();
+    localStorage.setItem('itvial_tecnico_nombre', val);
+  }
+
+  // Poblar 24 horas y 60 minutos para configuración manual
   const hOpts = Array.from({length:24}, (_,i)=>`<option value="${String(i).padStart(2,'0')}">${String(i).padStart(2,'0')}</option>`).join('');
   const mOpts = Array.from({length:60}, (_,i)=>`<option value="${String(i).padStart(2,'0')}">${String(i).padStart(2,'0')}</option>`).join('');
   document.getElementById('selHIni').innerHTML = hOpts;
@@ -587,6 +702,10 @@ Presione DISPOSITIVO para conectar.</div>
       box.scrollTop = box.scrollHeight;
     }
     console.log('[UART LOG]', txt);
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   async function enviarTramaBackend(trama) {
@@ -646,75 +765,9 @@ Presione DISPOSITIVO para conectar.</div>
     document.getElementById('lblTituloDictamen').textContent = 'SISTEMA 100% OPERATIVO';
     document.getElementById('lblTituloDictamen').style.color = '#16A34A';
     document.getElementById('cardAutoDiag').style.borderLeftColor = '#16A34A';
-    document.getElementById('lblMensajeDictamen').textContent = 'Voltaje óptimo (12.6V), reloj RTC en hora y memoria EEPROM íntegra con franjas escolares activas.';
+    document.getElementById('lblMensajeDictamen').textContent = 'Voltaje óptimo (12.6V), reloj RTC en hora y memoria EEPROM íntegra.';
     document.getElementById('lblAccionDictamen').textContent = '✅ ACCIÓN EN CAMPO: Señal lista para operar. No requiere intervención.';
     document.getElementById('lblAccionDictamen').style.color = '#16A34A';
-  }
-
-  async function cmdOneTouch() {
-    if (!isConnected) { openBtModal(); return; }
-    const d = new Date();
-    const hh = String(d.getHours()).padStart(2,'0');
-    const mm = String(d.getMinutes()).padStart(2,'0');
-    const dd = String(d.getDate()).padStart(2,'0');
-    const mo = String(d.getMonth()+1).padStart(2,'0');
-    const yy = String(d.getFullYear()).slice(-2);
-    const sem = '06';
-
-    log(`TX: ¿R${hh}${mm}${dd}${mo}${yy}${sem},?`);
-    await enviarTramaBackend(`\xBF\x52${hh}${mm}${dd}${mo}${yy}${sem}\x2C\x3F\n\r`);
-
-    log(`TX: Programando Alarma 1 (06:00 - 09:00 L-V)`);
-    await enviarTramaBackend(`\xBF\x41\x31\x2C\x45\x31\x2C\x49\x30\x36\x30\x30\x2C\x46\x30\x39\x30\x30\x2C\x44\x39\x2C\x3F\n\r`);
-
-    log(`TX: Programando Alarma 2 (11:30 - 13:30 L-V)`);
-    await enviarTramaBackend(`\xBF\x41\x32\x2C\x45\x31\x2C\x49\x31\x31\x33\x30\x2C\x46\x31\x33\x33\x30\x2C\x44\x39\x2C\x3F\n\r`);
-
-    log(`TX: Programando Alarma 3 (15:00 - 16:30 L-V)`);
-    await enviarTramaBackend(`\xBF\x41\x33\x2C\x45\x31\x2C\x49\x31\x35\x30\x30\x2C\x46\x31\x36\x33\x30\x2C\x44\x39\x2C\x3F\n\r`);
-
-    log(`TX: Desactivando Alarmas 4 y 5`);
-    await enviarTramaBackend(`\xBF\x41\x34\x2C\x45\x30\x2C\x3F\n\r`);
-    await enviarTramaBackend(`\xBF\x41\x35\x2C\x45\x30\x2C\x3F\n\r`);
-
-    log(`✓ Horario Escolar Oficial Grabado en EEPROM con éxito.`);
-
-    const badge = document.getElementById('badgeStatus1Toque');
-    if (badge) {
-      badge.style.display = 'block';
-      setTimeout(() => { badge.style.display = 'none'; }, 8000);
-    }
-    await cmdRead();
-  }
-
-  async function cmdConfig() {
-    if (!isConnected) { openBtModal(); return; }
-    const num = document.getElementById('selAlarm').value;
-    const st = document.getElementById('selState').value;
-    const hi = document.getElementById('selHIni').value;
-    const mi = document.getElementById('selMIni').value;
-    const hf = document.getElementById('selHFin').value;
-    const mf = document.getElementById('selMFin').value;
-    const d = document.getElementById('selDays').value;
-
-    let trama = `\xBF\x41${num}\x2C\x45${st}\x2C`;
-    if (st === '1') {
-      trama += `\x49${hi}${mi}\x2C\x46${hf}${mf}\x2C\x44${d}\x2C`;
-    }
-    trama += `\x3F\n\r`;
-
-    log(`TX: Configurando Alarma ${num}...`);
-    const resp = await enviarTramaBackend(trama);
-    log(`RX: ${resp.trim() || 'OK'}`);
-    log(`✓ Alarma ${num} actualizada en la EEPROM.`);
-
-    const badge = document.getElementById('badgeStatusManual');
-    if (badge) {
-      badge.textContent = `✓ ¡Alarma ${num} grabada exitosamente en EEPROM! (${st === '1' ? 'Activa' : 'Inactiva'})`;
-      badge.style.display = 'block';
-      setTimeout(() => { badge.style.display = 'none'; }, 6000);
-    }
-    await cmdRead();
   }
 
   async function cmdGuardarNombre() {
@@ -726,6 +779,94 @@ Presione DISPOSITIVO para conectar.</div>
     log(`✓ Nombre "${nom}" grabado en la EEPROM del microcontrolador.`);
   }
 
+  // --- HORARIO DE ESTA PLACA (4 FRANJAS + 450MS RETARDO) ---
+  async function cmdGrabarHorarioPlaca() {
+    if (!isConnected) { openBtModal(); return; }
+
+    const dias = document.getElementById('selDiasPlaca').value;
+    const franjas = [
+      { id: 1, on: document.getElementById('swF1').checked, ini: document.getElementById('tF1Ini').value.replace(':', ''), fin: document.getElementById('tF1Fin').value.replace(':', '') },
+      { id: 2, on: document.getElementById('swF2').checked, ini: document.getElementById('tF2Ini').value.replace(':', ''), fin: document.getElementById('tF2Fin').value.replace(':', '') },
+      { id: 3, on: document.getElementById('swF3').checked, ini: document.getElementById('tF3Ini').value.replace(':', ''), fin: document.getElementById('tF3Fin').value.replace(':', '') },
+      { id: 4, on: document.getElementById('swF4').checked, ini: document.getElementById('tF4Ini').value.replace(':', ''), fin: document.getElementById('tF4Fin').value.replace(':', '') }
+    ];
+
+    log('========================================');
+    log('⚡ GRABANDO HORARIO DE ESTA PLACA EN EEPROM');
+
+    // 1. Sincronizar Reloj RTC con hora del teléfono
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mo = String(d.getMonth()+1).padStart(2,'0');
+    const yy = String(d.getFullYear()).slice(-2);
+    const sem = '06';
+
+    log(`TX: Sincronizando Reloj: ¿R${hh}${mm}${dd}${mo}${yy}${sem},?`);
+    await enviarTramaBackend(`\xBF\x52${hh}${mm}${dd}${mo}${yy}${sem}\x2C\x3F\n\r`);
+    await sleep(RETARDO_TRAMA_MS);
+
+    // 2. Programar secuencialmente las 4 franjas con retardo de 450 ms
+    for (const f of franjas) {
+      if (f.on) {
+        log(`TX: Programando Franja ${f.id} (${f.ini.slice(0,2)}:${f.ini.slice(2)} - ${f.fin.slice(0,2)}:${f.fin.slice(2)})`);
+        await enviarTramaBackend(`\xBF\x41${f.id}\x2C\x45\x31\x2C\x49${f.ini}\x2C\x46${f.fin}\x2C\x44${dias}\x2C\x3F\n\r`);
+      } else {
+        log(`TX: Desactivando Franja ${f.id}`);
+        await enviarTramaBackend(`\xBF\x41${f.id}\x2C\x45\x30\x2C\x3F\n\r`);
+      }
+      await sleep(RETARDO_TRAMA_MS);
+    }
+
+    log('✓ Horario de Placa grabado y validado en EEPROM.');
+    log('========================================');
+
+    const badge = document.getElementById('badgeStatusPlaca');
+    if (badge) {
+      badge.textContent = '✓ ¡Horario de esta placa grabado con éxito en EEPROM!';
+      badge.style.display = 'block';
+      setTimeout(() => { badge.style.display = 'none'; }, 8000);
+    }
+
+    await cmdRead();
+  }
+
+  // --- RECESO ESCOLAR (APAGAR LAS 5 ALARMAS) ---
+  async function cmdRecesoEscolar() {
+    if (!isConnected) { openBtModal(); return; }
+    if (!confirm('¿Desea poner la señal en RECESO ESCOLAR? (Las 5 alarmas se apagarán para vacaciones sin destello 24h)')) return;
+
+    log('========================================');
+    log('🏖️ ACTIVANDO RECESO ESCOLAR (VACACIONES)');
+
+    for (let i = 1; i <= 5; i++) {
+      log(`TX: Apagando Alarma ${i}: ¿A${i},E0,?`);
+      await enviarTramaBackend(`\xBF\x41${i}\x2C\x45\x30\x2C\x3F\n\r`);
+      await sleep(RETARDO_TRAMA_MS);
+    }
+
+    log('✓ Señal en Receso Escolar: 5 alarmas apagadas.');
+    log('========================================');
+
+    const badge = document.getElementById('badgeStatusPlaca');
+    if (badge) {
+      badge.textContent = '🏖️ Señal en RECESO ESCOLAR: Todas las franjas apagadas.';
+      badge.style.display = 'block';
+      setTimeout(() => { badge.style.display = 'none'; }, 8000);
+    }
+
+    await cmdRead();
+  }
+
+  // --- REANUDAR CLASES ---
+  async function cmdReanudarClases() {
+    if (!isConnected) { openBtModal(); return; }
+    if (!confirm('¿Desea REANUDAR CLASES? Se reprogramará el horario de placa configurado en pantalla.')) return;
+    await cmdGrabarHorarioPlaca();
+  }
+
+  // --- TEST DE LUZ (2 MIN) ---
   async function cmdTestLight(start) {
     if (!isConnected) { openBtModal(); return; }
     if (start) {
@@ -745,6 +886,7 @@ Presione DISPOSITIVO para conectar.</div>
       log(`⚡ ACTIVANDO TEST DE LUZ (2 MIN)`);
       log(`TX: Sincronizando Reloj: ¿R${hi}${mi}${dd}${mo}${yy}06,?`);
       await enviarTramaBackend(`\xBF\x52${hi}${mi}${dd}${mo}${yy}06\x2C\x3F\n\r`);
+      await sleep(RETARDO_TRAMA_MS);
       
       const tramaTest = `\xBF\x41\x35\x2C\x45\x31\x2C\x49${hi}${mi}\x2C\x46${hf}${mf}\x2C\x44\x38\x2C\x3F\n\r`;
       log(`TX: ¿A5,E1,I${hi}${mi},F${hf}${mf},D8,? (Alarma 5 Test Activa)`);
@@ -809,11 +951,13 @@ Presione DISPOSITIVO para conectar.</div>
       document.getElementById('chkPanelSolar').checked = false;
       document.getElementById('chkPilaRTC').checked = false;
       document.getElementById('chkBorneras').checked = false;
+      document.getElementById('chkEstadoFisico').checked = true;
       document.getElementById('chkTestLuz').checked = true;
     } else {
       document.getElementById('chkPanelSolar').checked = true;
       document.getElementById('chkPilaRTC').checked = true;
       document.getElementById('chkBorneras').checked = true;
+      document.getElementById('chkEstadoFisico').checked = true;
       document.getElementById('chkTestLuz').checked = true;
     }
   }
@@ -825,65 +969,93 @@ Presione DISPOSITIVO para conectar.</div>
   }
 
   function cmdExportAudit() {
+    guardarNombreTecnicoLocal();
     const v = document.getElementById('lblVoltaje').textContent;
     const c = document.getElementById('lblCortes').textContent;
-    const consBox = document.getElementById('consoleBox'); 
-    const cons = consBox ? consBox.textContent : '';
     const d = new Date().toLocaleString();
     const nom = document.getElementById('txtNombreBaliza').value || 'Col. San José - Km 4+200';
+    const tecnico = document.getElementById('txtNombreTecnico').value || 'Ing. Diego Zúñiga - Cuadrilla 01';
     const tipoVisita = document.getElementById('selTipoVisita').value === 'SUELO' ? 
       'Inspección Inalámbrica a Nivel de Suelo (Sin Escalera)' : 'Mantenimiento Preventivo Físico en Poste (Con Escalera)';
 
+    const c1 = document.getElementById('chkEstadoFisico').checked ? 'OK' : 'PENDIENTE';
+    const c2 = document.getElementById('chkPanelSolar').checked ? 'OK' : 'PENDIENTE';
+    const c3 = document.getElementById('chkPilaRTC').checked ? 'OK' : 'PENDIENTE';
+    const c4 = document.getElementById('chkBorneras').checked ? 'OK' : 'PENDIENTE';
+    const c5 = document.getElementById('chkTestLuz').checked ? 'EJECUTADO / OK' : 'PENDIENTE';
+
     currentReportText = `========================================\n` +
-      `   CERTIFICADO DE AUDITORÍA VIAL SR30   \n` +
+      `   CERTIFICADO DE AUDITORÍA VIAL SR-30   \n` +
       `   SEÑAL: 30 CUANDO ACTIVADA - IT VIAL  \n` +
       `========================================\n` +
-      `UBICACIÓN / NOMBRE:  ${nom}\n` +
-      `DIRECCIÓN MAC:       98:D3:31:F8:42:0A\n` +
-      `FECHA DE INSPECCIÓN: ${d}\n` +
-      `MODALIDAD VISITA:    ${tipoVisita}\n` +
-      `SISTEMA OPERATIVO:   Android 14 (SM-S901B)\n` +
-      `----------------------------------------\n` +
-      `1. TELEMETRÍA Y AUTODIAGNÓSTICO EN VIVO:\n` +
-      `• Batería 12V / Panel: Batería Óptima (${v})\n` +
-      `• Pila RTC CR2032:     Pila RTC OK (Reloj en Hora)\n` +
-      `• Red / Bornes:        Alimentación Estable (${c})\n` +
-      `• Memoria EEPROM:      100% Íntegra (0x00=0x06)\n` +
-      `----------------------------------------\n` +
-      `2. CHECKLIST DE MANTENIMIENTO PREVENTIVO:\n` +
-      `[` + (document.getElementById('chkPanelSolar').checked ? 'X' : ' ') + `] Panel Solar limpio y fusible 12V verificado\n` +
-      `[` + (document.getElementById('chkPilaRTC').checked ? 'X' : ' ') + `] Pila CR2032 (3V) verificada / cambiada\n` +
-      `[` + (document.getElementById('chkBorneras').checked ? 'X' : ' ') + `] Borneras de 12V ajustadas contra vibración\n` +
-      `[` + (document.getElementById('chkTestLuz').checked ? 'X' : ' ') + `] Prueba física de foco (Test 2 min) ejecutada\n` +
-      `----------------------------------------\n` +
-      `3. HORARIOS OFICIALES VIGENTES EN BALIZA:\n` +
-      cons + `\n` +
-      `========================================\n` +
-      `Generado por: App IT VIAL 30 (v3.4 Oficial)\n`;
+      `📍 Ubicación/Colegio: ${nom}\n` +
+      `📅 Fecha y Hora:      ${d}\n` +
+      `🔢 Versión Firmware:  FW 3.4 Oficial\n` +
+      `🔍 Tipo de Visita:    ${tipoVisita}\n` +
+      `🔋 Voltaje Batería:   ${v} (Carga Óptima)\n` +
+      `⚡ Cortes Registrados: ${c}\n` +
+      `🚦 Estado Operativo:  🟢 100% OPERATIVO\n\n` +
+      `--- CHECKLIST DE INSPECCIÓN EN CAMPO ---\n` +
+      `[${c1 === 'OK' ? '✓' : ' '}] 1. Estado Físico: Señal, lámina y poste: ${c1}\n` +
+      `[${c2 === 'OK' ? '✓' : ' '}] 2. Panel Solar y Fusible 12V:            ${c2}\n` +
+      `[${c3 === 'OK' ? '✓' : ' '}] 3. Pila RTC CR2032 (3V) / Reloj:         ${c3}\n` +
+      `[${c4 === 'OK' ? '✓' : ' '}] 4. Borneras y Cableado 12V:              ${c4}\n` +
+      `[${c5.includes('OK') ? '✓' : ' '}] 5. Prueba de Destello Foco (2 min):    ${c5}\n\n` +
+      `--- FIRMA Y RESPONSABILIDAD TÉCNICA ---\n` +
+      `👨‍🔧 Inspector / Técnico: ${tecnico}\n` +
+      `🏢 Entidad / Soporte:   IT VIAL S.A.S. - Señalización Inteligente\n` +
+      `📝 Dictamen:            SEÑAL CERTIFICADA Y EN SERVICIO\n` +
+      `========================================`;
 
     document.getElementById('txtAuditPreview').value = currentReportText;
     document.getElementById('auditModal').style.display = 'flex';
   }
 
-  function copiarCertificado() {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(currentReportText);
-      alert('✓ Certificado copiado al portapapeles.');
-    } else {
-      alert(currentReportText);
-    }
-  }
-
   function enviarWhatsAppDirecto() {
-    copiarCertificado();
-    const url = 'https://wa.me/?text=' + encodeURIComponent(currentReportText);
-    window.open(url, '_blank');
+    const enc = encodeURIComponent(currentReportText);
+    window.open(`https://api.whatsapp.com/send?text=${enc}`, '_blank');
   }
 
-  function limpiarConsola() {
-    document.getElementById('consoleBox').textContent = '--- SISTEMA IT VIAL 30 v3.4 ---';
+  function copiarCertificado() {
+    navigator.clipboard.writeText(currentReportText).then(() => {
+      alert('✓ Certificado copiado al portapapeles. Listo para pegar en WhatsApp.');
+    }).catch(() => {
+      const ta = document.getElementById('txtAuditPreview');
+      ta.select();
+      document.execCommand('copy');
+      alert('✓ Certificado copiado al portapapeles.');
+    });
   }
 
+  async function cmdConfig() {
+    if (!isConnected) { openBtModal(); return; }
+    const num = document.getElementById('selAlarm').value;
+    const st = document.getElementById('selState').value;
+    const hi = document.getElementById('selHIni').value;
+    const mi = document.getElementById('selMIni').value;
+    const hf = document.getElementById('selHFin').value;
+    const mf = document.getElementById('selMFin').value;
+    const d = document.getElementById('selDays').value;
+
+    let trama = `\xBF\x41${num}\x2C\x45${st}\x2C`;
+    if (st === '1') {
+      trama += `\x49${hi}${mi}\x2C\x46${hf}${mf}\x2C\x44${d}\x2C`;
+    }
+    trama += `\x3F\n\r`;
+
+    log(`TX: Configurando Alarma ${num}...`);
+    const resp = await enviarTramaBackend(trama);
+    log(`RX: ${resp.trim() || 'OK'}`);
+    log(`✓ Alarma ${num} actualizada en la EEPROM.`);
+
+    const badge = document.getElementById('badgeStatusManual');
+    if (badge) {
+      badge.textContent = `✓ ¡Alarma ${num} grabada exitosamente en EEPROM! (${st === '1' ? 'Activa' : 'Inactiva'})`;
+      badge.style.display = 'block';
+      setTimeout(() => { badge.style.display = 'none'; }, 6000);
+    }
+    await cmdRead();
+  }
 </script>
 </body>
 </html>
