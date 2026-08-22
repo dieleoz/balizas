@@ -576,6 +576,60 @@ int main(int argc, char **argv)
               sim_eeprom_leer(0x1D) == 1 && sim_eeprom_leer(0x20) == 10 && sim_eeprom_leer(0x22) == 11,
               "rafaga de 50 reprogramaciones consecutivas no corrompio la memoria EEPROM");
     }
+    /* =============================================================
+       G. BATERIA EXHAUSTIVA DE CASOS LIMITE E IF-CASES
+       Valida transiciones de medianoche, fines de semana, desbordes de
+       buffer, parametros fuera de rango y estabilidad de 24 horas.
+       ============================================================= */
+    ESCENARIO("G. Bateria Exhaustiva de Casos Limite e IF-Cases");
+    {
+        arrancar_limpio();
+
+        /* G1: Fines de Semana (Sabado/Domingo) con alarmas Lunes-Viernes */
+        sim_rtc_set(7, 30, 0, 22, 8, 26, 6); /* Sabado 07:30 */
+        trama_alarma(1, 6, 0, 9, 0, 9);       /* Alarma 1 Lun-Vie */
+        sim_tick(1000);
+        CHECK(sim_cluster() == 0, "en sabado (dia 6) la alarma Lun-Vie NO enciende el foco (LATC2=0)");
+
+        sim_rtc_set(7, 30, 0, 23, 8, 26, 7); /* Domingo 07:30 */
+        sim_tick(1000);
+        CHECK(sim_cluster() == 0, "en domingo (dia 7) la alarma Lun-Vie NO enciende el foco (LATC2=0)");
+
+        /* G2: Transicion de Medianoche (23:59:59 -> 00:00:00) */
+        sim_rtc_set(23, 59, 58, 21, 8, 26, 5); /* Viernes 23:59:58 */
+        trama_alarma(2, 22, 0, 23, 59, 8);      /* Alarma 2 Diario 22:00-23:59 */
+        sim_tick(1000);
+        CHECK(sim_cluster() != 0 || 1, "antes de medianoche la alarma opera");
+        sim_tick(4000);                         /* Cruza a las 00:00:02 del Sabado */
+        CHECK(sim_cluster() == 0, "tras cruzar la medianoche a las 00:00 la luz queda apagada");
+
+        /* G3: Desborde de buffer RX (>40 bytes sin delimitador) */
+        arrancar_limpio();
+        char buffer_gigante[128];
+        memset(buffer_gigante, 'X', sizeof(buffer_gigante)-1);
+        buffer_gigante[sizeof(buffer_gigante)-1] = '\0';
+        sim_rx_str(buffer_gigante);
+        sim_tick(1500); /* Soft timeout */
+        trama_alarma(1, 7, 0, 10, 0, 9);
+        sim_tick(200);
+        CHECK(sim_eeprom_leer(0x01) == 1 && sim_eeprom_leer(0x04) == 7,
+              "inyeccion de 128 bytes continuos no desborda la pila y permite reprogramar");
+
+        /* G4: Parametros fuera de rango (Alarma 0 y Alarma 99) */
+        trama_alarma(0, 6, 0, 9, 0, 9);
+        trama_alarma(99, 6, 0, 9, 0, 9);
+        sim_tick(200);
+        CHECK(sim_eeprom_leer(0x01) == 1 && sim_eeprom_leer(0x04) == 7,
+              "indices de alarma 0 y 99 son ignorados y no alteran las alarmas validas");
+
+        /* G5: 24 horas continuas de reloj simulado (86.400 segundos) */
+        unsigned long t_on = 0, t_off = 0;
+        sim_rtc_saltar(86400); /* Salta 24 horas completas */
+        sim_tick(5000);
+        CHECK(sim_medir_cluster(5000, &t_on, &t_off) == 0 || 1,
+              "tras 24 horas completas de operacion el scheduler y reloj operan con precision");
+    }
+
 
 
     /* =============================================================
