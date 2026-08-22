@@ -83,10 +83,11 @@ La cifra viva está en **[`ESTADO.md`](ESTADO.md)**; lo que queda por hacer, en
 |---|---|
 | [`CONTEXTO_AGENTE.md`](CONTEXTO_AGENTE.md) | **Guía de traspaso y contexto operativo integral para agentes de IA** |
 | [`ESTADO.md`](ESTADO.md) | qué corre hoy y qué está roto. Se reescribe cada sesión |
-| [`ROADMAP.md`](ROADMAP.md) | en qué orden arreglar, y por qué ese orden |
+| [`ROADMAP.md`](ROADMAP.md) | en qué orden arreglar, qué queda pendiente para futuras versiones de la app y por qué |
+| [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md) | **Manual de usuario oficial de la app móvil IT VIAL 30 v3.3 (Guía para cliente e instaladores con capturas y diagnóstico)** |
 | [`Manuales/FIRMWARE.md`](Manuales/FIRMWARE.md) | el firmware módulo a módulo, con sus defectos y su línea |
 | [`Manuales/HARDWARE.md`](Manuales/HARDWARE.md) | la tarjeta: componentes, netlist y el mapeo real de pines |
-| [`Manuales/APP_MOVIL.md`](Manuales/APP_MOVIL.md) | la app Android y el contrato de tramas |
+| [`Manuales/APP_MOVIL.md`](Manuales/APP_MOVIL.md) | la app Android y el contrato de tramas de ingeniería |
 | [`Manuales/BLUETOOTH.md`](Manuales/BLUETOOTH.md) | por qué el módulo nuevo no funciona y cómo probarlo |
 | [`Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md`](Manuales/MANUAL_FUNCIONAL_BLUETOOTH.md) | la hoja que sigue el funcional para configurar y validar cada módulo |
 | [`Manuales/COMPILAR_Y_GRABAR.md`](Manuales/COMPILAR_Y_GRABAR.md) | cómo compilar lo que se modifique y cómo grabarlo |

@@ -35,6 +35,7 @@ El sistema controla una **señal de tránsito vial inteligente con baliza LED in
 |---|---|---|---|
 | **App Android** | **v3.3 (`IT VIAL 30`)** | [`1 Firmware/Baliza_v3.3.apk`](1%20Firmware/Baliza_v3.3.apk) | Ícono corporativo «t», branding oficial, horario escolar 1-toque, test de 2 min, tema oscuro blindado. |
 | **Firmware PIC** | **v1.0 Corregido** | [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex) | Cadencia 1.0 Hz, or-alarmas corregido, parser robusto, buzzer en RC1. |
+| **Manual de Usuario** | **v3.3 Oficial** | [`Manuales/MANUAL_USUARIO_APP.docx`](Manuales/MANUAL_USUARIO_APP.docx) / [`.md`](Manuales/MANUAL_USUARIO_APP.md) | Manual corporativo formal para cliente e instaladores con 18 capturas HD y guía de batería/diagnóstico. |
 
 ---
 

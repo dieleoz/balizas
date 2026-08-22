@@ -15,6 +15,7 @@ genera. Ver «Cómo se regeneran» al final.
 | [`COMPILAR_Y_GRABAR.md`](COMPILAR_Y_GRABAR.md) | quien modifique el firmware | MPLAB X, XC8, cómo compilar y cómo grabar el PIC |
 | [`FIRMWARE.md`](FIRMWARE.md) | quien mantenga el firmware | El firmware módulo a módulo, con las máquinas de estado y **45 defectos** con su `fichero:línea` |
 | [`HARDWARE.md`](HARDWARE.md) | quien fabrique o modifique la tarjeta | Componentes, netlist y el mapeo real de pines contra el firmware |
+| [`MANUAL_USUARIO_APP.md`](MANUAL_USUARIO_APP.md) | **el instalador / técnico** | Manual de usuario paso a paso con capturas para instalar el APK, vincular Bluetooth, programar el horario oficial en 1 toque y diagnosticar la luz |
 | [`APP_MOVIL.md`](APP_MOVIL.md) | quien toque la app o el protocolo | La app Android y el contrato de tramas, byte a byte |
 
 ## Antes de mandar cualquiera de estos a alguien

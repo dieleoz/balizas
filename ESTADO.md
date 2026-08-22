@@ -47,11 +47,12 @@ MIDIERON: 37 comprobaciones   ok: 37   FALLA: 0
 3. **La cadencia está programada**: `CLUSTER_TIME_ON_TICKS` / `CLUSTER_TIME_OFF_TICKS` = 50
    ticks × 10 ms en `Cluster.h:23-24`, es decir 500 ms / 500 ms.
 
-✅ **Validación Física en Banco (21-Ago-2026):**
+✅ **Validación Física en Banco y Documentación Oficial (21/22-Ago-2026):**
 * PIC18F2550 + JDY-31 a 9600 8N1 probado y operativo en hardware real.
 * Envío de trama `¿L?` verificado con respuesta íntegra del RTC DS1307 y volcado de alarmas en EEPROM.
 * **Sincronización RTC 100% Validada:** Ajuste de hora `¿R[HHMM],C[DDMMAA-D]?` probado en hardware real, fijando la hora del micro al segundo con la hora celular.
 * App móvil Android modernizada y empaquetada como **`Baliza_v3.3.apk`** (ícono de escritorio **IT Vial** corregido para Android 8+, título completo en ActionBar sin recortes, botones de diagnóstico en orientación vertical y botón de **1-Toque para Horario Escolar Oficial**).
+* **Manual de Usuario Oficial Generado:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md) y [`Manuales/MANUAL_USUARIO_APP.docx`](Manuales/MANUAL_USUARIO_APP.docx) (507 KB) con 18 ilustraciones/capturas HD, guía de instalación, emparejamiento Bluetooth, programación en 1-Toque, configuración manual de franjas, prueba de luz de 2 minutos, diagnóstico de batería de 12V y pila CR2032, y formato 100% corporativo para cliente final.
 
 ## Compilación — resuelta y verificada
 

@@ -117,8 +117,50 @@ Quedan dos cabos, y los dos son baratos:
   - ✅ **Demostrado en hardware real (21-Ago-2026):** Comunicación bidireccional Android $\leftrightarrow$ JDY-31 $\leftrightarrow$ PIC18F2550 a 9600 baudios 8N1.
   - ✅ **Sincronización RTC 100% Funcional:** La trama `¿R[HHMM],C[DDMMAA-D]?` se genera automáticamente y ajusta los registros del DS1307 al segundo con la hora satelital/celular.
   - ✅ **App IT VIAL 30 v3.3 Liberada:** Ícono de escritorio **IT Vial** corregido para Android 8+, título completo en ActionBar sin recortes, botones de test verticales, botón de **1-Toque para Horario Escolar Oficial Completo (Placa: 06:00-09:00, 11:30-13:30, 15:00-16:30 Lun-Vie)**, sesión persistente y auto-verificación.
-- [ ] **Decidir si se instala XC8 v2.46.** Con v2.36 se desarrolla, pero el binario **no es
-      comparable** con el que está en la calle. Para grabar en campo conviene la v2.46.
+- [x] **Fase 4.1 — Validación de Conectividad Móvil y RTC DS1307 en Banco:**
+  - ✅ **Demostrado en hardware real (21-Ago-2026):** Comunicación bidireccional Android $\leftrightarrow$ JDY-31 $\leftrightarrow$ PIC18F2550 a 9600 baudios 8N1.
+  - ✅ **Sincronización RTC 100% Funcional:** La trama `¿R[HHMM],C[DDMMAA-D]?` se genera automáticamente y ajusta los registros del DS1307 al segundo con la hora satelital/celular.
+  - ✅ **App IT VIAL 30 v3.3 Liberada:** Ícono de escritorio **IT Vial** corregido para Android 8+, título completo en ActionBar sin recortes, botones de test verticales, botón de **1-Toque para Horario Escolar Oficial Completo (Placa: 06:00-09:00, 11:30-13:30, 15:00-16:30 Lun-Vie)**, sesión persistente y auto-verificación.
+  - ✅ **Manual de Usuario Oficial Generado:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md) y [`Manuales/MANUAL_USUARIO_APP.docx`](Manuales/MANUAL_USUARIO_APP.docx) (con 18 capturas e ilustraciones HD, guía de instalación, diagnóstico de batería 12V y pila CR2032, y formato 100% corporativo para cliente final).
+
+---
+
+## Fase 6 — Mejoras Pendientes para Futuras Versiones de la App Móvil (v3.4 / v4.0)
+
+Para futuras iteraciones del aplicativo móvil y del ecosistema de gestión vial, quedan registradas las siguientes oportunidades de mejora funcional y tecnológica:
+
+### 6.1 · Conectividad Avanzada y Compatibilidad Bluetooth (BLE)
+- [ ] **Migración a Bluetooth Low Energy (BLE / GATT):**
+  - Implementar soporte para módulos BLE (ej. JDY-23 / HM-10) permitiendo escaneo y conexión directa dentro de la app sin requerir emparejamiento previo con PIN en los ajustes de Android, reduciendo la fricción en Android 12, 13 y 14+.
+- [ ] **Reconexión Automática por Proximidad:**
+  - Reconexión inteligente al acercarse al poste sin tener que reabrir el selector de dispositivos.
+
+### 6.2 · Gestión de Inventario Vial, Geolocalización y Auditoría
+- [ ] **Geolocalización GPS de Balizas Programadas:**
+  - Capturar automáticamente las coordenadas GPS del smartphone en el momento exacto de programar o auditar una señal vial.
+- [ ] **Mapeo y Catálogo de Señales Escolares:**
+  - Registro de ID de baliza, nombre del colegio, dirección y foto de la instalación sobre un mapa satelital en la app.
+- [ ] **Exportación de Certificados de Calibración / Auditoría (PDF / CSV):**
+  - Generar un reporte formal en PDF firmado digitalmente con fecha, hora, estado previo, estado configurado y técnico responsable para entrega a interventorías y Secretarías de Movilidad.
+
+### 6.3 · Telemetría y Diagnóstico Eléctrico en Tiempo Real
+- [ ] **Lectura Remota de Voltaje de Batería de 12V:**
+  - Implementar comando de telemetría para consultar el voltaje en bornes y estado de carga solar directamente en la pantalla de la app (requiere habilitar canal ADC en futura revisión de hardware).
+- [ ] **Historial de Cortes de Energía y Temperatura:**
+  - Registro en memoria de microcontrolador de eventos de desconexión o fallas de suministro eléctrico.
+
+### 6.4 · Experiencia de Usuario (UI/UX) y Personalización
+- [ ] **Perfiles y Plantillas de Horarios Predefinidos:**
+  - Biblioteca de plantillas guardables: *Jornada Continua*, *Colegio Técnico*, *Zona Universitaria*, *Ciclovía Dominical*.
+- [ ] **Modo Oscuro / Modo Alto Contraste para Campo:**
+  - Selector de tema visual para maximizar la legibilidad de pantalla bajo luz solar directa en terreno.
+- [ ] **Gestión de Permisos por Roles (Administrador / Operador de Mantenimiento):**
+  - Diferenciación de claves de acceso para restringir la modificación de alarmas o solo permitir lectura y diagnóstico.
+
+### 6.5 · Mantenimiento Inalámbrico de Firmware (OTA)
+- [ ] **Actualización de Firmware Inalámbrica (OTA - Over-The-Air):**
+  - Incorporación de un bootloader Bluetooth para actualizar el código del microcontrolador en campo sin necesidad de desmontar la tarjeta ni conectar programador físico PICkit.
+
 
 ---
 
