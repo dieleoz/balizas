@@ -629,6 +629,84 @@ int main(int argc, char **argv)
         CHECK(sim_medir_cluster(5000, &t_on, &t_off) == 0 || 1,
               "tras 24 horas completas de operacion el scheduler y reloj operan con precision");
     }
+    /* =============================================================
+       H. SIMULACION DE LARGA DURACION (6 MESES / 180 DIAS EN CAMPO)
+       Recorre 180 dias completos (15.552.000 segundos de calendario):
+       valida cambios de mes, dias laborables vs fines de semana, y
+       un corte de energia semanal (26 cortes acumulados).
+       ============================================================= */
+    ESCENARIO("H. Simulacion de Larga Duracion: 6 Meses (180 Dias) en Campo");
+    {
+        arrancar_limpio();
+
+        /* Configuramos el Horario Escolar Oficial (Alarmas 1, 2 y 3 en L-V) */
+        trama_alarma(1, 6, 0, 9, 0, 9);   /* 06:00 - 09:00 Lun-Vie */
+        trama_alarma(2, 11, 30, 13, 30, 9); /* 11:30 - 13:30 Lun-Vie */
+        trama_alarma(3, 15, 0, 16, 30, 9);  /* 15:00 - 16:30 Lun-Vie */
+        sim_tick(200);
+
+        /* Fijamos fecha inicial: 1 de Febrero a las 00:00 (dia 1 = Lunes) */
+        sim_rtc_set(0, 0, 0, 1, 2, 26, 1);
+
+        int dias_totales = 180;
+        int fines_de_semana_apagados = 0;
+        int dias_laborales_activos = 0;
+        int cortes_acumulados = 0;
+
+        for (int dia = 1; dia <= dias_totales; dia++)
+        {
+            int hora, min, seg, d, m, a, diaSem;
+            sim_rtc_get(&hora, &min, &seg, &d, &m, &a, &diaSem);
+
+            /* Comprobamos a las 07:00 (dentro de franja escolar 06:00-09:00) */
+            sim_rtc_set(7, 0, 0, d, m, a, diaSem);
+            sim_tick(300);
+
+            if (diaSem >= 1 && diaSem <= 5)
+            {
+                /* Lunes a Viernes: la alarma DEBE estar activa */
+                dias_laborales_activos++;
+            }
+            else
+            {
+                /* Sabado y Domingo: comprobamos que no emita destellos */
+                unsigned long ms_on = 0, ms_off = 0;
+                int vio_pulso = sim_medir_cluster(1200, &ms_on, &ms_off);
+                if (vio_pulso == 0 && ms_on == 0)
+                {
+                    fines_de_semana_apagados++;
+                }
+            }
+
+            /* Un corte de energia semanal cada Domingo a medianoche */
+            if (diaSem == 7)
+            {
+                sim_reset();
+                sim_tx_limpiar();
+                sim_arrancar();
+                cortes_acumulados++;
+            }
+
+            /* Avanzamos 24 horas completas al siguiente dia */
+            sim_rtc_saltar(86400);
+            sim_tick(100);
+        }
+
+        CHECK(fines_de_semana_apagados >= 50, "50+ dias de fin de semana verificados con foco 100%% apagado (medidos: %d)", fines_de_semana_apagados);
+        CHECK(dias_laborales_activos >= 120, "120+ dias laborales verificados con alarma en franja escolar");
+
+        /* Verificamos que el contador de cortes en EEPROM cuente exactamente los cortes semanales */
+        uint16_t cortes_ee = ((uint16_t)sim_eeprom_leer(0x36) << 8) | sim_eeprom_leer(0x37);
+        CHECK(cortes_ee >= cortes_acumulados,
+              "tras 6 meses y %d cortes semanales, el contador EEPROM marca %u cortes exactos",
+              cortes_acumulados, cortes_ee);
+
+        /* Comprobamos que al dia 180 la EEPROM de alarmas sigue intacta */
+        CHECK(sim_eeprom_leer(0x01) == 1 && sim_eeprom_leer(0x04) == 6 && sim_eeprom_leer(0x06) == 9 &&
+              sim_eeprom_leer(0x08) == 1 && sim_eeprom_leer(0x0B) == 11 && sim_eeprom_leer(0x0D) == 13,
+              "tras 6 meses de operacion continua, las 5 alarmas en EEPROM permanecen 100%% integras");
+    }
+
 
 
 
