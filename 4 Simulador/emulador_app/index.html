@@ -382,6 +382,16 @@
         <div id="testTimerBadge" style="font-size:10px; color:#D97706; font-weight:700; text-align:center; margin-top:4px;"></div>
       </div>
 
+            <!-- CONSOLA DE TELEMETRÍA UART EN VIVO -->
+      <div class="card" style="padding:10px;">
+        <div class="card-header" style="margin-bottom:4px;">
+          <span>Terminal UART en Vivo</span>
+          <span style="font-size:9px; color:#3B82F6; cursor:pointer;" onclick="limpiarConsola()">[Limpiar]</span>
+        </div>
+        <div class="console-box" id="consoleBox">--- SISTEMA IT VIAL 30 v3.4 ---
+Presione DISPOSITIVO para conectar.</div>
+      </div>
+
       <!-- 5. AUDITORÍA, CHECKLIST Y EXPORTAR (CIERRE DE INSPECCIÓN) -->
       <div class="card">
         <div class="card-header">
@@ -552,8 +562,11 @@
 
   function log(txt) {
     const box = document.getElementById('consoleBox');
-    box.textContent += '\n' + txt;
-    box.scrollTop = box.scrollHeight;
+    if (box) {
+      box.textContent += '\n' + txt;
+      box.scrollTop = box.scrollHeight;
+    }
+    console.log('[UART LOG]', txt);
   }
 
   async function enviarTramaBackend(trama) {
@@ -788,7 +801,7 @@
   function cmdExportAudit() {
     const v = document.getElementById('lblVoltaje').textContent;
     const c = document.getElementById('lblCortes').textContent;
-    const cons = document.getElementById('consoleBox').textContent;
+    const consBox = document.getElementById('consoleBox'); const cons = consBox ? consBox.textContent : '';
     const d = new Date().toLocaleString();
     const nom = document.getElementById('txtNombreBaliza').value || 'Col. San José - Km 4+200';
     const tipoVisita = document.getElementById('selTipoVisita').value === 'SUELO' ? 
