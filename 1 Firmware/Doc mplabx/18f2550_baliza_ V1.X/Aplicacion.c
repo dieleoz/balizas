@@ -291,7 +291,15 @@ void cleanBuffer(char* orig)
     transmitUart1(ap.bufferTx);
     
     cleanBuffer(ap.bufferTx);
-    sprintf(ap.bufferTx, "%d/%d/%d-%d\n\r\n\r\n\r",rtc.day, rtc.month, rtc.year, rtc.dayWeek);
+    sprintf(ap.bufferTx, "%d/%d/%d-%d\n\r",rtc.day, rtc.month, rtc.year, rtc.dayWeek);
+    transmitUart1(ap.bufferTx);
+
+    // Telemetria de Bateria (Divisor resistivo R13/R14 en AN1) y Auditoria de Cortes
+    uint16_t raw_volt = ADC_read(1);
+    uint16_t volt_dec = (uint16_t)(((uint32_t)raw_volt * 300UL) / 1024UL + 3);
+    uint16_t cortes = ((uint16_t)EEpromRead(0x36) << 8) | EEpromRead(0x37);
+    cleanBuffer(ap.bufferTx);
+    sprintf(ap.bufferTx, "Bat: %d.%dV | Cortes: %d\n\r\n\r", volt_dec / 10, volt_dec % 10, cortes);
     transmitUart1(ap.bufferTx);
     
     cleanBuffer(ap.bufferTx);

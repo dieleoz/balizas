@@ -442,6 +442,18 @@ int main(int argc, char **argv)
         CHECK(sim_eeprom_leer(0x05) == 30, "min inicio = 30 tras recuperacion (leido %d)", sim_eeprom_leer(0x05));
     }
 
+    ESCENARIO("D8. Telemetria y Auditoria: reporte Bat/Cortes tras lectura L");
+    {
+        arrancar_limpio();
+        sim_tx_limpiar();
+        sim_rx_str("\xBF" "L?\n\r");
+        sim_tick(300);
+
+        /* Comprueba que la respuesta contenga Bat: y Cortes: */
+        CHECK(strstr(sim_tx(), "Bat:") != NULL, "el reporte de lectura incluye voltaje de bateria");
+        CHECK(strstr(sim_tx(), "Cortes:") != NULL, "el reporte de lectura incluye contador de cortes");
+    }
+
     /* =============================================================
        E. CONTROL NEGATIVO
        Un arnes que nadie ha visto fallar es un adorno. Estos escenarios
