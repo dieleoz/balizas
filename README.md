@@ -46,7 +46,7 @@ responsable el 22-ago-2026. No se mezclan con nada de otra procedencia:
 | **Microcontrolador** | **Microchip PIC18F2550** a 20.0 MHz (HS) |
 | **Compilador Firmware** | **C99** (`--std=c99`). ⚠️ **La versión exacta de XC8 de este binario no está registrada**: la carpeta `build_xc8/` no conserva el `.map`. Ver ROADMAP, pendiente 5 |
 | **Binario que corre HOY en la calle** | Sin confirmar — ver ROADMAP, pendiente 3 |
-| **Cobertura de Pruebas** | **67 de 67 · PASS**, medido el **22-ago-2026** con `python "4 Simulador/correr.py"` |
+| **Cobertura de Pruebas** | **78 de 78 · PASS**, medido el **22-ago-2026** con `python "4 Simulador/correr.py"` |
 | **Comprobación de interfaz** | **PASS** — contraste WCAG, áreas táctiles y responsive, con `comprobar_ui.py`. **No sustituye a verla en un teléfono** |
 
 ---
@@ -60,7 +60,7 @@ certificado. De ahi salen otros dos binarios:
 
 | | Fichero | Tamano | SHA-256 (12) |
 |---|---|---|---|
-| Firmware | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex` | 49.133 B | `889c0188914b` |
+| Firmware | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex` | 49.201 B | `61e0441df8ce` |
 | App | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk` | 6.080.041 B | `bb2aedd9d130` |
 
 **Son la base de la proxima version, no una version.** Tres cosas tienen que pasar antes de

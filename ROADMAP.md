@@ -10,7 +10,7 @@ todavía no han pasado por funcional.
 
 | | v3.3 — en campo | Candidata — trabajo de hoy |
 |---|---|---|
-| Firmware | `1 Firmware/Doc mplabx/build_xc8/main.hex`<br>59.577 B · `c14b4350d960…` | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`<br>49.133 B · `889c0188914b…` |
+| Firmware | `1 Firmware/Doc mplabx/build_xc8/main.hex`<br>59.577 B · `c14b4350d960…` | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`<br>49.201 B · `61e0441df8ce…` |
 | App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>6.080.041 B · `bb2aedd9d130…` |
 | Funcional | Aprobada | **Pendiente** |
 
@@ -70,28 +70,22 @@ horario programado coincide con la chapa atornillada. El simulador no puede sust
 
 ## Defectos abiertos
 
-### 5. El equipo no sabe decir qué firmware lleva
+### 5. ~~El equipo no sabe decir qué firmware lleva~~ — HECHO el 22-ago-2026
 
-Medido el 22-ago-2026 al comprobar si el `.hex` «era de la 3.4». **No lo es, y no puede
-serlo:** el firmware no tiene identidad de versión.
+El volcado de `¿L?` abre ahora con `FW 3.4`. Antes todos los binarios anunciaban
+`BALIZA ALARMA V1.0` —incluidos dos que se comportan distinto— y delante de una señal
+montada no había forma de saber cuál corría.
 
-Anuncia `BALIZA ALARMA V1.0` al arrancar (`Aplicacion.c:156`) y esa cadena **es idéntica en
-el binario de la v3.3 y en el candidato**, que se comportan distinto — el candidato lleva el
-arreglo del despachador de tramas. El volcado de `¿L?` tampoco la incluye.
+Coste: **22 bytes** de Flash (53,2% → 53,3%). Binario nuevo: **49.201 B**, `61e0441df8ce`,
+reproducible y con su `.map` regenerado.
 
-Así que delante de una señal montada **nadie puede saber qué firmware corre**. Ni el técnico
-con la app, ni soporte por teléfono, ni una auditoría. Y con dos binarios en circulación que
-difieren en cómo tratan el nombre OTA, eso ya no es teórico.
+**La trampa que se evitó, y que estuvo cerca:** la app decide que el reloj está caído buscando
+`/0-` en el volcado (`MainActivity2.java:1146`). Poner una **fecha de compilación** en la línea
+de versión —que era lo natural— habría hecho que la app diera el reloj por muerto **en todas
+las balizas**. Por eso el texto va sin barras y el escenario `N` del arnés lo vigila.
 
-**Propuesta concreta**, que es barata: que el volcado de `¿L?` abra con una línea de versión,
-por ejemplo `FW 3.4 (889c0188)`. Dos cosas a medir antes de tocarlo:
-
-1. **Que la app no se rompa** al recibir una línea de más. Su parseo busca patrones concretos
-   (`Bat:`, las filas de alarma), pero eso hay que comprobarlo, no suponerlo.
-2. **Que quepa.** Quedan 15.361 bytes de Flash libres, así que espacio hay de sobra.
-
-Mientras tanto, la única trazabilidad es **anotar en el acta de campo qué `.hex` se grabó, con
-su SHA-256**.
+Queda una regla viva: **`FW_VERSION` se sube a la vez que la versión de la app**, porque
+firmware y app se entregan como pareja.
 
 ### 6. La versión de XC8 del binario de la v3.3 no está registrada
 

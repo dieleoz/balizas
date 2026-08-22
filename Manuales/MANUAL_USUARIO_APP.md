@@ -7,7 +7,7 @@
 1. [Introducción y Propósito](#1-introducción-y-propósito)
 2. [Arquitectura de la Interfaz Responsiva](#2-arquitectura-de-la-interfaz-responsiva)
 3. [Guía de Conexión Bluetooth](#3-guía-de-conexión-bluetooth)
-4. [Programación en 1-Toque (Horario Escolar Oficial)](#4-programación-en-1-toque-horario-escolar-oficial)
+4. [Programación del Horario de la Placa (Horario Escolar Oficial)](#4-programación-en-1-toque-horario-escolar-oficial)
 5. [Asignación de Nombre / Ubicación por el Aire (OTA)](#5-asignación-de-nombre--ubicación-por-el-aire-ota)
 6. [Motor de Autodiagnóstico y Dictamen en Campo](#6-motor-de-autodiagnóstico-y-dictamen-en-campo)
 7. [Checklist de Mantenimiento Preventivo y Trazabilidad](#7-checklist-de-mantenimiento-preventivo-y-trazabilidad)
@@ -41,15 +41,53 @@ La interfaz ha sido diseñada bajo directivas ergonómicas para uso rudo en call
 
 ---
 
-## 4. Programación en 1-Toque (Horario Escolar Oficial)
+## 4. Programación del Horario de la Placa
 
-Para programar la baliza con el estándar vial sin errores manuales:
-1. Presione el botón azul oscuro:
-   $$\mathbf{\text{⚡ Programar Horario Escolar (1 Toque)}}$$
-2. La app sincroniza el reloj RTC con la hora exacta de su teléfono y graba las 3 franjas reglamentarias en la EEPROM:
-   * **Franja 1 (Mañana):** `06:00` a `09:00` (Lunes a Viernes)
-   * **Franja 2 (Mediodía):** `11:30` a `13:30` (Lunes a Viernes)
-   * **Franja 3 (Tarde):** `15:00` a `16:30` (Lunes a Viernes)
+> ### El horario lo manda la placa, no la aplicación
+>
+> **No existe un horario estándar.** Cada colegio tiene el suyo, impreso en la placa metálica
+> atornillada bajo la señal, y puede llevar **hasta cuatro franjas**. Lo que se programa en el
+> equipo tiene que coincidir **exactamente** con lo que dice esa placa.
+>
+> Si no coincide, la señal afirma una cosa y hace otra delante de un colegio, y **no hay forma
+> de detectarlo desde el escritorio**: la aplicación confirmará igualmente que grabó.
+
+### 4.1 Procedimiento
+
+1. **Lea la placa** de la señal que tiene delante y anote sus franjas y sus días.
+2. En la tarjeta **HORARIO DE ESTA PLACA**, active con el interruptor las franjas que use esa
+   señal y deje apagadas las que no. Hay cuatro disponibles.
+3. Toque cada hora para abrir el reloj y ajustarla. El botón izquierdo es el inicio de la franja
+   y el derecho el final.
+4. Elija los **días** en el desplegable: lunes a viernes, todos los días, o sábado y domingo.
+5. Pulse **GRABAR ESTE HORARIO EN LA BALIZA**.
+6. Aparecerá una **ventana de confirmación con la lista exacta** de lo que se va a grabar.
+   **Compárela con la placa antes de aceptar.** Es el último punto en el que se puede detectar
+   un error sin volver al poste.
+7. Al aceptar, la aplicación sincroniza el reloj del equipo con la hora del teléfono, graba las
+   franjas y vuelve a leer la baliza para que usted vea cómo quedó.
+
+### 4.2 Qué NO hace este botón
+
+* **No toca la Alarma 5**, que queda reservada a la prueba de foco de 2 minutos (apartado 8).
+* **No inventa horarios.** Si no activa ninguna franja, la señal no destellará nunca, y la
+  ventana de confirmación se lo advertirá con esas palabras.
+
+---
+
+## 4bis. Receso Escolar (Vacaciones)
+
+Durante las vacaciones **no hay escolares y el límite de 30 km/h no rige**. Una señal que
+destella semanas enteras sin alumnos acostumbra a los conductores a ignorarla, y le resta
+autoridad para cuando sí importa.
+
+| Botón | Qué hace |
+|---|---|
+| **APAGAR (RECESO)** | Apaga **todas** las franjas. La señal queda sin destellar las 24 horas. |
+| **REANUDAR CLASES** | Vuelve a grabar el horario que esté en pantalla. |
+
+Los dos piden confirmación antes de actuar. Antes de apagar, **compruebe que el horario en
+pantalla es el de la placa**: es el que se restaurará al reanudar.
 
 ---
 
@@ -95,6 +133,20 @@ Para garantizar que los mantenimientos en campo se realicen formalmente, la app 
 ## 9. Exportación del Certificado de Auditoría para WhatsApp
 
 Presione **`📤 COMPARTIR CERTIFICADO DE AUDITORÍA`** para enviar el acta formal con dirección MAC, telemetría y checklist completado a la interventoría o al soporte de IT VIAL.
+
+---
+
+## 9bis. Cómo saber qué versión lleva la baliza
+
+Al pulsar **LEER**, la primera línea del volcado indica la versión del firmware que corre en
+ese equipo:
+
+```
+FW 3.4
+```
+
+Anótela en el acta de inspección. Los equipos anteriores a esta versión **no la muestran**:
+si no aparece la línea, la baliza lleva un firmware antiguo y conviene reportarlo a soporte.
 
 ---
 

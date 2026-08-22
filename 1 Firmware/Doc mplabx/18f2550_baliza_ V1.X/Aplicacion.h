@@ -25,6 +25,20 @@ extern "C" {
 
 #define TIME_OUT_AP             50
 #define TIME_READ_VOLT          6000
+/* VERSION DEL FIRMWARE. La anuncia readDevide() en el volcado de "L?" para que
+ * se pueda preguntar a una senal montada que lleva dentro. Hasta el 22-ago-2026
+ * no se podia: todos los binarios decian "BALIZA ALARMA V1.0", incluidos dos
+ * que se comportaban distinto.
+ *
+ * SIN BARRAS. La app decide que el reloj esta caido buscando "/0-" en el
+ * volcado (MainActivity2.java:1146). Una fecha de compilacion aqui dentro haria
+ * que diera por muerto el reloj de todas las balizas. El arnes lo vigila en el
+ * escenario N.
+ *
+ * Se sube A LA VEZ que la version de la app: firmware y app se validan y se
+ * entregan como pareja. */
+#define FW_VERSION              "3.4"
+
 #define TIME_READ_TEMP          4500
 
 //**********************************    

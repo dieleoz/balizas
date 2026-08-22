@@ -295,6 +295,10 @@ void cleanBuffer(char* orig)
      char bufferEnable[5];
     
      
+    /* Primero, quien es. Sin esto no hay forma de saber que firmware corre en
+       una senal ya montada -- ver FW_VERSION en Aplicacion.h. */
+    transmitUart1((char*)"FW " FW_VERSION "\n\r");
+
     cleanBuffer(ap.bufferTx);
     sprintf(ap.bufferTx, "%d:%d:%d\n\r",rtc.hor,rtc.min,rtc.seg);
     transmitUart1(ap.bufferTx);

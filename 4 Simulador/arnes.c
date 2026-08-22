@@ -653,6 +653,147 @@ int main(int argc, char **argv)
     }
 
     /* =============================================================
+       M. RECESO ESCOLAR: APAGAR TODAS LAS FRANJAS Y VOLVER
+
+       La restriccion de 30 km/h solo rige cuando hay exposicion al riesgo, o
+       sea en dias lectivos. En vacaciones NO hay escolares, y son SEMANAS
+       seguidas -- mucho mas que un festivo suelto.
+
+       Los festivos se descartaron por imposibles de saber desde el equipo
+       (ROADMAP, Decisiones tomadas), pero las vacaciones son otra cosa: son
+       fechas conocidas, estables por colegio, y el tecnico pasa por la senal.
+       Basta con apagar las franjas y volver a encenderlas.
+
+       Esto mide que ese procedimiento FUNCIONA con el firmware de hoy, sin
+       calendario ni cambios: apagar deja la luz muerta, y volver a programar la
+       devuelve intacta.
+       ============================================================= */
+    ESCENARIO("M. Receso escolar: apagar las franjas y recuperarlas");
+    {
+        int i;
+        arrancar_limpio();
+
+        trama_alarma(1,  6,  0,  9,  0, 9);
+        trama_alarma(2, 11, 30, 13, 30, 9);
+        trama_alarma(3, 15,  0, 16, 30, 9);
+        trama_alarma(4, 17,  0, 18,  0, 9);
+
+        sim_rtc_set(7, 0, 0, 21, 8, 26, 5);   /* viernes lectivo, en franja */
+        sim_tick(3000);
+        CHECK(sim_cluster_parpadea(2000),
+              "antes del receso, en franja lectiva la luz parpadea");
+
+        /* El tecnico apaga las cuatro. Hoy son cuatro tramas, una por alarma. */
+        for (i = 1; i <= 4; i++) trama_apagar(i);
+
+        sim_tick(3000);
+        CHECK(!sim_cluster_parpadea(4000),
+              "en receso, con las franjas apagadas, la luz NO se enciende");
+
+        /* Y otra hora cualquiera del dia, por si acaso. */
+        sim_rtc_set(12, 0, 0, 21, 8, 26, 5);
+        sim_tick(3000);
+        CHECK(!sim_cluster_parpadea(4000),
+              "en receso la luz sigue apagada a cualquier hora");
+
+        /* Vuelta a clase: se reprograma y tiene que volver igual. */
+        trama_alarma(1,  6,  0,  9,  0, 9);
+        sim_rtc_set(7, 0, 0, 21, 8, 26, 5);
+        sim_tick(3000);
+        CHECK(sim_cluster_parpadea(2000),
+              "tras el receso, reprogramar devuelve la senal a servicio");
+    }
+
+    /* =============================================================
+       L. CUATRO FRANJAS HORARIAS
+
+       El horario NO es el mismo en todos los colegios y puede llegar a CUATRO
+       franjas (confirmado por el responsable el 22-ago-2026). El equipo tiene
+       cinco alarmas, asi que cuatro franjas caben y sobra la 5 para el test de
+       foco de 2 minutos -- pero eso hay que MEDIRLO, no suponerlo.
+
+       Ojo con el corolario, que no es de firmware sino de la app: el boton
+       1-Toque graba TRES franjas fijas y ademas apaga la alarma 4 a proposito
+       (MainActivity2.java:704). En un colegio de cuatro franjas, el tecnico
+       creeria estar programando y estaria BORRANDO la cuarta.
+       ============================================================= */
+    ESCENARIO("L. Cuatro franjas horarias en la misma senal");
+    {
+        arrancar_limpio();
+
+        /* Cuatro franjas cualesquiera, Lun-Vie, sin solaparse. */
+        trama_alarma(1,  7,  0,  8, 30, 9);
+        trama_alarma(2, 10,  0, 11,  0, 9);
+        trama_alarma(3, 13,  0, 14,  0, 9);
+        trama_alarma(4, 17,  0, 18, 30, 9);
+
+        CHECK(sim_eeprom_leer(0x01) == 1 && sim_eeprom_leer(0x08) == 1 &&
+              sim_eeprom_leer(0x0F) == 1 && sim_eeprom_leer(0x16) == 1,
+              "las CUATRO franjas quedan habilitadas en la EEPROM");
+
+        /* Y la luz obedece a las cuatro, no solo a las tres primeras. */
+        sim_rtc_set(7, 30, 0, 21, 8, 26, 5);   /* viernes, dentro de la 1a */
+        sim_tick(3000);
+        CHECK(sim_cluster_parpadea(2000),
+              "franja 1 (07:00-08:30): la luz parpadea");
+
+        sim_rtc_set(17, 30, 0, 21, 8, 26, 5);  /* dentro de la CUARTA */
+        sim_tick(3000);
+        CHECK(sim_cluster_parpadea(2000),
+              "franja 4 (17:00-18:30): la luz parpadea");
+
+        sim_rtc_set(16, 0, 0, 21, 8, 26, 5);   /* entre la 3a y la 4a */
+        sim_tick(3000);
+        CHECK(!sim_cluster_parpadea(2000),
+              "entre la franja 3 y la 4 la luz esta apagada");
+    }
+
+    /* =============================================================
+       N. EL EQUIPO DICE QUE FIRMWARE LLEVA
+
+       Nacio en rojo el 22-ago-2026 y quedo en verde el mismo dia. Antes de eso
+       el firmware anunciaba
+       "BALIZA ALARMA V1.0" al arrancar y esa cadena era IDENTICA en el binario
+       de la v3.3 y en el candidato, que se comportan distinto -- el candidato
+       lleva el arreglo del despachador de tramas. Y el volcado de "L?" no
+       incluia version ninguna.
+
+       Consecuencia: delante de una senal montada nadie podia saber que firmware
+       corre. Ni el tecnico con la app, ni soporte, ni una auditoria.
+
+       CUIDADO AL ELEGIR EL TEXTO. La app parsea el volcado buscando marcas
+       (MainActivity2.java:1095 y siguientes) y decide que el reloj esta caido si
+       encuentra "/0-", "/00-" o "/01-". Una linea de version con una BARRA
+       dentro -- una fecha de compilacion, por ejemplo -- haria que la app diera
+       el reloj por muerto en TODAS las balizas. Por eso el texto va sin barras,
+       y hay un CHECK que lo vigila.
+       ============================================================= */
+    ESCENARIO("N. El equipo dice que firmware lleva");
+    {
+        arrancar_limpio();
+        sim_tx_limpiar();
+        sim_rx_str("\xBF" "L?\n\r");
+        sim_tick(600);
+
+        CHECK(strstr(sim_tx(), "FW ") != NULL,
+              "el volcado de L? anuncia la version de firmware");
+
+        CHECK(strstr(sim_tx(), "FW 3.4") != NULL,
+              "la version anunciada es la 3.4");
+
+        {
+            const char *v = strstr(sim_tx(), "FW ");
+            const char *fin = v ? strchr(v, '\n') : 0;
+            int limpia = 1;
+            const char *q;
+            for (q = v; q && fin && q < fin; q++)
+                if (*q == '/') limpia = 0;
+            CHECK(v != NULL && limpia,
+                  "la linea de version no lleva barras (romperia el diagnostico de la app)");
+        }
+    }
+
+    /* =============================================================
        J. EL NOMBRE POR EL AIRE (OTA) CONTRA EL DESPACHADOR
 
        Nacio en rojo el 22-ago-2026 y quedo en verde el mismo dia. Se conserva
