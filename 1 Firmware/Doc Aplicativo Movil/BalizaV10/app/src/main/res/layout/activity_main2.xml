@@ -354,45 +354,241 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="CHECKLIST DE MANTENIMIENTO PREVENTIVO"
-                    android:textColor="#334155"
+                    android:text="MANTENIMIENTO E INSPECCION"
+                    android:textColor="#0F172A"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Tecnico / cuadrilla"
+                    android:textColor="#475569"
                     android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="6dp" />
+                    android:textStyle="bold" />
 
-                <CheckBox
-                    android:id="@+id/idChkPanelSolar"
+                <EditText
+                    android:id="@+id/idEdtTecnico"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="1. Panel solar limpio y fusible 12V verificado"
+                    android:minHeight="48dp"
+                    android:hint="Nombre y cuadrilla"
+                    android:inputType="textPersonName|textCapWords"
+                    android:textColor="#0F172A"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="TIPO DE INSPECCION"
                     android:textColor="#475569"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/idBtnModoSuelo"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:minHeight="56dp"
+                        android:text="A NIVEL DE SUELO"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#1D4ED8" />
+
+                    <Button
+                        android:id="@+id/idBtnModoAltura"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:minHeight="56dp"
+                        android:layout_marginStart="8dp"
+                        android:text="EN ALTURA (poste)"
+                        android:textColor="#475569"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#F1F5F9" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="ESTADO FISICO Y OPERACION"
+                    android:textColor="#475569"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:id="@+id/idChkFis1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="1. Lamina reflectiva limpia, sin grafiti ni golpes"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                <CheckBox
+                    android:id="@+id/idChkFis2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="2. Placa del horario legible y bien sujeta"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                <CheckBox
+                    android:id="@+id/idChkFis3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="3. Senal sin obstruccion (ramas, vegetacion, avisos)"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                <CheckBox
+                    android:id="@+id/idChkFis4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="4. Poste vertical y sin dano visible en la base"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                <CheckBox
+                    android:id="@+id/idChkOpe1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="5. Hora del equipo coincide con la del telefono"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                <CheckBox
+                    android:id="@+id/idChkOpe2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="6. Horario grabado coincide con la placa"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                <CheckBox
+                    android:id="@+id/idChkOpe3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="7. Tension de bateria dentro de rango"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                <CheckBox
+                    android:id="@+id/idChkOpe4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="8. Sin cortes de energia nuevos"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                <CheckBox
+                    android:id="@+id/idChkOpe5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="9. Destello verificado (prueba de 2 minutos)"
+                    android:textColor="#0F172A"
                     android:textSize="13sp" />
 
-                <CheckBox
-                    android:id="@+id/idChkPilaRTC"
+                <LinearLayout
+                    android:id="@+id/idGrupoAltura"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="2. Pila de botón CR2032 (3V) verificada / OK"
-                    android:textColor="#475569"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="SOLO SUBIENDO AL POSTE"
+                        android:textColor="#475569"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <CheckBox
+                    android:id="@+id/idChkAlt1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="10. Herrajes y abrazaderas apretados al poste"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                    <CheckBox
+                    android:id="@+id/idChkAlt2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="11. Gabinete cerrado y hermetico, sin entrada de agua"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                    <CheckBox
+                    android:id="@+id/idChkAlt3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="12. Lente del foco limpia por dentro"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                    <CheckBox
+                    android:id="@+id/idChkAlt4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="13. Panel solar limpio, orientado y sin sombra"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                    <CheckBox
+                    android:id="@+id/idChkAlt5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="14. Fusible de 12 V verificado"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                    <CheckBox
+                    android:id="@+id/idChkAlt6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="15. Borneras apretadas, sin sulfatacion ni juego"
+                    android:textColor="#0F172A"
+                    android:textSize="13sp" />
+                    <CheckBox
+                    android:id="@+id/idChkAlt7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="16. Pila CR2032 verificada o sustituida"
+                    android:textColor="#0F172A"
                     android:textSize="13sp" />
 
-                <CheckBox
-                    android:id="@+id/idChkBorneras"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="3. Borneras ajustadas (sin falsos contactos)"
-                    android:textColor="#475569"
-                    android:textSize="13sp" />
+                </LinearLayout>
 
-                <CheckBox
-                    android:id="@+id/idChkTestLuz"
+                <TextView
+                    android:id="@+id/idTxtAvisoModalidad"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="4. Prueba de destello de luz (Test 2 min) ejecutada"
-                    android:textColor="#475569"
+                    android:layout_marginTop="10dp"
+                    android:padding="10dp"
+                    android:background="#FEF3C7"
+                    android:text=""
+                    android:textColor="#92400E"
                     android:textSize="13sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
 
         <!-- 5. ACCESO RÁPIDO: HORARIO ESCOLAR OFICIAL (1-TOQUE) -->
         <androidx.cardview.widget.CardView

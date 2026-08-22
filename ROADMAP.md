@@ -11,7 +11,7 @@ todavía no han pasado por funcional.
 | | v3.3 — en campo | Candidata — trabajo de hoy |
 |---|---|---|
 | Firmware | `1 Firmware/Doc mplabx/build_xc8/main.hex`<br>59.577 B · `c14b4350d960…` | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`<br>49.201 B · `61e0441df8ce…` |
-| App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>6.080.041 B · `bb2aedd9d130…` |
+| App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>4.569.724 B · `51237b89ef37…` |
 | Funcional | Aprobada | **Pendiente** |
 
 **Las parejas no se mezclan.** App v3.3 con firmware v3.3.
@@ -70,7 +70,7 @@ horario programado coincide con la chapa atornillada. El simulador no puede sust
 
 ## Defectos abiertos
 
-### 4bis. El checklist de mantenimiento es decorativo
+### 4bis. ~~El checklist de mantenimiento es decorativo~~ — HECHO el 22-ago-2026
 
 Medido el 22-ago-2026. Las cuatro casillas existen en el layout pero **ninguna esta enlazada al
 codigo**: cero llamadas a `findViewById` sobre ellas, y el acta que se exporta **no las menciona**
@@ -80,7 +80,11 @@ El tecnico las marca, las ve marcadas, y no llegan a ningun sitio. Peor: una de 
 solar limpio y fusible 12V») **no se puede verificar desde el suelo**, asi que hoy se puede
 afirmar lo que no se ha comprobado.
 
-Propuesta completa, con mockups y las decisiones que hacen falta, en
+**Implementado.** Modalidad suelo/altura, 16 puntos (9 desde el suelo, 7 subiendo), los de
+altura se ocultan y se desmarcan al volver a suelo, campo de tecnico autoguardado, y el acta
+incluye modalidad, checklist y **lo NO verificado**.
+
+Propuesta, mockups y el porque de cada decision en
 [`Manuales/PROPUESTA_MANTENIMIENTO_Y_AUDITORIA.md`](Manuales/PROPUESTA_MANTENIMIENTO_Y_AUDITORIA.md).
 
 ### 4ter. El emulador web y la app han divergido

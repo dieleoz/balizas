@@ -69,3 +69,50 @@ Los técnicos e inspectores operan en la calle, **bajo luz solar intensa, con ru
    * Generación de reporte formal con dirección MAC de la baliza y sellos de tiempo para WhatsApp/Correo.
 4. **Verificación Automatizada E2E:**
    * Validación del 100% de los flujos contra el simulador del PIC en C mediante `test_suite_e2e.py`.
+
+---
+
+## Refactorización del 22-ago-2026 — tarjeta de mantenimiento
+
+### Qué se corrigió
+
+El checklist anterior eran **cuatro casillas decorativas**: existían en el layout pero **ninguna
+estaba enlazada al código** (cero llamadas a findViewById sobre ellas) y **no aparecían en el acta
+exportada**. El técnico las marcaba, las veía marcadas, y no llegaban a ningún sitio.
+
+Peor: una de ellas —«Panel solar limpio y fusible 12V»— **no se puede verificar desde el suelo**,
+así que la app permitía afirmar lo que no se había comprobado.
+
+### Qué hay ahora
+
+| | |
+|---|---|
+| **Modalidad** | Control de dos posiciones: *a nivel de suelo* / *en altura (poste)* |
+| **Checklist** | **16 puntos**: 9 desde el suelo, 7 más subiendo |
+| **Estado físico** | Encabeza la lista: lámina reflectiva, placa legible, **obstrucción por vegetación**, poste |
+| **Ocultación** | Los 7 de altura **se ocultan** en modalidad de suelo, no se muestran en gris |
+| **Desmarcado** | Al volver a *suelo*, los de altura **se desmarcan**: si no, el acta afirmaría algo verificado en una visita sin subir |
+| **Técnico** | Campo autoguardado en SharedPreferences. Se escribe una vez por jornada |
+| **Acta** | Incluye modalidad, checklist completo, **lo NO verificado**, y la atribución del técnico |
+
+### Decisiones de diseño, con su porqué
+
+1. **Los puntos que no aplican se ocultan, no se deshabilitan.** Si no están en pantalla no se
+   marcan por descuido. Un checklist que permite afirmar lo no comprobado convierte una revisión
+   incompleta en un acta que dice que fue completa.
+2. **El acta enumera lo no verificado.** Es la diferencia entre un registro y una coartada.
+3. **El nombre del técnico es atribución, no firma**, y el acta lo dice con esas palabras. Se
+   descartaron las credenciales por técnico: degeneran en una credencial compartida, que es
+   exactamente lo que ya pasa con el admin/admin del login.
+4. **La obstrucción por vegetación tiene línea propia.** Es el fallo más común y más barato de
+   arreglar de una señal escolar, y **el equipo no puede detectarlo**: la baliza destella
+   perfectamente detrás de una rama.
+
+### Verificación
+
+* comprobar_ui.py: **PASS** — contraste WCAG, 31 controles con área táctil ≥ 48dp, responsive.
+* Compila y los 16 puntos, la modalidad y los métodos nuevos están dentro del APK (comprobado
+  sobre el binario, no sobre el fuente).
+* **No se ha visto en un teléfono.** Sigue pendiente.
+
+Propuesta completa y mockups: [PROPUESTA_MANTENIMIENTO_Y_AUDITORIA.md](PROPUESTA_MANTENIMIENTO_Y_AUDITORIA.md)

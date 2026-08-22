@@ -115,7 +115,32 @@ public class MainActivity2 extends AppCompatActivity {
     private TextView txtTituloDictamen;
     private TextView txtMensajeDictamen;
     private TextView txtAccionRecomendada;
-    private android.widget.CheckBox chkPanelSolar;
+    // --- Mantenimiento e inspeccion -----------------------------------------
+    // El tipo de inspeccion NO es cosmetico: decide que se puede verificar
+    // honestamente. Desde el suelo se comprueba lo que llega por Bluetooth y lo
+    // que se ve desde la via; subir al poste es otro trabajo, con escalera y
+    // equipo de proteccion.
+    //
+    // Por eso los puntos que exigen subir NO se muestran en gris cuando la
+    // modalidad es de suelo: SE OCULTAN. Si no estan en pantalla no se marcan
+    // por descuido, y un checklist que permite afirmar lo que no se ha
+    // comprobado convierte una revision incompleta en un acta que dice que fue
+    // completa.
+    private android.widget.EditText edtTecnico;
+    private Button btnModoSuelo, btnModoAltura;
+    private android.view.View grupoAltura;
+    private TextView txtAvisoModalidad;
+    private boolean inspeccionEnAltura = false;
+
+    private static final int[] ID_CHK_SUELO = {
+            R.id.idChkFis1, R.id.idChkFis2, R.id.idChkFis3, R.id.idChkFis4,
+            R.id.idChkOpe1, R.id.idChkOpe2, R.id.idChkOpe3, R.id.idChkOpe4, R.id.idChkOpe5 };
+    private static final int[] ID_CHK_ALTURA = {
+            R.id.idChkAlt1, R.id.idChkAlt2, R.id.idChkAlt3, R.id.idChkAlt4,
+            R.id.idChkAlt5, R.id.idChkAlt6, R.id.idChkAlt7 };
+
+    private android.widget.CheckBox[] chkSuelo = new android.widget.CheckBox[9];
+    private android.widget.CheckBox[] chkAltura = new android.widget.CheckBox[7];
     private android.widget.CheckBox chkPilaRTC;
     private android.widget.CheckBox chkBorneras;
     private android.widget.CheckBox chkTestLuz;
@@ -346,6 +371,7 @@ public class MainActivity2 extends AppCompatActivity {
         }
 
         montarTarjetaHorarioPlaca();
+        montarTarjetaMantenimiento();
 
         //setup the bluetooth adapter.
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -559,6 +585,144 @@ public class MainActivity2 extends AppCompatActivity {
     //  Ahora el horario lo pone el tecnico copiandolo de la placa que tiene
     //  delante, y se le ensena lo que se va a grabar ANTES de tocar la baliza.
     // ====================================================================
+
+    private void montarTarjetaMantenimiento()
+    {
+        edtTecnico        = (android.widget.EditText) findViewById(R.id.idEdtTecnico);
+        btnModoSuelo      = (Button) findViewById(R.id.idBtnModoSuelo);
+        btnModoAltura     = (Button) findViewById(R.id.idBtnModoAltura);
+        grupoAltura       = findViewById(R.id.idGrupoAltura);
+        txtAvisoModalidad = (TextView) findViewById(R.id.idTxtAvisoModalidad);
+
+        for (int i = 0; i < ID_CHK_SUELO.length; i++)
+            chkSuelo[i] = (android.widget.CheckBox) findViewById(ID_CHK_SUELO[i]);
+        for (int i = 0; i < ID_CHK_ALTURA.length; i++)
+            chkAltura[i] = (android.widget.CheckBox) findViewById(ID_CHK_ALTURA[i]);
+
+        /* El nombre se escribe UNA vez al empezar la jornada y aparece ya puesto
+           en las veinte senales siguientes de la ruta. Es un dato del TELEFONO,
+           no de la baliza -- al reves que el nombre del colegio, que se graba en
+           la EEPROM del poste.
+
+           Y es una ATRIBUCION, no una firma: acredita a quien preguntar, no
+           quien estuvo. Se decidio asi a proposito el 22-ago-2026 -- unas
+           credenciales por tecnico acaban siendo una credencial compartida, que
+           es lo que ya pasa con el admin/admin del login. */
+        if (edtTecnico != null)
+        {
+            edtTecnico.setText(getSharedPreferences("BalizasDB", MODE_PRIVATE)
+                    .getString("tecnico", ""));
+            edtTecnico.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean tiene)
+                {
+                    if (!tiene) guardarTecnico();
+                }
+            });
+        }
+
+        if (btnModoSuelo != null)
+            btnModoSuelo.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { setModalidad(false); }
+            });
+        if (btnModoAltura != null)
+            btnModoAltura.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { setModalidad(true); }
+            });
+
+        setModalidad(false);
+    }
+
+    private String tecnicoActual()
+    {
+        String t = (edtTecnico != null) ? edtTecnico.getText().toString().trim() : "";
+        return t.isEmpty() ? "(sin identificar)" : t;
+    }
+
+    private void guardarTecnico()
+    {
+        if (edtTecnico == null) return;
+        getSharedPreferences("BalizasDB", MODE_PRIVATE).edit()
+                .putString("tecnico", edtTecnico.getText().toString().trim()).apply();
+    }
+
+    private void setModalidad(boolean altura)
+    {
+        inspeccionEnAltura = altura;
+
+        if (btnModoSuelo != null) {
+            btnModoSuelo.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    Color.parseColor(altura ? "#F1F5F9" : "#1D4ED8")));
+            btnModoSuelo.setTextColor(Color.parseColor(altura ? "#475569" : "#FFFFFF"));
+        }
+        if (btnModoAltura != null) {
+            btnModoAltura.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    Color.parseColor(altura ? "#1D4ED8" : "#F1F5F9")));
+            btnModoAltura.setTextColor(Color.parseColor(altura ? "#FFFFFF" : "#475569"));
+        }
+
+        if (grupoAltura != null)
+            grupoAltura.setVisibility(altura ? View.VISIBLE : View.GONE);
+
+        /* Al volver a "suelo" se DESMARCAN los de altura. Si se quedaran
+           marcados, el acta afirmaria algo verificado en una visita en la que no
+           se subio. */
+        if (!altura)
+            for (android.widget.CheckBox c : chkAltura)
+                if (c != null) c.setChecked(false);
+
+        if (txtAvisoModalidad != null)
+            txtAvisoModalidad.setText(altura
+                ? "Inspeccion en altura. Se registran los 16 puntos."
+                : "Inspeccion a nivel de suelo. 7 puntos requieren subir al poste "
+                  + "y NO se han verificado en esta visita.");
+    }
+
+    /** El checklist tal y como va al acta: lo marcado, lo no marcado, y lo que
+     *  ni siquiera se pudo mirar. Un acta que enumera lo no verificado es la
+     *  diferencia entre un registro y una coartada. */
+    private String checklistParaActa()
+    {
+        StringBuilder sb = new StringBuilder();
+        int hechos = 0, total = 0;
+        StringBuilder lineas = new StringBuilder();
+
+        for (android.widget.CheckBox c : chkSuelo) {
+            if (c == null) continue;
+            total++;
+            if (c.isChecked()) hechos++;
+            lineas.append(c.isChecked() ? "  [X] " : "  [ ] ")
+                  .append(c.getText())
+                  .append(c.isChecked() ? "\n" : "   <-- NO VERIFICADO\n");
+        }
+        if (inspeccionEnAltura) {
+            for (android.widget.CheckBox c : chkAltura) {
+                if (c == null) continue;
+                total++;
+                if (c.isChecked()) hechos++;
+                lineas.append(c.isChecked() ? "  [X] " : "  [ ] ")
+                      .append(c.getText())
+                      .append(c.isChecked() ? "\n" : "   <-- NO VERIFICADO\n");
+            }
+        }
+
+        sb.append("MODALIDAD:  ")
+          .append(inspeccionEnAltura
+                  ? "Inspeccion EN ALTURA (subiendo al poste)"
+                  : "Inspeccion A NIVEL DE SUELO (sin subir)")
+          .append("\n----------------------------------------\n")
+          .append("CHECKLIST - ").append(hechos).append(" de ").append(total)
+          .append(" verificados\n")
+          .append(lineas);
+
+        if (!inspeccionEnAltura)
+            sb.append("----------------------------------------\n")
+              .append("NO APLICA EN ESTA MODALIDAD (requiere subir al poste):\n")
+              .append("  herrajes . gabinete . lente del foco . panel solar .\n")
+              .append("  fusible 12 V . borneras . pila CR2032\n");
+
+        return sb.toString();
+    }
 
     private void montarTarjetaHorarioPlaca()
     {
@@ -1259,6 +1423,11 @@ public class MainActivity2 extends AppCompatActivity {
                 "• Pila RTC CR2032:     " + diagnosticoPilaRTC + "\n" +
                 "• Red / Bornes:        " + diagnosticoCortes + "\n" +
                 "• Estado EEPROM:       100% Íntegra (0x00=0x06)\n" +
+                "----------------------------------------\n" +
+                checklistParaActa() +
+                "----------------------------------------\n" +
+                "INSPECCION REALIZADA POR: " + tecnicoActual() + "\n" +
+                "(Atribucion declarada en el telefono, no firma acreditada.)\n" +
                 "----------------------------------------\n" +
                 "2. HORARIOS PROGRAMADOS EN BALIZA:\n" +
                 (logData.isEmpty() ? "(No se ha ejecutado lectura LEER)" : logData) + "\n" +
