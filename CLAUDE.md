@@ -27,8 +27,9 @@ día no rige.
 | Área | Carpeta | Estado |
 |---|---|---|
 | Firmware PIC | `1 Firmware/Doc mplabx/18f2550_baliza_ V1.X/` | Es el que va a producción. **Sin `nbproject/`** — ver regla 4 |
-| Binario instalado | `1 Firmware/Doc mplabx/*.production.hex` | Lo que corre hoy en la calle (oct-2025, 61.008 B) |
-| Binario nuevo | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex` | Compilado ago-2026, **aún sin desplegar**. XC8 **v2.36** — leído de su propio `.map` |
+| **Binario de la v3.3** | `1 Firmware/Doc mplabx/build_xc8/main.hex` | **El que funcionó en campo.** 59.577 B, `c14b4350d960…` |
+| **App de la v3.3** | `1 Firmware/Baliza_v3.3.apk` | La que funcionó con ese `.hex`. 3.859.625 B, `9c37d599deb9…` |
+| Candidata (mejoras de hoy) | `BALIZA_18F2550_V1_CORREGIDO.hex` + `Baliza_IT_VIAL_30_v3.4.apk` | 49.068 B / 6.066.074 B. **Sin funcional** — ver ROADMAP |
 | App Android | `1 Firmware/Doc Aplicativo Movil/BalizaV10/` | Gradle + Java nativo. **No es App Inventor** |
 | Tarjeta | `2 Hardware tarjeta/` | KiCad y gerbers. **Fabricada y montada** — ver regla 1 |
 | Simulador | `4 Simulador/` | 58 comprobaciones, corre en un segundo |
@@ -45,6 +46,26 @@ el nombre equivocado, no una avería. Lo que queda vivo de ahí es un riesgo, no
 semanas — **1 kΩ en serie en `MCU_TX`**, en el arnés, no en la PCB.
 
 ## Las cinco reglas que no se rompen
+
+### 0 bis. Un binario se identifica por su SHA-256, nunca por su nombre
+
+El 22-ago-2026 el nombre `BALIZA_18F2550_V1_CORREGIDO.hex` designó **dos firmwares distintos
+el mismo día**, y uno de ellos vivía dentro de una carpeta llamada `Release_v3.3/Binarios/`.
+El paquete se selló a las 10:08 y su binario fue **sobrescrito cinco veces después** por
+commits de mejora, sin que nadie lo notara: el nombre seguía siendo el mismo.
+
+La consecuencia es la peor posible en este proyecto: alguien coge el fichero de la carpeta de
+release, lo graba, y la señal se queda con un firmware que nadie valido en campo.
+
+**Antes de grabar un PIC o de instalar un APK se comprueba el hash**, y se comprueba contra la
+cifra medida sobre el fichero, no contra la que declara un documento — los hashes del
+certificado de la v3.3 **no verificaban**: compartían los 12 primeros caracteres con los
+reales y luego divergían, así que ni siquiera servían para detectar el cambio.
+
+**Y la pareja no se mezcla.** La v3.3 son dos ficheros que se probaron juntos contra una señal
+real: la App v3.3 con el `.hex` de la v3.3. Un firmware nuevo con una App vieja, o al revés,
+es una combinación que nadie ha visto funcionar.
+
 
 ### 0. Primero medir, después arreglar — y el simulador es lo que permite medir
 

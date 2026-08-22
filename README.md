@@ -1,4 +1,4 @@
-# Baliza — Señal Vial «30 CUANDO ACTIVADA» (v3.4 Oficial)
+# Baliza — Señal Vial «30 CUANDO ACTIVADA» (v3.3)
 
 Control inteligente de la **luz intermitente de una señal de tránsito** instalada frente a zonas escolares.
 Cuando la luz titila a **1.0 Hz** (500 ms ON / 500 ms OFF), el límite de **30 km/h está vigente legalmente**. El resto del día la señal permanece apagada.
@@ -14,7 +14,7 @@ El horario en el que debe titilar **está grabado físicamente en la placa metá
 
 ```mermaid
 flowchart LR
-    APP["📱 App Android<br/>IT VIAL 30 (v3.4)<br/>Baliza_v3.4.apk"] -->|"Bluetooth SPP 9600 8N1<br/>Tramas ¿...?"| BT["Módulo Bluetooth<br/>JDY-31 / SIG0109A"]
+    APP["📱 App Android<br/>IT VIAL 30 v3.3<br/>Baliza_v3.3.apk"] -->|"Bluetooth SPP 9600 8N1<br/>Tramas ¿...?"| BT["Módulo Bluetooth<br/>JDY-31 / SIG0109A"]
     BT -->|"RC6 TX · RC7 RX"| PIC["PIC18F2550 (C99)<br/>Flash: 53.1% · RAM: 27.7%"]
     RTC["DS1307 + Pila CR2032<br/>Hora, Fecha y Calendario"] <-->|"I2C (Anti-Bloqueo)"| PIC
     PIC -->|"LATC2"| LUZ["💡 Foco Ámbar (1.0 Hz)"]
@@ -23,33 +23,81 @@ flowchart LR
     PIC -->|"0x00-0x5F"| EE["💾 EEPROM (Alarmas, Cortes, Nombre OTA)"]
 ```
 
-| Parámetro | Especificación de Producción |
+## La v3.3 es una pareja, y solo vale junta
+
+**La v3.3 son dos ficheros que se probaron juntos contra una señal real.** Confirmado por el
+responsable el 22-ago-2026. No se mezclan con nada de otra procedencia:
+
+| | Fichero | Tamaño | SHA-256 |
+|---|---|---|---|
+| **Firmware** | [`1 Firmware/Doc mplabx/build_xc8/main.hex`](1%20Firmware/Doc%20mplabx/build_xc8/main.hex) | 59.577 B | `c14b4350d960ce46c716d398f357acdee21f05660ef47c0ea61a7d513b8539c5` |
+| **App** | [`1 Firmware/Baliza_v3.3.apk`](1%20Firmware/Baliza_v3.3.apk) | 3.859.625 B | `9c37d599deb995b0fa606d65b5e7fa7e813a08314535f9ba1959b3524d391a87` |
+
+> ### ⚠️ Hay otro `.hex` con nombre de entregable que NO es este
+>
+> `BALIZA_18F2550_V1_CORREGIDO.hex` —tanto el de `1 Firmware/` como **el que hay dentro de
+> `Release_v3.3/Binarios/`**— es un binario **distinto**: 49.068 B, `048856fc…`. No es el que
+> funcionó. El nombre engaña justo donde más caro sale, porque está dentro de la carpeta de
+> release y cualquiera lo tomaría por el bueno. **Antes de grabar, se comprueba el SHA-256, no
+> el nombre del fichero.**
+
+| Parámetro | Valor |
 |---|---|
 | **Microcontrolador** | **Microchip PIC18F2550** a 20.0 MHz (HS) |
-| **Compilador Firmware** | **MPLAB XC8 v2.36** en **C99** (`--std=c99`) |
-| **Memoria Flash PIC** | **17.407 Bytes (53.1%)** (Libres: 15.361 B / 46.9%) |
-| **Memoria RAM PIC** | **568 Bytes (27.7%)** (Libres: 1.480 B / 72.3%) |
-| **Binario Universal PIC** (nuevo, aun **sin desplegar**) | [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.hex) |
-| **Binario que corre HOY en la calle** | [`1 Firmware/Doc mplabx/18f2550_baliza__V1.X.production.hex`](1%20Firmware/Doc%20mplabx/18f2550_baliza__V1.X.production.hex) |
-| **Mapa de Memoria Simbólico** | [`1 Firmware/BALIZA_18F2550_V1_CORREGIDO.map`](1%20Firmware/BALIZA_18F2550_V1_CORREGIDO.map) |
-| **Hash SHA-256 (.hex)** | `048856FC78E858A97FB831B34EE6032CE0CC4594D101F9E40A6EFFD4E68EC419` |
-| **Instalador Android (APK)** | [`7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`](7%20sw%20apk/Baliza_IT_VIAL_30_v3.4.apk) |
-| **Hash SHA-256 (.apk)** | `55E208611E66EF9D0D4383B3346CE8C284677B975CE4745D1D9D3DE8890A3E0C` |
-| **Cobertura de Pruebas** | **58 de 58 (PASS)** — medido el **22-ago-2026** con `python "4 Simulador/correr.py"` |
+| **Compilador Firmware** | **C99** (`--std=c99`). ⚠️ **La versión exacta de XC8 de este binario no está registrada**: la carpeta `build_xc8/` no conserva el `.map`. Ver ROADMAP, pendiente 5 |
+| **Binario que corre HOY en la calle** | Sin confirmar — ver ROADMAP, pendiente 3 |
+| **Cobertura de Pruebas** | **58 de 58 (PASS)** — medido el **22-ago-2026** con `python "4 Simulador/correr.py"` sobre los `.c` actuales |
 
 ---
 
-## 🌟 Novedades y Funcionalidades v3.4
+## Las mejoras de hoy: candidatas a la proxima version
 
-1. **Binario Universal Único:** Se graba el mismo archivo `.hex` idéntico en todos los microcontroladores en fábrica y nunca más se vuelve a tocar. El chip se auto-inicializa en el primer arranque.
-2. **Instalador APK Android Listo para Campo:** Compilado con JDK 11 y Android SDK, optimizado para celulares Android 7.0 hasta Android 14.
-3. **Nombre y Ubicación por el Aire (OTA):** El técnico asigna el nombre del colegio (ej. `Col. San José - Km 4+200`) desde la App, y el PIC lo graba en su EEPROM interna (`0x40..0x5F`).
-4. **Telemetría Dual Inteligente:**
-   * Canal ADC `AN1`: Voltímetro en tiempo real de la batería de 12V y panel solar.
-   * Detección de pila de botón RTC CR2032 (3V) agotada por desfase horario.
-5. **Contador de Cortes de Energía en EEPROM (`0x36-0x37`):** Registro histórico de reinicios para auditoría y detección de falsos contactos.
-6. **App Android v3.4 100% Responsiva:** Diseño ergonómico adaptado a cualquier pantalla con Touch Targets $\ge 48\text{ dp}$ y alto contraste solar.
-7. **Caja Negra y Certificado Oficial para WhatsApp:** Botón para generar y enviar reportes técnicos completos con dirección MAC en 1 clic.
+Sobre la v3.3 hay **40 commits del 22-ago-2026** con trabajo real: saneamiento de la ISR,
+aritmetica de punto fijo en vez de float, timeouts en I2C y UART, telemetria de bateria,
+contador de cortes, nombre por el aire (OTA), autodiagnostico en la App y exportacion del
+certificado. De ahi salen otros dos binarios:
+
+| | Fichero | Tamano | SHA-256 (12) |
+|---|---|---|---|
+| Firmware | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex` | 49.068 B | `048856fc78e8` |
+| App | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk` | 6.066.074 B | `55e208611e66` |
+
+**Son la base de la proxima version, no una version.** Tres cosas tienen que pasar antes de
+que puedan llamarse v3.4 y salir a campo:
+
+1. **Funcional tiene que revisar las funciones nuevas.** Ninguna lo ha hecho todavia.
+2. **Hay que incrementar el `versionCode`.** Hoy `build.gradle` sigue en `versionCode 33` /
+   `versionName "3.3"`: el telefono muestra 3.3 y **Android no ofrece la actualizacion sobre
+   una v3.3 ya instalada**, porque para el sistema es la misma version. Esto no es cosmetico:
+   es que la actualizacion no llega.
+3. **Hay que probar la pareja junta contra una senal real**, como se hizo con la v3.3. El
+   firmware nuevo y la App nueva no se han validado juntos en campo.
+
+Mientras tanto, **lo que se instala en campo es la v3.3**, y las dos cosas no se mezclan: la
+App v3.3 con el `.hex` de la v3.3.
+
+## Funcionalidades de la v3.3
+
+Segun `Release_v3.3/LEEME_RELEASE_v3.3.md`, la v3.3 lleva:
+
+**Firmware** (`main.hex`, 59.577 B)
+
+1. **Cadencia reglamentaria de 1.0 Hz** - 500 ms encendido / 500 ms apagado.
+2. **Mapeo de pines corregido:** buzzer en `RC1`, foco LED en `RC2`, pulsador en `RC0`.
+3. **Parser serie protegido** contra tramas truncadas y caracteres NUL.
+4. **Telemetria de bateria 12 V** por el canal ADC `AN1`.
+5. **Contador de cortes de energia en EEPROM** (`0x36-0x37`).
+
+**App** (`Baliza_v3.3.apk`, 3.859.625 B)
+
+6. **1-Toque** para el horario escolar de la placa (06:00-09:00, 11:30-13:30, 15:00-16:30 L-V).
+7. **Test de luz de 2 minutos** a 1.0 Hz con apagado rapido.
+8. **Tema oscuro de alto contraste** para visibilidad diurna bajo sol.
+
+> **Lo que NO esta en la v3.3:** el nombre por el aire (OTA), el certificado por WhatsApp y el
+> semaforo de autodiagnostico. Esas son funciones de la compilacion de trabajo llamada «v3.4»
+> y **no han pasado por funcional**. Si algun manual las describe como disponibles, el manual
+> va por delante de lo aprobado.
 
 ---
 
@@ -90,8 +138,9 @@ pin**. Verde aquí no es entregable y no autoriza a grabar. En concreto no dice 
 
 ## 📚 Documentación Oficial y Manuales
 
-* 📱 **Instalador APK Android:** [`7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`](7%20sw%20apk/Baliza_IT_VIAL_30_v3.4.apk)
-* 📖 **Manual de Usuario de la App v3.4:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md)
+* 📱 **Instalador de campo (v3.3, el aprobado):** [`1 Firmware/Baliza_v3.3.apk`](1%20Firmware/Baliza_v3.3.apk)
+* 🔧 **Compilacion de trabajo (NO aprobada):** [`7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`](7%20sw%20apk/Baliza_IT_VIAL_30_v3.4.apk)
+* 📖 **Manual de Usuario de la App:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md)
 * ⚙️ **Manual Técnico del Firmware C99:** [`Manuales/MANUAL_TECNICO_FIRMWARE_C99.md`](Manuales/MANUAL_TECNICO_FIRMWARE_C99.md)
 * 📜 **Certificado Oficial de Calibración y Pruebas:** [`Manuales/CERTIFICADO_FIRMWARE_v3.4.md`](Manuales/CERTIFICADO_FIRMWARE_v3.4.md)
 * 🗺️ **Gestión de Múltiples Señales y Nombres OTA:** [`Manuales/GESTION_MULTISEÑALES_Y_NOMBRES.md`](Manuales/GESTION_MULTISE%C3%91ALES_Y_NOMBRES.md)

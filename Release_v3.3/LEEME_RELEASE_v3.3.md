@@ -1,4 +1,29 @@
 # PAQUETE OFICIAL DE ENTREGA Y PRODUCCIÓN — VERSIÓN v3.3
+
+> ## ⚠️ CORRECCIÓN — 22-ago-2026, 14:00
+>
+> **Este paquete se selló a las 10:08 y su binario fue sobrescrito cinco veces después**, por
+> los commits `7bf0849`, `b9417e7`, `a22c0b7`, `9a1bade` y `e28a7d4`, todos del mismo día y
+> todos posteriores al sellado. Durante horas, `Binarios/BALIZA_18F2550_V1_CORREGIDO.hex`
+> contuvo un firmware **que no es el de la v3.3**: el de 49.068 B (`048856fc…`), producto de
+> mejoras posteriores que **no han pasado por funcional**.
+>
+> **Ya está restaurado** el binario correcto de la v3.3: 59.577 B, `c14b4350d960ce46…`,
+> confirmado por el responsable como el que funcionó en campo junto a `Baliza_v3.3.apk`.
+>
+> **Los dos hashes de la tabla de abajo NO verifican y no deben usarse.** Comparten los 12
+> primeros caracteres con los reales y luego divergen, así que ni siquiera sirven para
+> detectar un cambio. Los valores medidos hoy sobre los ficheros son:
+>
+> | Archivo | SHA-256 medido el 22-ago-2026 | Tamaño |
+> |---|---|---|
+> | `Binarios/BALIZA_18F2550_V1_CORREGIDO.hex` | `c14b4350d960ce46c716d398f357acdee21f05660ef47c0ea61a7d513b8539c5` | 59.577 B |
+> | `Binarios/Baliza_v3.3.apk` | `9c37d599deb995b0fa606d65b5e7fa7e813a08314535f9ba1959b3524d391a87` | 3.859.625 B |
+>
+> **Antes de grabar un PIC se comprueba el SHA-256, nunca el nombre del fichero.** El nombre
+> `..._CORREGIDO.hex` designó dos binarios distintos el mismo día.
+>
+> Se conserva la tabla original más abajo sin tocar, como registro de lo que se firmó.
 ### Sistema de Baliza Vial Escolar «30 CUANDO ACTIVADA» (IT VIAL S.A.S)
 
 **Fecha de Liberación:** 22 de Agosto de 2026  

@@ -70,9 +70,16 @@ defmplabxtrace.log.inx
 # estaba corriendo en la calle.
 !1 Firmware/Doc mplabx/*.production.hex
 
-# EXCEPCION: el binario que se ENTREGA hoy y su mapa de memoria. El README y el
-# ROADMAP los enlazan por ruta; sin esta excepcion los dos enlaces se rompen
-# para todo el que clone, que es justo lo que paso el 22-ago-2026.
+# EXCEPCION -- LA PAREJA QUE FUNCIONO EN CAMPO. Confirmado por el responsable el
+# 22-ago-2026: el APK v3.3 (3.859.625 B) contra este .hex (59.577 B). Los dos
+# estaban ignorados, asi que el unico binario del que consta que opera una senal
+# real no existia en el repositorio. Se versionan por ruta exacta.
+!1 Firmware/Baliza_v3.3.apk
+!Release_v3.3/Binarios/Baliza_v3.3.apk
+
+# El binario de 49.068 B (048856fc) SI se versiona, pero NO es el que funciono:
+# es el que la documentacion llamaba "el entregable" por error. Se conserva para
+# poder comparar, no para grabar.
 !1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex
 !1 Firmware/BALIZA_18F2550_V1_CORREGIDO.map
 
@@ -161,3 +168,15 @@ startup.o
 test_build.*
 *.as
 build_xc8/
+
+# --- EXCEPCION FINAL: el .hex de la v3.3 --------------------------------------
+#
+# Tiene que ir AQUI ABAJO, despues de "build_xc8/": en .gitignore gana el ULTIMO
+# patron que coincide, y esa regla anulaba la excepcion si se escribia mas arriba.
+# Ya costo un intento.
+#
+# Este es el binario de la v3.3: el que funciono en campo con Baliza_v3.3.apk.
+# 59.577 B, sha256 c14b4350d960ce46. Los .p1/.d de la carpeta siguen fuera.
+!1 Firmware/Doc mplabx/build_xc8/
+1 Firmware/Doc mplabx/build_xc8/*
+!1 Firmware/Doc mplabx/build_xc8/main.hex
