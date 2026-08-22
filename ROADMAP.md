@@ -11,7 +11,7 @@ todavía no han pasado por funcional.
 | | v3.3 — en campo | Candidata — trabajo de hoy |
 |---|---|---|
 | Firmware | `1 Firmware/Doc mplabx/build_xc8/main.hex`<br>59.577 B · `c14b4350d960…` | `1 Firmware/BALIZA_18F2550_V1_CORREGIDO.hex`<br>49.201 B · `61e0441df8ce…` |
-| App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>4.569.724 B · `51237b89ef37…` |
+| App | `1 Firmware/Baliza_v3.3.apk`<br>3.859.625 B · `9c37d599deb9…` | `7 sw apk/Baliza_IT_VIAL_30_v3.4.apk`<br>4.569.833 B · `43abd59b99a8…` |
 | Funcional | Aprobada | **Pendiente** |
 
 **Las parejas no se mezclan.** App v3.3 con firmware v3.3.
@@ -149,6 +149,22 @@ Solo existen **8** (diario), **9** (lunes a viernes) y **10** (fin de semana).
 ---
 
 ## Corregido en esta auditoría
+
+- **Cuatro controles estaban muertos: existían en la pantalla y no hacían nada.** Ninguno daba
+  error; se pulsaban o se marcaban y la app se comportaba como si hubiera funcionado.
+
+  | Control | Qué pasaba |
+  |---|---|
+  | Las 4 casillas del checklist | Sin `findViewById`, y no salían en el acta |
+  | `COMPARTIR CERTIFICADO` | `exportAuditReport()` escrito y **nunca invocado** |
+  | Nombre OTA + `GUARDAR` | `edtNombreBaliza` nunca asignado, así que `guardarNombreBaliza()` salía por su propio `if (… == null) return`. **El acta siempre decía «Sin Asignar»** |
+  | Usuario del login | Se teclea y se descarta: no sale de esa pantalla |
+
+  Los tres primeros **arreglados**. El del login se deja a propósito — ver «Decisiones tomadas».
+
+  Y para que no vuelva a pasar, `comprobar_ui.py` tiene ahora una comprobación que **cruza el
+  layout contra el código**: cualquier control con `id` que no aparezca en el Java sale en rojo.
+  Es la que encontró el del nombre OTA, después de que se me escaparan los otros tres.
 
 - **El paquete `Release_v3.3/` estaba contaminado.** Se selló a las 10:08 y su
   `Binarios/BALIZA_18F2550_V1_CORREGIDO.hex` fue **sobrescrito cinco veces después** por

@@ -124,3 +124,21 @@ El 22-ago-2026 se encontro un certificado cuyos hashes **no verificaban**: compa
 primeros caracteres con los reales y divergian despues. No detectaban ni un cambio, y por eso
 el binario de una carpeta de release pudo ser sobrescrito cinco veces sin que saltara nada.
 **Un hash que no se ha recalculado sobre el fichero que se envia no es un hash: es adorno.**
+
+## Un control que se ve no es un control que funciona
+
+Antes de decir que una funcion esta entregada, comprueba que esta ENLAZADA. En esta app pasaron
+cuatro veces: la casilla existia en el layout, a veces incluso el campo estaba declarado en el
+Java, y nadie le hacia findViewById. Se veia en pantalla, se podia pulsar, y no hacia nada.
+
+Lo peor es que NO DA ERROR. El tecnico marca, pulsa, y la app se comporta como si hubiera
+funcionado. El del nombre OTA llego a demostrarse en reuniones -- pero era el emulador web, no la
+app; en la app el acta salia siempre con "Sin Asignar".
+
+    cd "1 Firmware/Doc Aplicativo Movil/BalizaV10" && python comprobar_ui.py
+
+Cruza el layout contra el codigo y saca en rojo cualquier control con `id` que no aparezca en el
+Java. Correlo antes de entregar un APK, y **corrigelo antes de anunciar la funcion**.
+
+Y la regla de fondo: **una funcion no esta hecha hasta que esta en el APK.** El emulador web no
+cuenta como implementacion, y las demos deberian hacerse sobre el APK.

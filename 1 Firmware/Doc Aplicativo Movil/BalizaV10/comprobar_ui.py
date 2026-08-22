@@ -92,6 +92,42 @@ alto = 4 * 60 + 60 + 48 + 56 + 120       # filas + grabar + spinner + receso + t
 ok(alto < 900, "alto estimado de la tarjeta ~%ddp, cabe en pantallas de 640dp con scroll" % alto)
 ok(filas == 8, "las 4 franjas tienen sus 8 botones de hora (encontrados: %d)" % filas)
 
+# --------------------------------------------- controles muertos
+# EL FALLO QUE MAS VECES SE HA COLADO en este proyecto: un control existe en el
+# layout, a veces incluso se declara como campo en el Java, y NADIE le hace
+# findViewById. Se ve en pantalla, se puede pulsar o marcar, y no hace nada.
+#
+# Paso tres veces antes de escribirse esta comprobacion (22-ago-2026):
+#   - las 4 casillas del checklist de mantenimiento
+#   - el boton COMPARTIR CERTIFICADO
+#   - el campo de usuario del login, que se descarta al entrar
+#
+# Ninguno daba error. Simplemente no hacian nada, y el tecnico no tenia forma de
+# saberlo: marcaba, pulsaba, y la app se comportaba como si hubiera funcionado.
+print("\n-- Controles enlazados al codigo")
+
+JAVA = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                    "app", "src", "main", "java", "com", "example", "balizav10",
+                    "MainActivity2.java")
+java = io.open(JAVA, encoding="utf-8").read() if os.path.isfile(JAVA) else ""
+
+TAGS = r"Button|CheckBox|Spinner|EditText|RadioButton|Switch|" \
+       r"androidx\.appcompat\.widget\.SwitchCompat"
+interactivos = re.findall(r"<(?:" + TAGS + r")\b(.*?)/>", src, re.S)
+
+con_id, muertos = 0, []
+for cuerpo in interactivos:
+    m = re.search(r'android:id="@\+id/(\w+)"', cuerpo)
+    if not m:
+        continue
+    con_id += 1
+    if m.group(1) not in java:
+        muertos.append(m.group(1))
+
+ok(not muertos, "los %d controles con id se usan desde el codigo" % con_id)
+for d in muertos:
+    print("           %s  <-- esta en el layout pero NO en el codigo: no hace nada" % d)
+
 print("\n" + "=" * 60)
 print(" RESULTADO: " + ("PASS" if not fallos else "FALLA -- %d en rojo" % len(fallos)))
 print("=" * 60)

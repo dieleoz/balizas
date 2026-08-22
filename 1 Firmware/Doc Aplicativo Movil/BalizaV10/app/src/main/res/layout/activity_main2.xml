@@ -323,16 +323,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/idBtnExportAudit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:text="📤 COMPARTIR CERTIFICADO DE AUDITORÍA"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    app:backgroundTint="#4F46E5"
-                    android:textColor="#FFFFFF" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -586,6 +576,18 @@
                     android:text=""
                     android:textColor="#92400E"
                     android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/idBtnExportAudit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:layout_marginTop="10dp"
+                    android:text="COMPARTIR ACTA DE INSPECCION"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="#7C3AED"
+                    android:textColor="#FFFFFF" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

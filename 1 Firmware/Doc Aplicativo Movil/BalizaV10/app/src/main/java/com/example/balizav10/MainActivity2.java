@@ -370,6 +370,33 @@ public class MainActivity2 extends AppCompatActivity {
             });
         }
 
+        /* ENLACE QUE FALTABA. edtNombreBaliza se declaraba y NUNCA se asignaba,
+           asi que guardarNombreBaliza() salia siempre por su propio
+           "if (edtNombreBaliza == null) return;". El tecnico escribia el nombre
+           del colegio, pulsaba GUARDAR y no pasaba nada -- y el acta salia
+           siempre con "Sin Asignar". Encontrado por comprobar_ui.py el
+           22-ago-2026, cuarto control muerto del mismo patron. */
+        edtNombreBaliza = (android.widget.EditText) findViewById(R.id.idEdtNombreBaliza);
+        Button btnGuardarNombre = (Button) findViewById(R.id.idBtnGuardarNombre);
+        if (btnGuardarNombre != null)
+            btnGuardarNombre.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) { guardarNombreBaliza(); }
+            });
+
+        edtNombreBaliza = (android.widget.EditText) findViewById(R.id.idEdtNombreBaliza);
+        btnGuardarNombre = (Button) findViewById(R.id.idBtnGuardarNombre);
+        if (btnGuardarNombre != null)
+        {
+            btnGuardarNombre.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    guardarNombreBaliza();
+                }
+            });
+        }
+
         montarTarjetaHorarioPlaca();
         montarTarjetaMantenimiento();
 
@@ -628,6 +655,21 @@ public class MainActivity2 extends AppCompatActivity {
         if (btnModoAltura != null)
             btnModoAltura.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) { setModalidad(true); }
+            });
+
+        /* ESTE ENLACE FALTABA. El boton existia en el layout y el metodo
+           exportAuditReport() estaba escrito, pero nadie los unia: btnExportAudit
+           se declaraba como campo y no se le hacia findViewById ni se le ponia
+           listener. Resultado: se pulsaba y NO PASABA NADA. Mismo patron que las
+           casillas del checklist. */
+        btnExportAudit = (Button) findViewById(R.id.idBtnExportAudit);
+        if (btnExportAudit != null)
+            btnExportAudit.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v)
+                {
+                    guardarTecnico();
+                    exportAuditReport();
+                }
             });
 
         setModalidad(false);
@@ -1309,6 +1351,18 @@ public class MainActivity2 extends AppCompatActivity {
             // 3. Diagnóstico Pila de Botón RTC DS1307 (Desfase de Hora)
             boolean rtcFalla = text.contains("/0-") || text.contains("/00-") || text.contains("/01-");
             diagnosticarPilaRTC(text);
+
+            // 4. Nombre / Identificador de Baliza (OTA)
+            if (text.contains("ID:")) {
+                int idx = text.lastIndexOf("ID:");
+                int endIdx = text.indexOf("\n", idx);
+                if (endIdx == -1) endIdx = text.indexOf("\r", idx);
+                if (endIdx == -1) endIdx = text.length();
+                String idStr = text.substring(idx + 3, endIdx).trim();
+                if (edtNombreBaliza != null && !idStr.isEmpty()) {
+                    edtNombreBaliza.setText(idStr);
+                }
+            }
 
             float vParsed = 12.6f;
             if (text.contains("Bat:")) {
