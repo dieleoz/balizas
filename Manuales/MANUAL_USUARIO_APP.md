@@ -135,6 +135,8 @@ pantalla es el de la placa**: es el que se restaurará al reanudar.
 
 Una duda común entre técnicos es la diferencia entre estos dos métodos:
 
+![Figura 16: Comparativa gráfica de flujos: Grabar Horario de Placa vs Programación Manual.](img/comparativa_grabar_vs_manual.png)
+
 | Característica | ⚡ GRABAR HORARIO DE ESTA PLACA (Lote) | ⚙️ PROGRAMACIÓN MANUAL (Quirúrgico) |
 | :--- | :--- | :--- |
 | **Propósito** | Configuración **integral** de la señal al llegar al colegio. | Ajuste técnico puntual de **UNA sola alarma**. |
@@ -144,7 +146,8 @@ Una duda común entre técnicos es la diferencia entre estos dos métodos:
 
 ### Botón Directo de Programación Manual
 Para mayor comodidad del técnico, la tarjeta **6. PROGRAMACIÓN MANUAL DE FRANJA** incluye su propio botón verde directo:
-👉 **`⚡ ENVIAR Y GRABAR ESTA FRANJA`**
+
+![Figura 17: Tarjeta de Programación Manual con su botón verde directo «ENVIAR Y GRABAR ESTA FRANJA».](img/paso7_config_franja_detalle.png)
 
 No es necesario hacer scroll hacia arriba: al pulsar este botón, la trama de la alarma seleccionada (ej. `¿A3,E1,I1430,F1630,D9,?`) viaja al microcontrolador y queda almacenada de forma permanente.
 
@@ -161,9 +164,7 @@ Para identificar cada baliza en un corredor vial con múltiples señales:
 
 ## 6. Motor de Autodiagnóstico y Dictamen en Campo
 
-![Figura 16: Configuración manual de franja horaria.](img/paso7_config_franja_detalle.png)
-
-![Figura 17: Menús desplegables de alarma, horas, minutos y días.](img/paso7_dropdowns_combinados.png)
+![Figura 18: Menús desplegables de alarma, horas, minutos y días.](img/paso7_dropdowns_combinados.png)
 
 
 Al presionar **`LEER`**, la App ejecuta un análisis instantáneo y muestra el semáforo de dictamen técnico:

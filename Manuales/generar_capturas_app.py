@@ -768,51 +768,93 @@ def gen_detalle_receso_escolar():
 # 6.2 DETALLE: CONFIGURACIÓN MANUAL Y DROPDOWNS
 # ==========================================
 def gen_paso7_config_dropdowns():
-    w, h = 420, 680
-    img, draw = create_phone_frame(h, w, bg="#F5F5F5")
-    draw_action_bar(draw, "IT VIAL 30", w)
+    w, h = 420, 520
+    img = Image.new("RGB", (w, h), "#FFFFFF")
+    draw = ImageDraw.Draw(img)
     
-    # Tarjeta Configuración
-    draw.rounded_rectangle([16, 95, w - 16, 430], radius=12, fill="#FFFFFF", outline="#CFD8DC")
-    draw.text((28, 110), "Configuración de Franja\nHoraria", fill="#212121", font=FONTS["title"])
+    # Tarjeta Configuración Manual
+    draw.rounded_rectangle([10, 10, w - 10, h - 10], radius=12, fill="#FFFFFF", outline="#CBD5E1", width=2)
+    draw.text((25, 24), "6. PROGRAMACIÓN MANUAL DE FRANJA", fill="#0F172A", font=FONTS["bold"])
+    draw.text((25, 48), "Ajuste puntual de una sola alarma sin tocar las demas.", fill="#475569", font=FONTS["small"])
     
     # Alarma No y Switch ON-OFF
-    draw.text((28, 180), "Alarma No:", fill="#37474F", font=FONTS["reg"])
-    draw.text((155, 180), "1   ▾", fill="#212121", font=FONTS["bold"])
-    draw.text((245, 180), "ON-OFF", fill="#37474F", font=FONTS["reg"])
-    draw.rounded_rectangle([320, 175, 360, 200], radius=12, fill="#90CAF9")
-    draw.ellipse([340, 177, 358, 198], fill="#1976D2")
-
-    # Alarma Inicio
-    draw.text((28, 235), "Alarma\nInicio:", fill="#37474F", font=FONTS["reg"])
-    draw.text((165, 245), "06 ▾", fill="#212121", font=FONTS["reg"])
-    draw.text((215, 245), ":", fill="#212121", font=FONTS["bold"])
-    draw.text((245, 245), "00 ▾", fill="#212121", font=FONTS["reg"])
-
-    # Alarma Fin
-    draw.text((28, 305), "Alarma Fin:", fill="#37474F", font=FONTS["reg"])
-    draw.text((165, 305), "09 ▾", fill="#212121", font=FONTS["reg"])
-    draw.text((215, 305), ":", fill="#212121", font=FONTS["bold"])
-    draw.text((245, 305), "00 ▾", fill="#212121", font=FONTS["reg"])
-
-    # Horario
-    draw.text((28, 365), "Horario:", fill="#37474F", font=FONTS["reg"])
-    draw.text((160, 365), "Lun-Vie              ▾", fill="#212121", font=FONTS["reg"])
-
-    # Tarjeta Diagnóstico Banco / Terreno
-    draw.rounded_rectangle([16, 450, w - 16, 645], radius=12, fill="#FFFFFF", outline="#CFD8DC")
-    draw.text((28, 465), "⚡ Diagnóstico de Banco / Terreno", fill="#212121", font=FONTS["bold"])
-    draw.text((28, 495), "Activa inmediatamente la luz por 2 minutos para\nvalidar el foco LED y el destello normativo de 1 Hz:", fill="#616161", font=FONTS["small"])
+    draw.text((25, 85), "Alarma:", fill="#475569", font=FONTS["small_bold"])
+    draw.rounded_rectangle([90, 75, 160, 110], radius=6, fill="#F1F5F9", outline="#CBD5E1")
+    draw.text((115, 85), "3  ▾", fill="#0F172A", font=FONTS["bold"])
     
-    # Boton Activar Test Luz
-    draw.rounded_rectangle([28, 545, w - 28, 585], radius=8, fill="#FF8F00")
-    draw.text((65, 555), "💡 ACTIVAR TEST LUZ (2 MINUTOS)", fill="#FFFFFF", font=FONTS["btn"])
-    
-    # Boton Apagar Test
-    draw.rounded_rectangle([28, 595, w - 28, 635], radius=8, fill="#546E7A")
-    draw.text((140, 605), "⛔ APAGAR TEST", fill="#FFFFFF", font=FONTS["btn"])
+    draw.text((200, 85), "ON/OFF:", fill="#475569", font=FONTS["small_bold"])
+    draw.rounded_rectangle([270, 80, 320, 105], radius=12, fill="#15803D")
+    draw.ellipse([295, 82, 316, 103], fill="#FFFFFF")
+
+    # Hora Inicio
+    draw.text((25, 135), "Inicio:", fill="#475569", font=FONTS["small_bold"])
+    draw.rounded_rectangle([90, 125, 160, 160], radius=6, fill="#F1F5F9", outline="#CBD5E1")
+    draw.text((110, 135), "14 ▾", fill="#0F172A", font=FONTS["bold"])
+    draw.text((170, 135), ":", fill="#0F172A", font=FONTS["bold"])
+    draw.rounded_rectangle([185, 125, 255, 160], radius=6, fill="#F1F5F9", outline="#CBD5E1")
+    draw.text((205, 135), "30 ▾", fill="#0F172A", font=FONTS["bold"])
+
+    # Hora Fin
+    draw.text((25, 185), "Fin:", fill="#475569", font=FONTS["small_bold"])
+    draw.rounded_rectangle([90, 175, 160, 210], radius=6, fill="#F1F5F9", outline="#CBD5E1")
+    draw.text((110, 185), "16 ▾", fill="#0F172A", font=FONTS["bold"])
+    draw.text((170, 185), ":", fill="#0F172A", font=FONTS["bold"])
+    draw.rounded_rectangle([185, 175, 255, 210], radius=6, fill="#F1F5F9", outline="#CBD5E1")
+    draw.text((205, 185), "30 ▾", fill="#0F172A", font=FONTS["bold"])
+
+    # Horario / Días
+    draw.text((25, 235), "Dias:", fill="#475569", font=FONTS["small_bold"])
+    draw.rounded_rectangle([90, 225, w - 25, 260], radius=6, fill="#F1F5F9", outline="#CBD5E1")
+    draw.text((105, 235), "Lunes a viernes ▾", fill="#0F172A", font=FONTS["bold"])
+
+    # Boton Verde Directo ENVIAR Y GRABAR
+    draw.rounded_rectangle([25, 290, w - 25, 345], radius=8, fill="#059669")
+    draw.text((45, 308), "⚡ ENVIAR Y GRABAR ESTA FRANJA", fill="#FFFFFF", font=FONTS["btn"])
+
+    draw.text((25, 370), "💡 Al presionar el boton, la trama viaja al instante por BT", fill="#0369A1", font=FONTS["small_bold"])
+    draw.text((25, 390), "y se guarda en la memoria EEPROM física del microcontrolador.", fill="#0369A1", font=FONTS["small"])
 
     img.save(os.path.join(IMG_DIR, "paso7_config_franja_detalle.png"))
+
+
+def gen_comparativa_grabar_vs_manual():
+    w, h = 600, 360
+    img = Image.new("RGB", (w, h), "#F8FAFC")
+    draw = ImageDraw.Draw(img)
+
+    # Titulo principal
+    draw.text((20, 15), "¿QUÉ MÉTODO USAR EN CAMPO?", fill="#0F172A", font=FONTS["title"])
+    draw.text((20, 42), "Comparativa de flujos de configuración del horario escolar", fill="#64748B", font=FONTS["small"])
+
+    # Columna 1: Grabar Horario de Placa (Recomendado 95%)
+    draw.rounded_rectangle([20, 75, 290, 340], radius=10, fill="#FFFFFF", outline="#15803D", width=2)
+    draw.rounded_rectangle([20, 75, 290, 110], radius=8, fill="#15803D")
+    draw.text((30, 85), "⚡ GRABAR HORARIO PLACA", fill="#FFFFFF", font=FONTS["bold"])
+    
+    draw.text((30, 120), "• Alcance: Integral (4 Franjas a la vez)", fill="#0F172A", font=FONTS["small_bold"])
+    draw.text((30, 145), "• Reloj: Sincroniza RTC con el celular", fill="#15803D", font=FONTS["small"])
+    draw.text((30, 170), "• Tramas: 5 tramas con pausa de 450ms", fill="#475569", font=FONTS["small"])
+    draw.text((30, 195), "• Confirmacion: Dialogo previo de aviso", fill="#475569", font=FONTS["small"])
+    draw.text((30, 220), "• Seguridad: Apaga franjas no usadas", fill="#475569", font=FONTS["small"])
+    draw.rounded_rectangle([30, 260, 280, 320], radius=6, fill="#DCFCE7")
+    draw.text((40, 275), "⭐ USO HABITUAL (95% VISITAS)", fill="#166534", font=FONTS["small_bold"])
+    draw.text((40, 295), "Instalacion y calibracion escolar", fill="#166534", font=FONTS["small"])
+
+    # Columna 2: Programacion Manual
+    draw.rounded_rectangle([310, 75, 580, 340], radius=10, fill="#FFFFFF", outline="#0284C7", width=2)
+    draw.rounded_rectangle([310, 75, 580, 110], radius=8, fill="#0284C7")
+    draw.text((320, 85), "⚙️ CONFIGURACIÓN MANUAL", fill="#FFFFFF", font=FONTS["bold"])
+
+    draw.text((320, 120), "• Alcance: Quirurgico (1 sola alarma)", fill="#0F172A", font=FONTS["small_bold"])
+    draw.text((320, 145), "• Reloj: NO altera la hora del RTC", fill="#B45309", font=FONTS["small"])
+    draw.text((320, 170), "• Tramas: 1 sola trama directa", fill="#475569", font=FONTS["small"])
+    draw.text((320, 195), "• Boton: Directo en la tarjeta", fill="#475569", font=FONTS["small"])
+    draw.text((320, 220), "• Memoria: Las demas alarmas siguen", fill="#475569", font=FONTS["small"])
+    draw.rounded_rectangle([320, 260, 570, 320], radius=6, fill="#E0F2FE")
+    draw.text((330, 275), "🔧 USO TECNICO (5% VISITAS)", fill="#075985", font=FONTS["small_bold"])
+    draw.text((330, 295), "Ajuste puntual o pruebas de banco", fill="#075985", font=FONTS["small"])
+
+    img.save(os.path.join(IMG_DIR, "comparativa_grabar_vs_manual.png"))
 
 # ==========================================
 # 6.2 DROPDOWNS: ALARMA, HORAS, MINUTOS Y HORARIO
@@ -1034,6 +1076,7 @@ def main():
     gen_detalle_receso_escolar()
     gen_propuesta_mantenimiento()
     gen_paso7_config_dropdowns()
+    gen_comparativa_grabar_vs_manual()
     gen_paso7_dropdowns_combinados()
     gen_detalle_diagnostico_luz()
     gen_creditos_it_vial()
