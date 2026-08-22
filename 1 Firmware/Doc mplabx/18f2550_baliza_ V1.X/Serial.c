@@ -178,6 +178,17 @@ static int taskAnalizaUart1(struct pt *pt)
                     stateAnaTrama1 = ST_ESPERA_ANA1;
                 }
                 //si hay configuracion de la alarma
+                else if(strstr(anaT1.bufferRx, "N"))
+                {
+                    extraerFrame(anaT1.bufferRx, anaT1.buffer2, (char*)"N", (char*)END_FRAME);
+                    for(int i = 0; i < 30; i++) {
+                        char c = anaT1.buffer2[i];
+                        EEpromWrite(0x40 + i, (unsigned char)c);
+                        if(c == '\0') break;
+                    }
+                    transmitUart1((char*)"\n\rOK_NAME\n\r");
+                    stateAnaTrama1 = ST_ESPERA_ANA1;
+                }
                 else if(strstr(anaT1.bufferRx, (char*)ID_NUM_ALARM))
                 {                    
                     //extraer el num alarm

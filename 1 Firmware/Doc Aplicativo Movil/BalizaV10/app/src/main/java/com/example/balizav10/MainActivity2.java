@@ -72,6 +72,8 @@ public class MainActivity2 extends AppCompatActivity {
     private TextView txtCortes;
     private TextView txtSalud;
     private Button btnExportAudit;
+    private android.widget.EditText edtNombreBaliza;
+    private Button btnGuardarNombre;
     private String diagnosticoPilaRTC = "OK";
     private String diagnosticoBateria12V = "OK";
     private String diagnosticoCortes = "OK";
@@ -842,6 +844,24 @@ public class MainActivity2 extends AppCompatActivity {
             try { globalSocket.close(); } catch (Exception ignored) {}
             globalSocket = null;
         }
+    }
+
+    
+    private void guardarNombreBaliza() {
+        if (edtNombreBaliza == null) return;
+        String nombre = edtNombreBaliza.getText().toString().trim();
+        if (nombre.isEmpty()) {
+            Toast.makeText(this, "Ingrese un nombre o ubicación", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // Guardar en EEPROM del PIC por Bluetooth
+        String tramaNombre = "\u00BFN" + nombre + "?\n\r";
+        sendData(tramaNombre);
+        // Guardar en preferencias locales asociadas a la MAC
+        if (addressDevice != null && !addressDevice.isEmpty()) {
+            getSharedPreferences("BalizasDB", MODE_PRIVATE).edit().putString(addressDevice, nombre).apply();
+        }
+        Toast.makeText(this, "✓ Nombre grabado en la baliza", Toast.LENGTH_SHORT).show();
     }
 
     private void parseTelemetry(String text) {

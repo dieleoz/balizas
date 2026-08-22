@@ -616,6 +616,18 @@ Ala 5: 00:00 a 00:00 - Diario [OFF]`);
     }
   }
 
+
+  function cmdGuardarNombre() {
+    const nom = document.getElementById('txtNombreBaliza').value.trim();
+    if (!nom) {
+      alert('Por favor ingrese un nombre o ubicación para la señal.');
+      return;
+    }
+    const trama = `\xBFN${nom}?\n\r`;
+    enviarAlBackend(trama);
+    alert(`✓ Nombre "${nom}" grabado en la memoria EEPROM de la baliza.`);
+  }
+
 </script>
 </body>
 </html>
