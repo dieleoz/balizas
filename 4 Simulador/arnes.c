@@ -64,10 +64,10 @@ extern enum states_alarm    stateAlarm;
 extern srtAlarmas           ala1;
 
 /* La original, renombrada al compilar Serial.c. */
-void fw_transmitUart1(char *ptr);
+void fw_transmitUart1(const char *ptr);
 void sim_tx_byte(unsigned char b);
 
-void transmitUart1(char *ptr)
+void transmitUart1(const char *ptr)
 {
     const char *p = ptr;
     while (*p) sim_tx_byte((unsigned char)*p++);
@@ -420,6 +420,26 @@ int main(int argc, char **argv)
         sim_tick(15);
         CHECK(LATCbits.LATC1 == 1, "el buzzer activa LATC1 (leido %d)", LATCbits.LATC1);
         CHECK(LATCbits.LATC0 == 0, "LATC0 permanece en bajo (leido %d)", LATCbits.LATC0);
+    }
+
+    ESCENARIO("D7. Soft UART Timeout: recuperacion ante tramas truncadas");
+    {
+        /* Inyecta una trama incompleta/basura a medias */
+        arrancar_limpio();
+        sim_rx_str("\xBF" "A1,E1,I06");
+        sim_tick(50);
+        /* Avanzamos mas de 1000 ms sin enviar '?' para forzar el timeout suave */
+        sim_tick(1500);
+
+        /* Enviamos una trama valida completa */
+        trama_alarma(1, 7, 30, 10, 30, 9);
+        sim_tick(200);
+
+        /* Comprobamos que el buffer quedo limpio y la alarma 1 se configuro con exito */
+        CHECK(sim_eeprom_leer(0x01) == 1, "alarma 1 habilitada tras recuperacion (1)");
+        CHECK(sim_eeprom_leer(0x03) == 9, "dias = 9 (Lun-Vie) tras recuperacion (leido %d)", sim_eeprom_leer(0x03));
+        CHECK(sim_eeprom_leer(0x04) == 7, "hora inicio = 7 tras recuperacion (leido %d)", sim_eeprom_leer(0x04));
+        CHECK(sim_eeprom_leer(0x05) == 30, "min inicio = 30 tras recuperacion (leido %d)", sim_eeprom_leer(0x05));
     }
 
     /* =============================================================

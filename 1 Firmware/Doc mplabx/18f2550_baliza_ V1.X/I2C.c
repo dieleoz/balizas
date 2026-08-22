@@ -22,8 +22,9 @@ void I2C_Master_Init(uint32_t clock)
 }
 
 
-void I2C_Master_Wait(void){  
-    while( (SSPCON2 & 0b00011111) || (SSPSTAT & 0b00000100) );
+void I2C_Master_Wait(void){
+    uint16_t timeout = 5000;
+    while( ((SSPCON2 & 0b00011111) || (SSPSTAT & 0b00000100)) && --timeout );
 }
 
 void I2C_Start(void){

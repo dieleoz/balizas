@@ -48,23 +48,14 @@ extern unsigned char ucCntAnalisisUart1;
 //NAME: transmitUart1
 
 //=================================================================
-void transmitUart1(char* ptr)
+void transmitUart1(const char* ptr)
 {
-    char bufferTx1[SIZE_BUFFER_TX1];
-    int ucCntTx1 = 0;
-    
     if(ptr == NULL) return;
-    
-    memset(bufferTx1, 0x00, sizeof(bufferTx1));
-    strncpy(bufferTx1, ptr, sizeof(bufferTx1) - 1);
-    
-    ucCntTx1 = (int)strlen(bufferTx1);
-    
-    for(int x = 0; x < ucCntTx1 ; x++)
+    while(*ptr != '\0')
     {
-        TXREG = bufferTx1[x];
-        while(TXSTAbits.TRMT == 0);                
-    }//fin for
+        TXREG = (unsigned char)*ptr++;
+        while(TXSTAbits.TRMT == 0);
+    }
 }
 
 
@@ -78,6 +69,7 @@ void receiverUart1(char* dest)
     if(serial1.ucCntRX < sizeof(serial1.bufferRx) - 1)
     {
         serial1.bufferRx[serial1.ucCntRX++] = *dest;
+        serial1.ulLastRxTick = getMillis();
     }
 }
 
@@ -117,30 +109,39 @@ static int taskAnalizaUart1(struct pt *pt)
                 
                 
             case ST_ESPERA_ANA1:
+                // Soft UART Timeout: descarta tramas truncadas si pasan mas de 1000 ms sin completarse
+                if(serial1.ucCntRX > 0 && (getMillis() - serial1.ulLastRxTick) > 1000)
+                {
+                    serial1.ucCntRX = 0;
+                    serial1.flagRx = false;
+                    memset(serial1.bufferRx, 0x00, sizeof(serial1.bufferRx));
+                    anaT1.uiCnt = 0;
+                }
+
                 if(serial1.flagRx)
                 {
-                    
                     if(++ anaT1.uiCnt >= 5)
                     {
                         serial1.flagRx = false;
-                        
+                        anaT1.uiCnt = 0;
+
                         memset(anaT1.bufferRx, 0x00, sizeof(anaT1.bufferRx));
-                        
+
                         char x = 0;
-                        for(char i = 0; i < SIZE_BUFFER_RX1; i++)
+                        for(char i = 0; i < serial1.ucCntRX && i < (char)(sizeof(serial1.bufferRx) - 1); i++)
                         {
                             if(serial1.bufferRx[i] != '\0' && x < (char)(sizeof(anaT1.bufferRx) - 1))
                             {
                                 anaT1.bufferRx[x++] = serial1.bufferRx[i];
                             }
                         }
-                        
+
                         memset(serial1.bufferRx, 0x00, sizeof(serial1.bufferRx));
                         serial1.ucCntRX = 0;
-                        
+
                         stateAnaTrama1 = ST_INIT_FRAME_ANA1;
                     }
-                }                
+                }
                 break;
   
                 

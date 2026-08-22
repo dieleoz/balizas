@@ -279,7 +279,7 @@ void reiniciarTemporizador(unsigned int* time)
 //LIMPIEZA DE BUFFERS
 void cleanBuffer(char* orig)
 {
-    memset(orig, 0x00, strlen(orig));
+    if(orig != NULL) memset(orig, 0x00, sizeof(ap.bufferTx));
 }
 
  void readDevide(void)

@@ -117,12 +117,27 @@ Quedan dos cabos, y los dos son baratos:
   - ✅ **Demostrado en hardware real (21-Ago-2026):** Comunicación bidireccional Android $\leftrightarrow$ JDY-31 $\leftrightarrow$ PIC18F2550 a 9600 baudios 8N1.
   - ✅ **Sincronización RTC 100% Funcional:** La trama `¿R[HHMM],C[DDMMAA-D]?` se genera automáticamente y ajusta los registros del DS1307 al segundo con la hora satelital/celular.
   - ✅ **App IT VIAL 30 v3.3 Liberada:** Ícono de escritorio **IT Vial** corregido para Android 8+, título completo en ActionBar sin recortes, botones de test verticales, botón de **1-Toque para Horario Escolar Oficial Completo (Placa: 06:00-09:00, 11:30-13:30, 15:00-16:30 Lun-Vie)**, sesión persistente y auto-verificación.
-  - ✅ **Manual de Usuario Oficial Generado y Alíneado:** [`Manuales/MANUAL_USUARIO_APP.md`](Manuales/MANUAL_USUARIO_APP.md) y [`Manuales/MANUAL_USUARIO_APP.docx`](Manuales/MANUAL_USUARIO_APP.docx) (flujo de 10 pasos reales, validado contra copia base `MANUAL_USUARIO_APP - copia.docx`, 18 figuras HD, guía de batería 12V y pila CR2032, y formato 100% corporativo para cliente final).
+## Fase 5 — Refactorización, Robustecimiento y Optimización del Firmware (PIC18F2550)
 
+Plan de mejora a nivel de código C99 para elevar la robustez, reducir el consumo de Flash/RAM y blindar contra bloqueos:
+
+- [ ] **5.1 · Protección contra Bloqueos en Bus I2C (`I2C.c:26`):**
+  - Añadir contador de timeout en `I2C_Wait()` para evitar que una falla transitoria del DS1307 o ruido eléctrico en `SDA/SCL` cuelgue el microcontrolador en un bucle infinito.
+- [ ] **5.2 · Corrección de `memset` con `strlen` (`Aplicacion.c:282, 338, 347`):**
+  - Reemplazar el patrón erróneo `memset(buf, 0x00, strlen(buf))` por asignación directa de strings constantes (`const char*`) y buffers con tamaño fijo acotado.
+- [ ] **5.3 · Transmisión UART Directa por Puntero (`Serial.c:53-67`):**
+  - Eliminar el buffer local `bufferTx1[100]` de la pila de memoria RAM y las llamadas `memset/strncpy/strlen` en `transmitUart1()`. Transmitir byte a byte leyendo directamente el puntero `const char*`.
+- [ ] **5.4 · Soft Timeout de Inactividad UART (1.000 ms) (`Serial.c:100-130`):**
+  - Registrar marca de tiempo en recepción. Si transcurren $>1000\text{ ms}$ con una trama incompleta, limpiar el buffer automáticamente sin reiniciar el micro ni apagar el foco vial.
+- [ ] **5.5 · Optimización de Copia de Tramas (`Serial.c:128-135`):**
+  - Copiar únicamente la cantidad real de bytes recibidos (`serial1.ucCntRX`) en lugar de recorrer ciegamente los 100 bytes del buffer en cada análisis.
+- [ ] **5.6 · Supervisión por Watchdog Timer (WDT) (`main.c` / `main.h`):**
+  - Habilitar el Watchdog Timer por software (`SWDTEN = 1`) con timeout de ~2.1 segundos y refresco periódico `ClrWdt()` en el lazo principal.
 
 ---
 
 ## Fase 6 — Mejoras Pendientes para Futuras Versiones de la App Móvil (v3.4 / v4.0)
+
 
 Para futuras iteraciones del aplicativo móvil y del ecosistema de gestión vial, quedan registradas las siguientes oportunidades de mejora funcional y tecnológica:
 
