@@ -135,6 +135,9 @@ static int taskAplicacion(struct pt *pt)
                             EEpromWrite(ADDRESS_INIT_MIN5, 0);
                             EEpromWrite(ADDRESS_END_HOUR5, 0);
                             EEpromWrite(ADDRESS_END_MIN5, 0);
+                            EEpromWrite(0x30, 0xAA);
+                            EEpromWrite(0x36, 0x00);
+                            EEpromWrite(0x37, 0x00);
                             
                             cambiarEstado(ST_READ_MEMO_AP);
                         }
@@ -144,6 +147,12 @@ static int taskAplicacion(struct pt *pt)
                             readMemoriaValues();
                             ala.flagUpdate = true;      //actualizar los valores  
                             
+                            // Incrementar contador de reinicios / cortes de energia (EEPROM 0x36-0x37)
+                            uint16_t cnt_cortes = ((uint16_t)EEpromRead(0x36) << 8) | EEpromRead(0x37);
+                            if(cnt_cortes == 0xFFFF) cnt_cortes = 0;
+                            cnt_cortes++;
+                            EEpromWrite(0x36, (uint8_t)(cnt_cortes >> 8));
+                            EEpromWrite(0x37, (uint8_t)(cnt_cortes & 0xFF));
                             transmitUart1((char*)"\n\rBALIZA ALARMA V1.0\n\r\n\r");
                             
                             

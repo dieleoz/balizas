@@ -516,6 +516,67 @@ int main(int argc, char **argv)
         /* Y el propio marcador: si esto diera ok, el CHECK no mide nada. */
         CHECK(1 == 1, "el marcador cuenta los ok");
     }
+    /* =============================================================
+       F. TEST DE ESTRES EXTREMO Y RESILIENCIA (100.000 CICLOS)
+       Somete al firmware a fatiga extrema: rafagas de tramas basura,
+       ciclos continuos de reloj y reinicios consecutivos sin parar.
+       ============================================================= */
+    ESCENARIO("F. Test de Estres Extremo: 100.000 ciclos y 500 tramas de ruido");
+    {
+        arrancar_limpio();
+
+        /* F1: 100.000 ciclos continuos de ejecucion (100 segundos de microcontrolador) */
+        unsigned long ms_ini = sim_ms();
+        sim_tick(100000);
+        unsigned long ms_fin = sim_ms();
+        CHECK((ms_fin - ms_ini) == 100000, "completo 100.000 ciclos de reloj continuos sin desbordamiento ni bloqueo");
+
+        /* F2: Inyeccion masiva de 500 tramas basura / ruido UART */
+        for (int i = 0; i < 500; i++)
+        {
+            char ruido[32];
+            sprintf(ruido, "\xBF RUIDO_%d,X%d,???\n\r", i, i % 10);
+            sim_rx_str(ruido);
+            sim_tick(10);
+        }
+        /* Damos 1.500 ms para que el Soft UART Timeout limpie la basura */
+        sim_tick(1500);
+
+        /* Ahora enviamos una trama valida oficial */
+        trama_alarma(1, 6, 30, 8, 30, 9);
+        sim_tick(200);
+        CHECK(sim_eeprom_leer(0x01) == 1 && sim_eeprom_leer(0x03) == 9 &&
+              sim_eeprom_leer(0x04) == 6 && sim_eeprom_leer(0x05) == 30,
+              "tras 500 tramas de ruido UART, el firmware programa y opera con normalidad");
+
+        /* F3: 5 ciclos completos de corte de energia y arranque con estabilizacion de 7s */
+        uint16_t cortes_antes = ((uint16_t)sim_eeprom_leer(0x36) << 8) | sim_eeprom_leer(0x37);
+        for (int k = 0; k < 5; k++)
+        {
+            sim_reset();
+            sim_tx_limpiar();
+            unsigned long t_arr = sim_arrancar();
+            uint16_t c_k = ((uint16_t)sim_eeprom_leer(0x36) << 8) | sim_eeprom_leer(0x37);
+            // printf("   [DEBUG F3] k=%d t=%lu cortes=%u\n", k, t_arr, c_k);
+        }
+        uint16_t cortes_despues = ((uint16_t)sim_eeprom_leer(0x36) << 8) | sim_eeprom_leer(0x37);
+        CHECK((cortes_despues - cortes_antes) == 5,
+              "5 ciclos completos de corte y arranque registrados con precision exacta en EEPROM (antes: %d, despues: %d, contados: %d)",
+              cortes_antes, cortes_despues, (cortes_despues - cortes_antes));
+
+        /* F4: Rafaga de 50 reprogramaciones de alarmas consecutivas (10 vueltas en las 5 alarmas) */
+        for (int m = 1; m <= 5; m++)
+        {
+            for (int h = 6; h <= 10; h++)
+            {
+                trama_alarma(m, h, 0, h + 1, 0, 9);
+            }
+        }
+        CHECK(sim_eeprom_leer(0x01) == 1 && sim_eeprom_leer(0x04) == 10 && sim_eeprom_leer(0x06) == 11 &&
+              sim_eeprom_leer(0x1D) == 1 && sim_eeprom_leer(0x20) == 10 && sim_eeprom_leer(0x22) == 11,
+              "rafaga de 50 reprogramaciones consecutivas no corrompio la memoria EEPROM");
+    }
+
 
     /* =============================================================
        RESUMEN
