@@ -69,7 +69,7 @@ La interfaz ha sido diseñada bajo directivas ergonómicas para uso rudo en call
 
 
 1. Active el Bluetooth en su teléfono móvil.
-2. Abra la aplicación y presione el botón rojo **`DISPOSITIVO`**.
+2. Abra la aplicación y presione el botón rojo **`CONECTAR`**.
 3. Seleccione el módulo Bluetooth de la baliza (ej. `JDY-31-SPP` o el nombre asignado).
 4. El botón cambiará a verde indicando conexión exitosa.
 
@@ -95,20 +95,20 @@ La interfaz ha sido diseñada bajo directivas ergonómicas para uso rudo en call
 2. En la tarjeta **HORARIO DE ESTA PLACA**, active con el interruptor las franjas que use esa
    señal y deje apagadas las que no. Hay cuatro disponibles.
 3. Toque cada hora para abrir el reloj y ajustarla. El botón izquierdo es el inicio de la franja
-   y el derecho el final.
+   y el derecho el final (mostrados con formato nítido `06:00` a `09:00`).
 4. Elija los **días** en el desplegable: lunes a viernes, todos los días, o sábado y domingo.
 5. Pulse **GRABAR ESTE HORARIO EN LA BALIZA**.
 6. Aparecerá una **ventana de confirmación con la lista exacta** de lo que se va a grabar.
    **Compárela con la placa antes de aceptar.** Es el último punto en el que se puede detectar
    un error sin volver al poste.
-7. Al aceptar, la aplicación sincroniza el reloj del equipo con la hora del teléfono, graba las
-   franjas y vuelve a leer la baliza para que usted vea cómo quedó.
+7. Al aceptar, la aplicación sincroniza el reloj del equipo con la hora del teléfono, graba en lote las
+   franjas (con retardo seguro de 450 ms) y vuelve a leer la baliza para que usted vea cómo quedó.
 
 ### 4.2 Qué NO hace este botón
 
 * **No toca la Alarma 5**, que queda reservada a la prueba de foco de 2 minutos (apartado 8).
 * **No inventa horarios.** Si no activa ninguna franja, la señal no destellará nunca, y la
-  ventana de confirmación se lo advertirá con esas palabras.
+   ventana de confirmación se lo advertirá con esas palabras.
 
 ---
 
@@ -121,13 +121,32 @@ autoridad para cuando sí importa.
 | Botón | Qué hace |
 |---|---|
 | **APAGAR (RECESO)** | Apaga **todas** las franjas. La señal queda sin destellar las 24 horas. |
-| **REANUDAR CLASES** | Vuelve a grabar el horario que esté en pantalla. |
+| **REANUDAR CLASES** | Vuelve a grabar el horario de la placa que esté en pantalla. |
 
 ![Figura 15: Botones de receso escolar.](img/paso6_detalle_receso_escolar.png)
 
 
 Los dos piden confirmación antes de actuar. Antes de apagar, **compruebe que el horario en
 pantalla es el de la placa**: es el que se restaurará al reanudar.
+
+---
+
+## 4ter. ¿«Grabar Horario de Placa» vs «Programación Manual de Franja»?
+
+Una duda común entre técnicos es la diferencia entre estos dos métodos:
+
+| Característica | ⚡ GRABAR HORARIO DE ESTA PLACA (Lote) | ⚙️ PROGRAMACIÓN MANUAL (Quirúrgico) |
+| :--- | :--- | :--- |
+| **Propósito** | Configuración **integral** de la señal al llegar al colegio. | Ajuste técnico puntual de **UNA sola alarma**. |
+| **Reloj RTC** | **Sincroniza automáticamente** la fecha/hora con el teléfono móvil. | **No altera** la hora actual del reloj. |
+| **Memoria** | Reescribe de forma secuencial las 4 franjas (apaga las que estén en OFF). | Modifica únicamente la alarma seleccionada (1 a 5); las demás quedan intactas. |
+| **¿Guardar es Enviar?** | **Sí:** Al confirmar, se envía la secuencia por Bluetooth y se graba en EEPROM. | **Sí:** Al pulsar el botón verde **`⚡ ENVIAR Y GRABAR ESTA FRANJA`**, se despacha la trama UART y se graba inmediatamente en la EEPROM física del PIC. |
+
+### Botón Directo de Programación Manual
+Para mayor comodidad del técnico, la tarjeta **6. PROGRAMACIÓN MANUAL DE FRANJA** incluye su propio botón verde directo:
+👉 **`⚡ ENVIAR Y GRABAR ESTA FRANJA`**
+
+No es necesario hacer scroll hacia arriba: al pulsar este botón, la trama de la alarma seleccionada (ej. `¿A3,E1,I1430,F1630,D9,?`) viaja al microcontrolador y queda almacenada de forma permanente.
 
 ---
 
