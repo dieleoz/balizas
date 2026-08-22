@@ -91,12 +91,9 @@ void __interrupt() INT_isr(void)
  */
 void __interrupt(low_priority) INT_ISR_LOW (void)
 {
-    if(INTCON3bits.INT1IE == 1 && INTCON3bits.INT1IF == 1)
+    if(INTCON3bits.INT1IF)
     {
-         printf("INICIO INTERRUPCION INT1\r\n");
-         __delay_ms(4000);
-         printf("FIN INTERRUPCION INT1\r\n");
-         INTCON3bits.INT1IF = 0;
+        INTCON3bits.INT1IF = 0;
     }
 }
 
@@ -131,6 +128,9 @@ void main(void)
     startTaskCluster();
     while(1)
     {
+#ifndef _SIMULATION_
+        ClrWdt();
+#endif
         executeTaskLedLive();
         executeTaskAnalizaUart1();
         executeTaskAplicacion();        
