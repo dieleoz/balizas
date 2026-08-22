@@ -71,11 +71,13 @@
                 android:layout_weight="1.2"
                 android:minHeight="48dp"
                 android:layout_marginEnd="4dp"
-                android:text="@string/sDispositivo"
-                android:textSize="13sp"
+                android:text="CONECTAR"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:maxLines="1"
-                android:ellipsize="end"
+                android:singleLine="true"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
                 app:backgroundTint="#DC2626"
                 android:textColor="#FFFFFF" />
 
@@ -87,9 +89,13 @@
                 android:minHeight="48dp"
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"
-                android:text="@string/sLeer"
-                android:textSize="13sp"
+                android:text="LEER"
+                android:textSize="12sp"
                 android:textStyle="bold"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
                 app:backgroundTint="#2563EB"
                 android:textColor="#FFFFFF" />
 
@@ -100,9 +106,13 @@
                 android:layout_weight="1"
                 android:minHeight="48dp"
                 android:layout_marginStart="4dp"
-                android:text="@string/sConfig"
-                android:textSize="13sp"
+                android:text="CONFIG"
+                android:textSize="12sp"
                 android:textStyle="bold"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
                 app:backgroundTint="#059669"
                 android:textColor="#FFFFFF" />
         </LinearLayout>
@@ -629,18 +639,18 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp">
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp">
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/idSwF1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:minWidth="60dp"
+                        android:minWidth="44dp"
                         android:minHeight="48dp"
                         android:checked="true"
                         android:text="1"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#0F172A" />
 
@@ -649,11 +659,15 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minHeight="52dp"
-                        android:layout_marginStart="4dp"
+                        android:minHeight="48dp"
+                        android:layout_marginStart="2dp"
                         android:text="06:00"
-                        android:textSize="18sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp"
                         android:textColor="#0F172A"
                         app:backgroundTint="#E2E8F0" />
 
@@ -661,18 +675,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" a "
-                        android:textSize="15sp"
-                        android:textColor="#475569" />
+                        android:textSize="13sp"
+                        android:textColor="#475569"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp" />
 
                     <Button
                         android:id="@+id/idBtnF1Fin"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minHeight="52dp"
+                        android:minHeight="48dp"
                         android:text="09:00"
-                        android:textSize="18sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp"
                         android:textColor="#0F172A"
                         app:backgroundTint="#E2E8F0" />
                 </LinearLayout>
@@ -682,18 +702,18 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp">
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp">
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/idSwF2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:minWidth="60dp"
+                        android:minWidth="44dp"
                         android:minHeight="48dp"
                         android:checked="true"
                         android:text="2"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#0F172A" />
 
@@ -702,11 +722,15 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minHeight="52dp"
-                        android:layout_marginStart="4dp"
+                        android:minHeight="48dp"
+                        android:layout_marginStart="2dp"
                         android:text="11:30"
-                        android:textSize="18sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp"
                         android:textColor="#0F172A"
                         app:backgroundTint="#E2E8F0" />
 
@@ -714,18 +738,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" a "
-                        android:textSize="15sp"
-                        android:textColor="#475569" />
+                        android:textSize="13sp"
+                        android:textColor="#475569"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp" />
 
                     <Button
                         android:id="@+id/idBtnF2Fin"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minHeight="52dp"
+                        android:minHeight="48dp"
                         android:text="13:30"
-                        android:textSize="18sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp"
                         android:textColor="#0F172A"
                         app:backgroundTint="#E2E8F0" />
                 </LinearLayout>
@@ -735,18 +765,18 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp">
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp">
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/idSwF3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:minWidth="60dp"
+                        android:minWidth="44dp"
                         android:minHeight="48dp"
                         android:checked="true"
                         android:text="3"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#0F172A" />
 
@@ -755,11 +785,15 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minHeight="52dp"
-                        android:layout_marginStart="4dp"
+                        android:minHeight="48dp"
+                        android:layout_marginStart="2dp"
                         android:text="15:00"
-                        android:textSize="18sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp"
                         android:textColor="#0F172A"
                         app:backgroundTint="#E2E8F0" />
 
@@ -767,18 +801,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" a "
-                        android:textSize="15sp"
-                        android:textColor="#475569" />
+                        android:textSize="13sp"
+                        android:textColor="#475569"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp" />
 
                     <Button
                         android:id="@+id/idBtnF3Fin"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minHeight="52dp"
+                        android:minHeight="48dp"
                         android:text="16:30"
-                        android:textSize="18sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp"
                         android:textColor="#0F172A"
                         app:backgroundTint="#E2E8F0" />
                 </LinearLayout>
@@ -788,18 +828,18 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp">
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp">
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/idSwF4"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:minWidth="60dp"
+                        android:minWidth="44dp"
                         android:minHeight="48dp"
                         android:checked="false"
                         android:text="4"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#0F172A" />
 
@@ -808,11 +848,15 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minHeight="52dp"
-                        android:layout_marginStart="4dp"
+                        android:minHeight="48dp"
+                        android:layout_marginStart="2dp"
                         android:text="00:00"
-                        android:textSize="18sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp"
                         android:textColor="#0F172A"
                         app:backgroundTint="#E2E8F0" />
 
@@ -820,18 +864,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" a "
-                        android:textSize="15sp"
-                        android:textColor="#475569" />
+                        android:textSize="13sp"
+                        android:textColor="#475569"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp" />
 
                     <Button
                         android:id="@+id/idBtnF4Fin"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minHeight="52dp"
+                        android:minHeight="48dp"
                         android:text="00:00"
-                        android:textSize="18sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="2dp"
+                        android:paddingEnd="2dp"
                         android:textColor="#0F172A"
                         app:backgroundTint="#E2E8F0" />
                 </LinearLayout>
@@ -847,7 +897,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Dias: "
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="#0F172A" />
 
@@ -863,10 +913,10 @@
                     android:id="@+id/idBtnGrabarPlaca"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="60dp"
+                    android:minHeight="56dp"
                     android:layout_marginTop="10dp"
                     android:text="GRABAR ESTE HORARIO EN LA BALIZA"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     app:backgroundTint="#15803D"
                     android:textColor="#FFFFFF" />
@@ -885,7 +935,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="6dp"
                     android:text="En vacaciones no hay escolares y la restriccion no rige. Apague la senal y vuelva a encenderla al reanudar clases."
-                    android:textSize="13sp"
+                    android:textSize="12sp"
                     android:textColor="#475569" />
 
                 <LinearLayout
@@ -898,10 +948,14 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minHeight="56dp"
+                        android:minHeight="50dp"
                         android:text="APAGAR (RECESO)"
-                        android:textSize="14sp"
+                        android:textSize="12sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
                         app:backgroundTint="#B45309"
                         android:textColor="#FFFFFF" />
 
@@ -910,11 +964,15 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minHeight="56dp"
-                        android:layout_marginStart="8dp"
+                        android:minHeight="50dp"
+                        android:layout_marginStart="6dp"
                         android:text="REANUDAR CLASES"
-                        android:textSize="14sp"
+                        android:textSize="12sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
                         app:backgroundTint="#1D4ED8"
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
@@ -1143,9 +1201,13 @@
                         android:layout_weight="1"
                         android:minHeight="48dp"
                         android:layout_marginEnd="4dp"
-                        android:text="💡 Activar Test (2 min)"
-                        android:textSize="13sp"
+                        android:text="💡 Test Foco (2 min)"
+                        android:textSize="12sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
                         app:backgroundTint="#D97706"
                         android:textColor="#FFFFFF" />
 
@@ -1157,8 +1219,12 @@
                         android:minHeight="48dp"
                         android:layout_marginStart="4dp"
                         android:text="⏹️ Apagar Test"
-                        android:textSize="13sp"
+                        android:textSize="12sp"
                         android:textStyle="bold"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
                         app:backgroundTint="#475569"
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
