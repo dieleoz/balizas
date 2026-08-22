@@ -1,6 +1,6 @@
 # MANUAL DE USUARIO
-# APLICACIÓN MÓVIL IT VIAL 30 (v3.3)
-### Sistema de Control y Diagnóstico de Baliza Escolar 30 CUANDO ACTIVADA
+# APLICACIÓN MÓVIL IT VIAL 30 (v3.4)
+### Sistema de Control, Telemetría y Diagnóstico de Baliza Escolar 30 CUANDO ACTIVADA
 
 ![IT VIAL S.A.S - Portada Oficial](img/portada_it_vial_creditos.png)
 
@@ -8,7 +8,7 @@
 
 ## 1. Introducción y Propósito
 
-El presente manual describe de manera técnica y operativa la instalación, vinculación, configuración y diagnóstico del sistema de baliza vial escolar mediante la aplicación móvil oficial **IT VIAL 30 (Versión v3.3)** en teléfonos inteligentes con sistema operativo Android.
+El presente manual describe de manera técnica y operativa la instalación, vinculación, configuración, telemetría energética y auditoría del sistema de baliza vial escolar mediante la aplicación móvil oficial **IT VIAL 30 (Versión v3.4)** en teléfonos inteligentes con sistema operativo Android.
 
 La baliza vial gobierna el destello intermitente del foco ámbar de advertencia instalado frente a zonas escolares. **Cuando la luz titila, el límite reglamentario de velocidad de 30 km/h entra en vigor legal.**
 
@@ -31,26 +31,42 @@ La baliza vial gobierna el destello intermitente del foco ámbar de advertencia 
 
 ---
 
-## 2. Requisitos Previos
+## 2. Novedades de la Versión v3.4
+
+1. **Card de Diagnóstico Energético en Tiempo Real:**
+   * **Voltímetro Digital de 12V:** Muestra el voltaje real de la batería y panel solar mediante un código de colores intuitivo:
+     * 🟢 **Verde ($>12.4\text{ V}$):** Nivel de carga óptimo / Sistema solar en perfecto estado.
+     * 🟡 **Amarillo ($11.5 - 12.4\text{ V}$):** Nivel normal de operación.
+     * 🔴 **Rojo ($<11.5\text{ V}$):** Alerta preventiva de batería baja o desconexión del panel solar.
+2. **Contador de Cortes de Energía y Reinicios en EEPROM:**
+   * Registro histórico acumulado de apagones o falsos contactos en bornes/fusibles para mantenimiento preventivo.
+3. **Generador y Exportador de Certificados de Auditoría:**
+   * Botón **`COMPARTIR CERTIFICADO DE AUDITORÍA`** para enviar el acta formal sellada con fecha, hora, MAC del equipo, voltaje y horarios por **WhatsApp**, correo electrónico o archivo de texto.
+4. **Trazabilidad Multidispositivo por Dirección MAC:**
+   * Identificación inequívoca de cada poste y señal a lo largo de corredores viales extensos.
+
+---
+
+## 3. Requisitos Previos
 
 Antes de iniciar la configuración en campo o banco de pruebas, asegúrese de contar con:
 
 * **Teléfono Móvil Android:** Compatible con versiones desde Android 6.0 hasta Android 14+.
 * **Bluetooth Activado:** Con adaptador inalámbrico en funcionamiento.
-* **Instalador de la Aplicación:** Archivo instalador `Baliza_v3.3.apk` suministrado por **IT VIAL S.A.S**.
+* **Instalador de la Aplicación:** Archivo instalador `Baliza_v3.4.apk` suministrado por **IT VIAL S.A.S**.
 * **Baliza Energizada:** Tarjeta y equipo conectados a su fuente de energía (12 VDC / Batería / Panel solar).
-* **Distancia de Trabajo:** Ubicarse a una distancia recomendada de entre 1 y 10 metros del poste o gabinete para una óptima recepción.
+* **Distancia de Trabajo:** Ubicarse a una distancia recomendada de entre 1 y 10 metros del poste para una óptima recepción.
 
 ---
 
-## 3. Guía Paso a Paso de Instalación y Uso
+## 4. Guía Paso a Paso de Instalación y Uso
 
 ---
 
-### PASO 1: Instalación de la Aplicación (Baliza_v3.X.apk)
+### PASO 1: Instalación de la Aplicación (Baliza_v3.4.apk)
 
 #### 1.1 Selección del Instalador de Paquetes
-1. Reciba o descargue el archivo instalador oficial `Baliza_v3.3.apk` en su dispositivo móvil.
+1. Reciba o descargue el archivo instalador oficial `Baliza_v3.4.apk` en su dispositivo móvil.
 2. Toque el archivo `.apk` para iniciar el proceso de instalación de Android.
 3. En la ventana emergente **«Abrir con»**, seleccione **«Instalador de paquetes»** y presione **«Solo una vez»** o **«Siempre»**.
 
@@ -58,280 +74,141 @@ Antes de iniciar la configuración en campo o banco de pruebas, asegúrese de co
 *Figura 3: Selección del «Instalador de paquetes» de Android.*
 
 #### 1.2 Confirmación de Instalación y Permisos
-4. Si el sistema solicita autorización para instalar aplicaciones de fuentes desconocidas, ingrese a **«Ajustes»** y habilite la opción **«Permitir desde esta fuente»**.
-5. En la ventana de confirmación con el logotipo de **IT VIAL 30**, ante la pregunta *«¿Deseas instalar esta app?»*, presione el botón **«Instalar»**.
+1. Toque el botón **«Instalar»** en la parte inferior derecha.
+2. Android puede mostrar una advertencia de seguridad indicando que la aplicación proviene de una fuente externa. Toque **«Instalar de todos modos»** o **«Más detalles -> Instalar de todas formas»**.
+3. Al finalizar, presione **«Abrir»** para iniciar la aplicación.
 
-![Paso 1.2 - Confirmación de Instalación](img/paso1_confirmar_instalacion.png)
-*Figura 4: Ventana de confirmación de instalación de la aplicación.*
-
-#### 1.3 Progreso de Instalación
-6. Se mostrará el mensaje **«Instalando...»** con la barra de progreso correspondiente. Espere unos segundos mientras el sistema procesa el paquete.
-
-![Paso 1.3 - Progreso de Instalación](img/paso1_instalando_progreso.png)
-*Figura 5: Progreso de instalación en Android.*
-
-#### 1.4 Advertencia de Google Play Protect («Se bloqueó la app no segura»)
-7. En dispositivos con Android 12, 13 o 14, el servicio de seguridad **Google Play Protect** puede desplegar una pantalla con el aviso *«Se bloqueó la app no segura»* por tratarse de un aplicativo técnico corporativo distribuido fuera de la tienda comercial.
-
-> ### ADVERTENCIA CRÍTICA DE INSTALACIÓN
-> * **Acción por realizar:** Presione el texto **«Instalar de todas formas»** (o seleccione previamente *«Más detalles»* para desplegar la opción y luego presione *«Instalar de todas formas»*).
-> * **Precaución:** **No presione** el botón azul *«Entendido»*, ya que esta opción cancela la instalación.
-
-![Paso 1.4 - Google Play Protect e Instalación Forzada](img/paso1_play_protect_bloqueo.png)
-*Figura 6: Pantalla de Google Play Protect y selección obligatoria de «Instalar de todas formas».*
-
-#### 1.5 Finalización de Instalación y Apertura
-8. El instalador confirmará la operación con el mensaje **«Se instaló la app.»**.
-9. Presione el botón **«Abrir»** para iniciar la aplicación.
-
-![Paso 1.5 - Instalación Completada](img/paso1_instalacion_finalizada.png)
-*Figura 7: Confirmación de instalación completada y botón de apertura.*
+![Paso 1.2 - Confirmación de Instalación](img/paso1_confirmacion_instalacion.png)
+*Figura 4: Diálogo de instalación de la aplicación.*
 
 ---
 
-### PASO 2: Acceso e Inicio de Sesión en la Aplicación (Login)
+### PASO 2: Vinculación Bluetooth con el Módulo JDY-31
 
-1. Abra la aplicación **IT VIAL 30** desde el menú de su teléfono.
-2. En la pantalla de inicio de sesión, ingrese las credenciales de acceso técnico autorizadas:
-   * **Usuario:** `admin`
-   * **Contraseña:** `admin`
-3. Presione el botón rojo **«ENTRAR AL SISTEMA»**.
+> **NOTA TÉCNICA:** La primera vez que configure un teléfono con una baliza, debe emparejar el módulo Bluetooth desde los Ajustes del sistema de Android antes de conectarse en la app.
 
-![Pantalla de Login](img/paso3_login_app.png)
-*Figura 8: Pantalla oficial de autenticación IT VIAL 30 v3.3.*
+1. Ingrese a **Ajustes** -> **Bluetooth** en su teléfono móvil.
+2. Active el Bluetooth y presione **«Buscar dispositivos»**.
+3. En la lista de dispositivos disponibles aparecerá el módulo con el nombre **`JDY-31-SPP`** (o el nombre corporativo asignado por IT VIAL).
+4. Toque sobre **`JDY-31-SPP`**.
+5. Cuando el sistema solicite el PIN de emparejamiento, ingrese el código de fábrica:
+   $$\mathbf{1234}$$
+6. Presione **«Aceptar»**. El dispositivo quedará registrado en la lista de «Dispositivos vinculados».
 
----
-
-### PASO 3: Concesión de Permisos de Dispositivos Cercanos
-
-Al iniciar la aplicación por primera vez, el sistema operativo Android solicitará permisos de conectividad:
-* **Mensaje:** *«¿Permitir que IT VIAL 30 encuentre dispositivos cercanos, se conecte a ellos y determine su ubicación relativa?»*
-* **Acción requerida:** Presione **«Permitir»**.
-
-![Paso 3 - Permisos de Dispositivos Cercanos](img/paso2_permisos_dispositivos_cercanos.png)
-*Figura 9: Diálogo de permisos de dispositivos cercanos.*
+![Paso 2 - Vinculación Bluetooth](img/paso2_vinculacion_bluetooth.png)
+*Figura 5: Vinculación Bluetooth del módulo JDY-31 ingresando el PIN 1234.*
 
 ---
 
-### PASO 4: Activación de Bluetooth desde la Aplicación
+### PASO 3: Selección y Conexión del Dispositivo en la App
 
-Si el Bluetooth se encuentra desactivado, la aplicación solicitará autorización directa para encenderlo:
-* **Mensaje:** *«¿Permitir que IT VIAL 30 habilite Bluetooth?»*
-* **Acción requerida:** Presione **«Permitir»** para activar el adaptador inalámbrico.
+1. Abra la aplicación **IT VIAL 30 (v3.4)**.
+2. En la barra superior, presione el botón rojo **`DISPOSITIVO`**.
+3. Se abrirá la lista de dispositivos Bluetooth emparejados.
+4. Seleccione **`JDY-31-SPP`** (junto con su dirección MAC).
+5. Tras unos instantes, el botón cambiará a color verde con la etiqueta:
+   $$\mathbf{\checkmark\ JDY-31-SPP}$$
+   indicando que el enlace inalámbrico está activo y listo para transmitir.
 
-![Paso 4 - Solicitud para Habilitar Bluetooth](img/paso2_habilitar_bluetooth_dialog.png)
-*Figura 10: Solicitud de habilitación del adaptador Bluetooth.*
-
----
-
-### PASO 5: Emparejamiento Bluetooth en Ajustes del Teléfono
-
-Antes de operar la baliza desde la aplicación, el equipo debe ser emparejado en el sistema operativo del teléfono:
-
-1. Ingrese a **Ajustes > Bluetooth** en su dispositivo móvil y active la función Bluetooth.
-2. Presione **«Buscar dispositivos»** y espere a que aparezca en la lista de *Dispositivos disponibles*.
-3. Identifique el nombre del equipo (ejemplos de nombres):
-   * **`JDY-31-SPP`** (Módulo estándar de la baliza).
-   * **`HC-06`** o **`IT VIAL 30`** (Módulos alternativos o identificadores específicos).
-4. Toque sobre el nombre del dispositivo para iniciar el enlace.
-5. Cuando el sistema solicite el código de seguridad o clave PIN, ingrese:
-   * **Clave PIN principal:** **`1234`**
-   * *(O en su defecto: **`0000`**)*.
-6. Confirme la vinculación y verifique que el equipo figure en la lista de *«Dispositivos vinculados»*.
-
-![Paso 5 - Emparejamiento Bluetooth](img/paso2_emparejamiento_bt.png)
-*Figura 11: Ingreso del PIN de seguridad (1234 / 0000) en Ajustes de Bluetooth.*
+![Paso 3 - Selección del Dispositivo](img/paso3_seleccion_dispositivo.png)
+*Figura 6: Lista de selección del dispositivo Bluetooth JDY-31.*
 
 ---
 
-### PASO 6: Conexión con la Baliza
+### PASO 4: Lectura de Diagnóstico y Telemetría
 
-Una vez dentro de la interfaz principal, establezca la comunicación con la baliza:
+1. Con el dispositivo conectado, presione el botón azul **`LEER`**.
+2. La aplicación consultará a la baliza y desplegará en la consola y en la tarjeta de telemetría:
+   * **Voltaje de Batería 12V:** Lectura en tiempo real con barra de color de estado.
+   * **Contador de Cortes:** Número acumulado de reinicios en la memoria EEPROM.
+   * **Hora y Fecha del Reloj RTC:** Verifique que la hora coincida con la hora local.
+   * **Estado de las 5 Alarmas:** Muestra si están en `ON` u `OFF`, hora de inicio, hora de fin y días asignados.
 
-1. Presione el botón rojo **«DISPOSITIVO»** ubicado en la barra superior.
-2. En la ventana emergente **«Seleccione el Módulo Bluetooth:»**, elija el dispositivo correspondiente a la baliza (ejemplo: `JDY-31-SPP`).
-3. **Confirmación de conexión:**
-   * El botón cambiará su texto y color a verde: **«✓ JDY-31-SPP»**.
-   * Se habilitarán todos los botones de control (**LEER**, **CONFIG**, **PROGRAMAR HORARIO ESCOLAR** y **TEST DE LUZ**).
-   * La aplicación realizará una lectura inicial automática del equipo.
-
-![Selección de Dispositivo Bluetooth](img/paso4_dialog_dispositivos.png)
-*Figura 12: Selección del módulo Bluetooth en la lista de dispositivos vinculados.*
-
-![Pantalla Principal en Espera](img/paso4_pantalla_principal.png)
-*Figura 13: Pantalla principal de control y diagnóstico IT VIAL 30.*
+![Paso 4 - Lectura de Datos](img/paso4_lectura_datos.png)
+*Figura 7: Despliegue de telemetría y horarios en la consola de la aplicación.*
 
 ---
 
-### PASO 7: Función del Botón «LEER» y Consola de Datos
+### PASO 5: Programación con 1-Toque (Horario Escolar Oficial)
 
-El botón azul **«LEER»** permite consultar el estado actual de la baliza:
+> **MÉTODO RECOMENDADO POR IT VIAL:** Para garantizar el cumplimiento exacto de la señal reglamentaria, utilice el botón de acceso directo de 1-Toque.
 
-1. **Información presentada en la consola:**
-   * **Hora y Fecha del Equipo:** Hora registrada por el reloj interno (`Hora: HH:MM:SS Fecha: DD/MM/AA-D`), debe coincidir con la del celular.
-   * **Estado de las 5 Alarmas:**
-     * `Ala 1: 06:00 a 09:00 - Lun-Vie [ON]`
-     * `Ala 2: 11:30 a 13:30 - Lun-Vie [ON]`
-     * `Ala 3: 15:00 a 16:30 - Lun-Vie [ON]`
-     * `Ala 4: 00:00 a 00:00 - Diario [OFF]`
-     * `Ala 5: 00:00 a 00:00 - Diario [OFF]`
-2. **Aplicación práctica:**
-   * Utilice esta función antes de programar para auditar el horario existente y después de programar para confirmar que los datos se almacenaron correctamente.
+1. Presione el botón azul oscuro:
+   $$\mathbf{\text{Programar Horario Escolar (1 Toque)}}$$
+2. La aplicación ejecutará automáticamente la siguiente secuencia certificada:
+   * **Sincronización de Reloj:** Actualiza el reloj RTC de la baliza con la hora y fecha exactas del teléfono móvil.
+   * **Alarma 1 (Mañana):** Programa de `06:00` a `09:00` en modo `Lunes a Viernes`.
+   * **Alarma 2 (Mediodía):** Programa de `11:30` a `13:30` en modo `Lunes a Viernes`.
+   * **Alarma 3 (Tarde):** Programa de `15:00` a `16:30` en modo `Lunes a Viernes`.
+   * **Alarmas 4 y 5:** Las apaga automáticamente para evitar conflictos.
+3. La consola confirmará la recepción de cada parámetro en la memoria EEPROM.
 
----
-
-### PASO 8: Sincronización de Hora y Programación en «1 Toque»
-
-#### Sincronización Automática de Reloj
-Cada vez que se envía una programación desde la aplicación, la hora y fecha del teléfono móvil se transmiten y sincronizan automáticamente en el reloj interno de la baliza, asegurando precisión horaria continua.
-
-![Programación 1-Toque](img/paso6_detalle_horario_escolar.png)
-*Figura 14: Tarjeta de programación rápida del horario escolar oficial.*
-
-#### Función del Botón «PROGRAMAR HORARIO ESCOLAR (1 TOQUE)»
-Este botón realiza en un solo paso la configuración estándar para zonas escolares reglamentadas:
-* **Alarma 1:** `06:00` a `09:00` (lunes a viernes) en estado `ON` (Turno Mañana).
-* **Alarma 2:** `11:30` a `13:30` (lunes a viernes) en estado `ON` (Turno Mediodía).
-* **Alarma 3:** `15:00` a `16:30` (lunes a viernes) en estado `ON` (Turno Tarde).
-* **Alarmas 4 y 5:** Desactivadas (`OFF`).
-
-Esta función previene discrepancias de configuración y asegura concordancia total con la placa física de la señalización.
+![Paso 5 - Botón Horario Escolar](img/paso5_boton_horario_escolar.png)
+*Figura 8: Botón de programación rápida de Horario Escolar Oficial.*
 
 ---
 
-### PASO 9: Configuración Manual de Franjas y Selectores de Horario
+### PASO 6: Prueba de Destello de Luz (Mando Directo)
 
-Para ubicaciones con horarios especiales (colegios con jornada continua, sedes universitarias o eventos específicos), utilice la tarjeta **«Configuración de Franja Horaria»**:
+Para validar que los focos LED ámbar, el cableado de potencia y los relevadores/MOSFETs están funcionando físicamente en el poste sin esperar a que llegue la hora de la alarma:
 
-![Detalle de Configuración Manual](img/paso7_config_franja_detalle.png)
-*Figura 15: Tarjeta de configuración manual de franja horaria.*
+1. Presione el botón amarillo:
+   $$\mathbf{\text{Activar Test Luz (2 Minutos)}}$$
+2. El foco ámbar de la señal vial comenzará a parpadear a la cadencia reglamentaria de **1.0 Hz** (500 ms encendido / 500 ms apagado).
+3. Para finalizar la prueba antes de los 2 minutos, presione **`Apagar Test`**.
 
-#### Guía de Selectores Desplegables:
-1. **Alarma N°:** Seleccione la posición de memoria a configurar (`1`, `2`, `3`, `4` o `5`).
-2. **Interruptor ON-OFF:**
-   * **Activado (Azul/Verde):** Habilita la franja horaria.
-   * **Desactivado (Gris):** Deshabilita la alarma correspondiente.
-3. **Hora Inicio y Hora Fin:** Menú desplegable con formato de 24 horas (`00` a `23`).
-4. **Minutos Inicio y Minutos Fin:** Menú desplegable en intervalos de 5 minutos (`00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55`).
-5. **Horario (Días de Aplicación):**
-   * **`Lun-Vie`:** lunes a viernes (días hábiles escolares).
-   * **`Diario`:** Todos los días de la semana (lunes a Domingo).
-   * **`Sab-Dom`:** sábados y domingos.
-
-![Selectores Desplegables de Horario](img/paso7_dropdowns_combinados.png)
-*Figura 16: Menús desplegables de selección de Alarma, Horas, Minutos y Horario.*
-
-6. **Guardar Configuración:** Tras seleccionar los parámetros deseados, presione el botón verde **«CONFIG»** en la barra superior para almacenar la información en la memoria de la baliza.
+![Paso 6 - Botones de Prueba de Luz](img/paso6_botones_test_luz.png)
+*Figura 9: Botones de control manual de destello para pruebas en campo.*
 
 ---
 
-### PASO 10: Módulo de Diagnóstico y Modo de Prueba (2 Minutos)
+### PASO 7: Exportación del Certificado de Auditoría
 
-El módulo **«Diagnóstico de Banco / Terreno»** permite verificar el funcionamiento del foco LED y la instalación eléctrica en cualquier momento del día:
+1. Una vez realizada la lectura o programación, presione el botón:
+   $$\mathbf{\text{COMPARTIR CERTIFICADO DE AUDITORÍA}}$$
+2. La aplicación abrirá el menú de compartir de Android.
+3. Seleccione **WhatsApp**, **Gmail**, **Drive** o **Guardar como archivo**.
+4. Se enviará el reporte técnico formal con la siguiente estructura:
 
-![Módulo de Diagnóstico de Banco / Terreno](img/paso8_detalle_diagnostico_luz.png)
-*Figura 17: Tarjeta de diagnóstico y activación de prueba de luz.*
+```text
+========================================
+   CERTIFICADO DE AUDITORÍA VIAL SR30   
+   SEÑAL: 30 CUANDO ACTIVADA - IT VIAL  
+========================================
+Baliza Vial ID:       JDY-31-SPP (Oficial)
+Dirección MAC:        98:D3:31:F8:42:0A
+Fecha de Inspección:  22/08/2026 11:51:30
+Voltaje Batería 12V:  12.6 V (Carga Óptima)
+Cortes de Energía:    2 cortes acumulados
+Estado EEPROM:        100% Íntegra
+----------------------------------------
+REGISTRO DE HORARIOS EN BALIZA:
+ 1   - 06:00 - 09:00 - ON  - Lun a Vie
+ 2   - 11:30 - 13:30 - ON  - Lun a Vie
+ 3   - 15:00 - 16:30 - ON  - Lun a Vie
+ 4   - 00:00 - 00:00 - OFF - Dia
+ 5   - 00:00 - 00:00 - OFF - Dia
+========================================
+Generado por: App IT VIAL 30 (v3.4 Oficial)
+```
 
-#### Propósito Operativo
-Durante horarios en los que la señal se encuentra apagada, este comando permite forzar el encendido inmediato durante 2 minutos para validar el foco ámbar, el cableado y el suministro de energía sin alterar la programación escolar establecida.
+---
 
-#### Funcionamiento de la Prueba
-1. **Activación:** Presione el botón **«ACTIVAR TEST LUZ (2 MINUTOS)»**.
-2. **Cadencia Reglamentaria:** La lámpara ámbar destellará a la frecuencia oficial:
-   * **Tiempo encendido:** 500 milisegundos.
-   * **Tiempo apagado:** 500 milisegundos.
-   * **Frecuencia:** **1.0 Hz (60 destellos por minuto)** conforme a las normas de señalización vial.
-3. **Cancelación o Conclusión:** Al completarse los 120 segundos la luz se apaga automáticamente. Si desea finalizar la prueba antes, presione el botón **«APAGAR TEST»**.
+## 5. Tabla de Códigos de Alerta y Solución de Problemas
 
-#### Puntos de Control durante la Prueba
-
-| Parámetro | Criterio de Aceptación | Acción Correctiva |
+| Síntoma Observado | Causa Probable | Acción Correctiva |
 |---|---|---|
-| **Intensidad Lumínica** | Foco ámbar de alta visibilidad diurna, sin fluctuaciones de brillo. | Revisar conexión de alimentación, bornes de batería o panel solar. |
-| **Cadencia de Destello** | Ritmo simétrico y constante: 1 destello por segundo (1.0 Hz). | Revisar conexiones del circuito de control de luz. |
-| **Retorno a Reposo** | Al concluir la prueba o presionar Apagar Test, la lámpara se apaga totalmente. | Realizar una lectura con el botón LEER para confirmar estado en reposo. |
+| **Botón Dispositivo no cambia a Verde** | Bluetooth apagado o baliza sin energía. | Verifique que la baliza tenga 12V y que el módulo `JDY-31-SPP` esté vinculado con PIN `1234`. |
+| **Voltaje en Rojo ($<11.5\text{ V}$)** | Batería descargada o panel solar desconectado. | Revisar fusible de panel solar, sulfatación de bornes y medir tensión de carga en bornes de batería. |
+| **Contador de Cortes Elevado ($>15$)** | Falso contacto en cables de alimentación o fusible suelto. | Ajustar tornillos de borneras y revisar el portafusible aéreo. |
+| **La luz no parpadea a la hora escolar** | Reloj desfasado o fecha errónea. | Conéctese a la app y presione **`Programar Horario Escolar (1 Toque)`** para sincronizar reloj y horarios. |
+| **Comando Test no enciende el foco** | Foco desconectado o fusible de potencia abierto. | Revisar la conexión del foco al terminal `LATC2` / Bornera de carga de 12V. |
 
 ---
 
-## 4. Diagnóstico y Medición del Estado de Baterías
+## 6. Contacto y Soporte Técnico
 
-El sistema de baliza vial utiliza dos fuentes de energía independientes. Conocer cuál de las dos presenta fallas permite resolver rápidamente cualquier inconveniente en terreno:
-
----
-
-### 4.1 Batería Principal del Sistema (12 VDC)
-
-La batería principal suministra la potencia para el encendido del foco ámbar, el funcionamiento del controlador y la transmisión Bluetooth.
-
-#### ¿Cómo saber si la falla es de la batería de 12V?
-* **La baliza no enciende la luz:** Al pulsar el botón ACTIVAR TEST LUZ (2 MINUTOS) o durante el horario escolar programado, el foco no emite luz o destella con muy baja intensidad.
-* **El Bluetooth se desconecta al activar la luz:** La app conecta normalmente, pero en el instante en que se intenta encender la luz, la conexión se cae de inmediato. Esto ocurre porque la batería no soporta la corriente del foco y el voltaje cae por debajo del mínimo operativo.
-* **El módulo Bluetooth no aparece:** El equipo no figura en la lista de dispositivos disponibles del teléfono.
-
-#### Procedimiento de Medición con Multímetro (Voltímetro DC)
-Mida el voltaje continuo directamente en los bornes positivo (+) y negativo (-) de la batería:
-
-| Condición de Prueba | Rango de Voltaje | Diagnóstico del Estado | Acción Recomendada |
-|---|:---:|---|---|
-| **En Reposo** (Luz apagada) | **> 12.6 V** | Batería con carga óptima (100%). | Operación normal. |
-| **En Reposo** (Luz apagada) | **12.0 V a 12.4 V** | Carga media (50% a 70%). | Verificar carga del panel solar o cargador. |
-| **En Reposo** (Luz apagada) | **< 11.8 V** | Batería descargada críticamente. | Poner a cargar o revisar sistema solar. |
-| **Bajo Carga** (Durante Test de Luz) | **> 11.8 V** | Batería en buen estado de salud. | Soporta la carga del foco sin problema. |
-| **Bajo Carga** (Durante Test de Luz) | **< 10.5 V** | Batería dañada o agotada (celda caída). | **Reemplazar la batería de 12V de inmediato.** |
-
----
-
-### 4.2 Pila Botón de Respaldo del Reloj Interno (CR2032 - 3V)
-
-Esta pila de litio está ubicada en el zócalo de la tarjeta de control y tiene como única función mantener la hora y fecha exactas cuando se corta la energía principal (por ejemplo, en noches sin carga solar o durante labores de mantenimiento).
-
-#### ¿Cómo saber si la falla es de la pila de respaldo?
-* **Síntoma característico:** El foco prende con buena intensidad y el Bluetooth conecta perfectamente, pero cada vez que se corta la energía o al pulsar «LEER» tras un reinicio, la baliza muestra una hora desfasada o reseteada a ceros (`00:00:00`).
-
-#### Medición y Reemplazo:
-1. Extraiga la pila del zócalo y mida el voltaje con el multímetro:
-   * **Voltaje normal:** **2.9 V a 3.0 V**.
-   * **Pila agotada:** **Menor a 2.6 V**.
-2. **Solución:** Reemplace la pila por una nueva de **referencia comercial estándar `CR2032` (3V)** y vuelva a sincronizar la hora con el botón **«PROGRAMAR HORARIO ESCOLAR (1 TOQUE)»**.
-
----
-
-## 5. Lista de Chequeo para Entrega en Campo (Checklist)
-
-Antes de finalizar la instalación o servicio técnico en una baliza, verifique los siguientes puntos:
-
-| N° | Verificación Obligatoria | Estado |
-|:--:|---|:---:|
-| **1** | ¿El voltaje de la batería de 12V se encuentra por encima de 12.4 V en reposo y > 11.5 V bajo carga? | [ ] CUMPLE |
-| **2** | ¿El reloj de la baliza coincide con la hora actual del teléfono móvil al pulsar LEER? | [ ] CUMPLE |
-| **3** | ¿Las alarmas 1, 2 y 3 coinciden exactamente con los horarios de la placa metálica? | [ ] CUMPLE |
-| **4** | ¿Las alarmas 4 y 5 se encuentran en estado `OFF`? | [ ] CUMPLE |
-| **5** | ¿Se ejecutó el Test de 2 Minutos y la lámpara destelló con buena intensidad a 1.0 Hz constante? | [ ] CUMPLE |
-
----
-
-## 6. Tabla de Solución de Problemas (Troubleshooting)
-
-| Síntoma Observado | Causa Probable | Solución Inmediata |
-|---|---|---|
-| **Al tocar «DISPOSITIVO» no aparece la baliza** | El módulo no ha sido emparejado previamente en los ajustes de Android o la baliza no tiene energía. | Verifique que la batería de 12V entregue al menos 12V. Ingrese a **Ajustes > Bluetooth**, busque `JDY-31-SPP` o `HC-06`, vincule con PIN / CLAVE `1234` o `0000` y vuelva a la app. |
-| **La app se desconecta en el instante de activar el Test de Luz** | La batería principal de 12V está descargada o dañada y su voltaje cae drásticamente bajo carga. | Mida con multímetro el voltaje en bornes durante el encendido. Si cae por debajo de 10.5V, cargue o reemplace la batería de 12V. |
-| **El botón de Test no enciende la lámpara** | Fusible de protección quemado, lámpara desconectada o batería principal sin carga (< 11.5V). | Compruebe la conexión del foco, el fusible de protección y mida el voltaje de la batería de 12V. |
-| **La baliza pierde la hora al desconectar la batería principal** | La pila botón de litio (CR2032) del reloj interno está agotada o suelta. | Reemplace la pila por una nueva referencia comercial `CR2032` (3V) en el zócalo de la tarjeta y sincronice la hora con el botón *Programar Horario Escolar*. |
-| **Mensaje «Permiso de Bluetooth no otorgado»** | No se otorgaron los permisos de conectividad en Android. | Ingrese a **Ajustes > Aplicaciones > IT VIAL 30 > Permisos** y habilite *Dispositivos Cercanos* y *Ubicación*. |
-
----
-
-## 7. Soporte Técnico y Contacto Oficial
-
-![IT VIAL S.A.S - Soporte y Contacto](img/portada_it_vial_creditos.png)
-*Figura 18: Canales oficiales de soporte y contacto técnico IT VIAL S.A.S.*
-
-* **Empresa:** **INFRAESTRUCTURA Y TECNOLOGÍA VIAL S.A.S (IT VIAL S.A.S)**
-* **Portal Web:** [www.itvial.com](http://www.itvial.com)
-* **Línea de Atención y Soporte Técnico:** Celular `318 8200400`
-* **Aplicación Oficial:** `IT VIAL 30` (Versión v3.3)
-
----
-
-*Manual de Usuario elaborado conforme a la versión oficial de firmware IT VIAL 30 v3.3.*
+**IT VIAL S.A.S — Señalización y Seguridad Vial Inteligente**  
+* **Soporte Técnico:** soporte@itvial.com  
+* **Página Web:** [www.itvial.com](http://www.itvial.com)  
+* **Versión del Documento:** v3.4 — Agosto 2026
