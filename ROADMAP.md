@@ -141,10 +141,18 @@ Para futuras iteraciones del aplicativo móvil y del ecosistema de gestión vial
   - Generar un reporte formal en PDF firmado digitalmente con fecha, hora, estado previo, estado configurado y técnico responsable para entrega a interventorías y Secretarías de Movilidad.
 
 ### 6.3 · Telemetría y Diagnóstico Eléctrico en Tiempo Real
-- [ ] **Lectura Remota de Voltaje de Batería de 12V:**
-  - Implementar comando de telemetría para consultar el voltaje en bornes y estado de carga solar directamente en la pantalla de la app (requiere habilitar canal ADC en futura revisión de hardware).
-- [ ] **Historial de Cortes de Energía y Temperatura:**
-  - Registro en memoria de microcontrolador de eventos de desconexión o fallas de suministro eléctrico.
+- [ ] **Lectura Remota de Voltaje de Batería de 12V (Hardware ya compatible en placa):**
+  - Aprovechar el divisor resistivo existente en la tarjeta `R13 (100k) / R14 (20k)` conectado físicamente al pin `RA1/AN1` (Pin 3 del PIC18F2550).
+  - Activar el conversor ADC e incluir el voltaje medido en la trama de respuesta `¿L?` para visualizar el nivel de batería (12V) y carga solar en la app móvil.
+- [ ] **Registro de Auditoría Ultracompacto en EEPROM (16 Bytes):**
+  - Aprovechar los >210 bytes libres en la EEPROM interna del PIC18F2550 para almacenar un bloque de auditoría de solo 16 bytes:
+    - *5 bytes:* Fecha y hora de la última programación realizada por la app.
+    - *2 bytes:* Contador acumulativo de cortes de energía / reinicios de la baliza.
+    - *5 bytes:* Marca de tiempo (fecha/hora) del último corte registrado.
+    - *2 bytes:* Horas totales de destello acumuladas (vida útil del foco LED).
+    - *2 bytes:* Banderas de diagnóstico de salud (alerta de caída de batería $<10.5\text{ V}$, estado de pila `CR2032` del reloj).
+  - Transmitir este resumen al conectar la app o pulsar **LEER** para auditoría preventiva de mantenimiento vial.
+
 
 ### 6.4 · Experiencia de Usuario (UI/UX) y Personalización
 - [ ] **Perfiles y Plantillas de Horarios Predefinidos:**
