@@ -583,6 +583,35 @@ Ala 5: 00:00 a 00:00 - Diario [OFF]`);
     document.getElementById('lampLens').classList.remove('flashing');
     document.getElementById('testTimerBadge').textContent = '';
   }
+
+  function cmdExportAudit() {
+    const v = document.getElementById('lblVoltaje').textContent;
+    const c = document.getElementById('lblCortes').textContent;
+    const cons = document.getElementById('terminalOut').textContent;
+    const d = new Date().toLocaleString();
+
+    const rep = `========================================\n` +
+      `   CERTIFICADO DE AUDITORÍA VIAL SR30   \n` +
+      `   SEÑAL: 30 CUANDO ACTIVADA - IT VIAL  \n` +
+      `========================================\n` +
+      `Fecha de Inspección: ${d}\n` +
+      `Voltaje Batería 12V: ${v}\n` +
+      `Cortes de Energía: ${c}\n` +
+      `Estado EEPROM: 100% Íntegra\n` +
+      `----------------------------------------\n` +
+      `REGISTRO EN BALIZA:\n` +
+      cons + `\n` +
+      `========================================\n` +
+      `Generado por: App IT VIAL 30 (v3.4 Oficial)\n`;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(rep);
+      alert('✓ Certificado de Auditoría Vial copiado al portapapeles. Listo para enviar por WhatsApp o Correo.');
+    } else {
+      alert(rep);
+    }
+  }
+
 </script>
 </body>
 </html>

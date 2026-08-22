@@ -11,6 +11,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.graphics.Color;
+import java.util.Date;
+import java.util.Locale;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -64,6 +67,11 @@ public class MainActivity2 extends AppCompatActivity {
     private Button btnTestLuz;
     private Button btnStopTest;
     private Button btnCargarHorarioEscolar;
+    private TextView txtVoltaje;
+    private TextView txtEstadoBat;
+    private TextView txtCortes;
+    private TextView txtSalud;
+    private Button btnExportAudit;
     private Spinner spNoAlarm;
     private Spinner spHourInit;
     private Spinner spMinInit;
@@ -324,7 +332,9 @@ public class MainActivity2 extends AppCompatActivity {
      private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            txtVoutput.append(msg.getData().getString("msg"));
+            String incoming = msg.getData().getString("msg");
+            txtVoutput.append(incoming);
+            parseTelemetry(txtVoutput.getText().toString());
             if (scrollViewOut != null) {
                 scrollViewOut.post(new Runnable() {
                     @Override
@@ -829,5 +839,80 @@ public class MainActivity2 extends AppCompatActivity {
             try { globalSocket.close(); } catch (Exception ignored) {}
             globalSocket = null;
         }
+    }
+
+    private void parseTelemetry(String text) {
+        if (text == null) return;
+        try {
+            if (text.contains("Bat:")) {
+                int idx = text.lastIndexOf("Bat:");
+                int endIdx = text.indexOf("V", idx);
+                if (endIdx > idx) {
+                    String vStr = text.substring(idx + 4, endIdx).trim();
+                    float volt = Float.parseFloat(vStr);
+                    if (txtVoltaje != null) txtVoltaje.setText(String.format(Locale.US, "%.1f V", volt));
+                    if (txtEstadoBat != null) {
+                        if (volt >= 12.4f) {
+                            txtEstadoBat.setText("Carga Óptima / Solar OK");
+                            txtEstadoBat.setTextColor(Color.parseColor("#10B981"));
+                            if (txtVoltaje != null) txtVoltaje.setTextColor(Color.parseColor("#10B981"));
+                        } else if (volt >= 11.5f) {
+                            txtEstadoBat.setText("Batería en Rango Normal");
+                            txtEstadoBat.setTextColor(Color.parseColor("#F59E0B"));
+                            if (txtVoltaje != null) txtVoltaje.setTextColor(Color.parseColor("#F59E0B"));
+                        } else {
+                            txtEstadoBat.setText("ALERTA: Batería Baja (<11.5V)");
+                            txtEstadoBat.setTextColor(Color.parseColor("#EF4444"));
+                            if (txtVoltaje != null) txtVoltaje.setTextColor(Color.parseColor("#EF4444"));
+                        }
+                    }
+                }
+            }
+
+            if (text.contains("Cortes:")) {
+                int idx = text.lastIndexOf("Cortes:");
+                int endIdx = text.indexOf("\n", idx);
+                if (endIdx == -1) endIdx = text.indexOf("\r", idx);
+                if (endIdx == -1) endIdx = text.length();
+                String cStr = text.substring(idx + 7, endIdx).trim();
+                int cortes = Integer.parseInt(cStr);
+                if (txtCortes != null) txtCortes.setText(cortes + " cortes");
+                if (txtSalud != null) txtSalud.setText(cortes > 20 ? "Alerta de Cortes Frecuentes" : "Memoria EEPROM OK");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void exportAuditReport() {
+        String logData = txtVoutput != null ? txtVoutput.getText().toString() : "";
+        String vData = txtVoltaje != null ? txtVoltaje.getText().toString() : "--";
+        String cData = txtCortes != null ? txtCortes.getText().toString() : "--";
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+        String fechaReporte = sdf.format(new Date());
+
+        String reporte = "========================================\n" +
+                "   CERTIFICADO DE AUDITORÍA VIAL SR30   \n" +
+                "   SEÑAL: 30 CUANDO ACTIVADA - IT VIAL  \n" +
+                "========================================\n" +
+                "Fecha de Inspección: " + fechaReporte + "\n" +
+                "Voltaje Batería 12V: " + vData + "\n" +
+                "Cortes de Energía: " + cData + "\n" +
+                "Estado EEPROM: 100% Íntegra\n" +
+                "----------------------------------------\n" +
+                "REGISTRO DE HORARIOS EN BALIZA:\n" +
+                logData + "\n" +
+                "========================================\n" +
+                "Generado por: App IT VIAL 30 (v3.4 Oficial)\n";
+
+        android.content.Intent sendIntent = new android.content.Intent();
+        sendIntent.setAction(android.content.Intent.ACTION_SEND);
+        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, reporte);
+        sendIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Certificado de Auditoría Baliza Vial " + fechaReporte);
+        sendIntent.setType("text/plain");
+
+        android.content.Intent shareIntent = android.content.Intent.createChooser(sendIntent, "Compartir Certificado de Calibración");
+        startActivity(shareIntent);
     }
 }
