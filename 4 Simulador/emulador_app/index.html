@@ -316,6 +316,16 @@
 
     <div class="app-body">
       
+      <!-- PANTALLA PRINCIPAL DE TELEMETRÍA Y CONSOLA (SIEMPRE VISIBLE) -->
+      <div class="card" style="background:#0F172A; border: 2px solid #1E293B; padding:10px;">
+        <div class="card-header" style="color:#94A3B8; margin-bottom:4px; font-size:10px;">
+          <span>📟 Pantalla de Baliza IT VIAL 30 (v3.4)</span>
+          <span id="connStatus" style="font-size:10px; color:#64748B; font-weight:800;">● Desconectado</span>
+        </div>
+        <div class="console-box" id="consoleBox" style="height:125px; font-size:11px; background:#020617; border:1px solid #1E293B;">--- SISTEMA IT VIAL 30 v3.4 ---
+Presione DISPOSITIVO para conectar.</div>
+      </div>
+
       <!-- 1. IDENTIFICADOR Y NOMBRE DEL POSTE (OTA) -->
       <div class="card" style="border-left: 4px solid #3B82F6;">
         <div class="card-header">
@@ -382,16 +392,7 @@
         <div id="testTimerBadge" style="font-size:10px; color:#D97706; font-weight:700; text-align:center; margin-top:4px;"></div>
       </div>
 
-            <!-- CONSOLA DE TELEMETRÍA UART EN VIVO -->
-      <div class="card" style="padding:10px;">
-        <div class="card-header" style="margin-bottom:4px;">
-          <span>Terminal UART en Vivo</span>
-          <span style="font-size:9px; color:#3B82F6; cursor:pointer;" onclick="limpiarConsola()">[Limpiar]</span>
-        </div>
-        <div class="console-box" id="consoleBox">--- SISTEMA IT VIAL 30 v3.4 ---
-Presione DISPOSITIVO para conectar.</div>
-      </div>
-
+      
       <!-- 5. AUDITORÍA, CHECKLIST Y EXPORTAR (CIERRE DE INSPECCIÓN) -->
       <div class="card">
         <div class="card-header">
