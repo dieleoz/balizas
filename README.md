@@ -91,7 +91,7 @@ Segun `Release_v3.3/LEEME_RELEASE_v3.3.md`, la v3.3 lleva:
 
 **App** (`Baliza_v3.3.apk`, 3.859.625 B)
 
-6. **1-Toque** para el horario escolar de la placa (06:00-09:00, 11:30-13:30, 15:00-16:30 L-V).
+6. **1-Toque** que graba tres franjas FIJAS (06:00-09:00, 11:30-13:30, 15:00-16:30 L-V) — las de un colegio concreto. ⚠️ Ver ROADMAP: no sirve para un colegio con otro horario ni para uno de cuatro franjas.
 7. **Test de luz de 2 minutos** a 1.0 Hz con apagado rapido.
 8. **Tema oscuro de alto contraste** para visibilidad diurna bajo sol.
 

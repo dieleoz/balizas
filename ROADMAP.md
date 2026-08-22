@@ -39,7 +39,42 @@ Nuevo binario: **3.869.517 B**, `6ecc13944c69…`. Bajo de 6,07 MB a 3,87 MB, y 
 **no se perdio nada**: mismas 695 entradas y mismo tamano descomprimido (6.809.576 B). La
 diferencia era solo compresion.
 
-### 3. Validar la pareja nueva junta contra una señal real
+### 3. El botón «1-Toque» graba el horario de OTRO colegio — BLOQUEANTE
+
+Es el defecto más peligroso encontrado hoy, y no está en el firmware sino en la app.
+
+El botón se llama **«Programar Horario Escolar (1 Toque)»**, como si programase *el* horario
+escolar. Lo que hace en realidad (`MainActivity2.java:686-709`) es grabar **tres franjas fijas
+en el código**:
+
+```
+¿A1,E1,I0600,F0900,D9,?     06:00 - 09:00  Lun-Vie
+¿A2,E1,I1130,F1330,D9,?     11:30 - 13:30  Lun-Vie
+¿A3,E1,I1500,F1630,D9,?     15:00 - 16:30  Lun-Vie
+¿A4,E0,?                    <- APAGA la alarma 4
+¿A5,E0,?                    <- APAGA la alarma 5
+```
+
+
+Esas son las franjas de **una instalación concreta**. Pero el horario **es distinto en cada
+colegio y puede tener hasta cuatro franjas**. Así que en cualquier señal que no sea la de
+referencia, pulsar 1-Toque:
+
+1. Graba **un horario que no es el de esa chapa** — la señal pasa a decir 30 km/h a horas que
+   no rigen, y a no decirlo cuando sí rigen.
+2. **Borra la cuarta franja** sin avisar, porque manda `¿A4,E0,?` explícitamente.
+
+Y lo peor es que **no hay forma de notarlo desde el teléfono**: la app confirma «¡Horario
+Escolar Grabado con Éxito!» igual. El técnico se va convencido.
+
+**El firmware no es el límite:** medido el 22-ago-2026 (arnés, bloque `L`), las cuatro franjas
+se graban y la luz obedece a las cuatro. Sobra la alarma 5 para el test de foco.
+
+Lo que hace falta es que el 1-Toque **deje de llevar un horario dentro**: que lo tome de lo que
+el técnico lee en la chapa que tiene delante, con las cuatro franjas disponibles y sin apagar
+nada que no se le haya pedido apagar. Eso es un cambio de app y de UI, y va por funcional.
+
+### 4. Validar la pareja nueva junta contra una señal real
 
 Como se hizo con la v3.3. Firmware nuevo + App nueva, sobre una señal, comprobando que el
 horario programado coincide con la chapa atornillada. El simulador no puede sustituir esto.
@@ -48,7 +83,7 @@ horario programado coincide con la chapa atornillada. El simulador no puede sust
 
 ## Defectos abiertos
 
-### 4. La temperatura no se mide — y son dos defectos, no uno
+### 5. La temperatura no se mide — y son dos defectos, no uno
 
 Medido el 22-ago-2026 con el bloque `I` del arnés, que **no se podía escribir hasta ese día**:
 `ADC_init()` vivía en `main.c`, el único `.c` que el arnés no compila, así que el `PCFG` era
@@ -79,19 +114,19 @@ justo el orden en que alguien lo haría.
 
 Los dos rojos están en el arnés, fechados, y se quedan hasta que se resuelvan.
 
-### 5. La versión de XC8 del binario de la v3.3 no está registrada
+### 6. La versión de XC8 del binario de la v3.3 no está registrada
 
 `build_xc8/` conserva el `.hex` pero **no el `.map`**, así que del binario que está en la calle
 no consta con qué compilador se hizo. Por la regla 4, el compilador, su driver y sus banderas
 son parte del entregable. Se recupera recompilando y comparando, o se anota si alguien lo sabe.
 
-### 6. Los 1 kΩ en serie en `MCU_TX`
+### 7. Los 1 kΩ en serie en `MCU_TX`
 
 El `RXD` del módulo Bluetooth es de 3,3 V y se ataca con 5 V sin adaptación. No es un fallo —el
 enlace funciona— es un riesgo que mata módulos a las semanas. Va en el arnés de cables, **no en
 la PCB**, que está fabricada.
 
-### 7. Códigos de día 1..7 — no implementado
+### 8. Códigos de día 1..7 — no implementado
 
 Solo existen **8** (diario), **9** (lunes a viernes) y **10** (fin de semana).
 

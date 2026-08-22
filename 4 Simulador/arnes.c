@@ -127,6 +127,20 @@ static void trama_alarma(int n, int hi, int mi, int hf, int mf, int dias)
     sim_tick(200);
 }
 
+/* La luz de la senal PARPADEA a 1 Hz, asi que mirar LATC2 UNA vez no dice si
+   esta operando: sale 0 o 1 segun el instante. Se recorre una ventana y se mira
+   si cambia de estado. (Este error ya dio un rojo falso el 22-ago-2026.) */
+static int sim_cluster_parpadea(unsigned long ticks)
+{
+    int visto0 = 0, visto1 = 0;
+    unsigned long i;
+    for (i = 0; i < ticks; i += 50) {
+        sim_tick(50);
+        if (sim_cluster()) visto1 = 1; else visto0 = 1;
+    }
+    return visto0 && visto1;
+}
+
 static void trama_apagar(int n)
 {
     char t[32];
@@ -629,6 +643,50 @@ int main(int argc, char **argv)
         sim_rtc_get(&h, &m, &sg, &d, &mo, &a, &dw);
         CHECK(h == 7 && m == 45,
               "tras un LEER, la siguiente trama de reloj SI se atiende (leido %02d:%02d)", h, m);
+    }
+
+    /* =============================================================
+       L. CUATRO FRANJAS HORARIAS
+
+       El horario NO es el mismo en todos los colegios y puede llegar a CUATRO
+       franjas (confirmado por el responsable el 22-ago-2026). El equipo tiene
+       cinco alarmas, asi que cuatro franjas caben y sobra la 5 para el test de
+       foco de 2 minutos -- pero eso hay que MEDIRLO, no suponerlo.
+
+       Ojo con el corolario, que no es de firmware sino de la app: el boton
+       1-Toque graba TRES franjas fijas y ademas apaga la alarma 4 a proposito
+       (MainActivity2.java:704). En un colegio de cuatro franjas, el tecnico
+       creeria estar programando y estaria BORRANDO la cuarta.
+       ============================================================= */
+    ESCENARIO("L. Cuatro franjas horarias en la misma senal");
+    {
+        arrancar_limpio();
+
+        /* Cuatro franjas cualesquiera, Lun-Vie, sin solaparse. */
+        trama_alarma(1,  7,  0,  8, 30, 9);
+        trama_alarma(2, 10,  0, 11,  0, 9);
+        trama_alarma(3, 13,  0, 14,  0, 9);
+        trama_alarma(4, 17,  0, 18, 30, 9);
+
+        CHECK(sim_eeprom_leer(0x01) == 1 && sim_eeprom_leer(0x08) == 1 &&
+              sim_eeprom_leer(0x0F) == 1 && sim_eeprom_leer(0x16) == 1,
+              "las CUATRO franjas quedan habilitadas en la EEPROM");
+
+        /* Y la luz obedece a las cuatro, no solo a las tres primeras. */
+        sim_rtc_set(7, 30, 0, 21, 8, 26, 5);   /* viernes, dentro de la 1a */
+        sim_tick(3000);
+        CHECK(sim_cluster_parpadea(2000),
+              "franja 1 (07:00-08:30): la luz parpadea");
+
+        sim_rtc_set(17, 30, 0, 21, 8, 26, 5);  /* dentro de la CUARTA */
+        sim_tick(3000);
+        CHECK(sim_cluster_parpadea(2000),
+              "franja 4 (17:00-18:30): la luz parpadea");
+
+        sim_rtc_set(16, 0, 0, 21, 8, 26, 5);   /* entre la 3a y la 4a */
+        sim_tick(3000);
+        CHECK(!sim_cluster_parpadea(2000),
+              "entre la franja 3 y la 4 la luz esta apagada");
     }
 
     /* =============================================================

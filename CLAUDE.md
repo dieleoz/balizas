@@ -15,9 +15,15 @@ día no rige.
 
 > ### ⚠️ El horario no vive en el equipo: vive atornillado a la señal
 >
-> Cada señal lleva una **placa con su horario impreso**. La de referencia (foto en
-> `3 Imagen/Horario.jpeg`) dice: *Entre 6:00 am y 9:00 am · Entre 11:30 am y 1:30 pm · Entre
-> 3:00 pm y 4:30 pm*.
+> Cada señal lleva una **placa con su horario impreso**, y **el horario es distinto en cada
+> colegio**. La de referencia (foto en `3 Imagen/Horario.jpeg`) dice: *Entre 6:00 am y 9:00 am ·
+> Entre 11:30 am y 1:30 pm · Entre 3:00 pm y 4:30 pm* — pero **eso es el horario de ESA
+> instalación, no el del producto**.
+>
+> **Puede haber hasta CUATRO franjas** (confirmado por el responsable el 22-ago-2026). El equipo
+> tiene cinco alarmas, así que las cuatro caben y sobra la quinta para el test de foco; medido
+> en el arnés, bloque `L`. Cualquier documento, prueba o botón que dé por hecho «tres franjas»
+> está describiendo un colegio concreto y hay que leerlo así.
 >
 > **La consecuencia gobierna todo el proyecto:** si lo que se programa por Bluetooth no
 > coincide **exactamente** con esa chapa, la señal afirma una cosa y hace otra, delante de un
