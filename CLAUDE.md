@@ -244,6 +244,37 @@ comportaban distinto, y delante de una señal montada no había forma de saber c
    volcado (`MainActivity2.java:1146`). Una fecha de compilación ahí dentro daría el reloj por
    muerto en todas las balizas. El arnés lo vigila en el escenario `N`.
 
+## Un control que se ve no es un control que funciona
+
+El fallo que más veces se ha colado en este proyecto. Un control existe en el layout, a veces
+incluso está declarado como campo en el Java, y **nadie le hace `findViewById`**. Se ve en
+pantalla, se pulsa o se marca, y **no hace nada**. No da error: la app se comporta como si
+hubiera funcionado.
+
+Pasó **cuatro veces** antes de detectarse (22-ago-2026):
+
+| Control | Consecuencia |
+|---|---|
+| Las 4 casillas del checklist | Se marcaban y no salían en el acta |
+| `COMPARTIR CERTIFICADO` | `exportAuditReport()` escrito y **nunca invocado** |
+| Nombre OTA + `GUARDAR` | El acta salía **siempre** con «Sin Asignar» |
+| Usuario del login | Se teclea y se descarta |
+
+El del nombre OTA llegó a **demostrarse en reuniones** — pero eso era el emulador web, no la
+app.
+
+```bash
+cd "1 Firmware/Doc Aplicativo Movil/BalizaV10" && python comprobar_ui.py
+```
+
+Cruza el layout contra el código y saca en rojo cualquier control con `id` que no aparezca en
+el Java. Además mide contraste WCAG, áreas táctiles de 48dp y responsive. **Córrelo antes de
+entregar un APK.**
+
+> **Y la regla de fondo: una función no está hecha hasta que está en el APK.** El emulador web
+> (`4 Simulador/emulador_app/`) no cuenta como implementación, y varias funciones se «vieron
+> funcionando» en demos sin existir en la aplicación. Las demos se hacen sobre el APK.
+
 ## El retardo entre tramas no es opcional
 
 El PIC **no tiene buffer de tramas**. `taskAnalizaUart1` despierta cada milisegundo y, al ver

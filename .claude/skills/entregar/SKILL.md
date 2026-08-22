@@ -142,3 +142,26 @@ Java. Correlo antes de entregar un APK, y **corrigelo antes de anunciar la funci
 
 Y la regla de fondo: **una funcion no esta hecha hasta que esta en el APK.** El emulador web no
 cuenta como implementacion, y las demos deberian hacerse sobre el APK.
+
+## Regenerar el Word ha destruido las figuras dos veces
+
+El manual de usuario lleva 22 figuras. El 22-ago-2026 se quedo sin ninguna DOS VECES en el
+mismo dia, y las dos por motivos distintos:
+
+1. **El `.md` no las referenciaba.** Vivian solo dentro del `.docx`, asi que regenerarlo --
+   siguiendo la regla del proyecto -- las borraba. Se arreglo metiendo los `![](img/...)` en
+   el `.md`, que es lo que la regla decia que ya pasaba.
+2. **Pandoc no encontraba `img/`.** Se le invocaba desde otro directorio de trabajo. Se
+   arreglo con `--resource-path` y `cwd` en `Manuales/`.
+
+**Comprueba el resultado, no el mensaje de exito.** `generar_word.py` dice "1 de 1 generados"
+igual de contento con figuras que sin ellas:
+
+    unzip -l MANUAL_USUARIO_APP.docx | grep -c word/media/
+
+Deben salir 22. Si sale 0 y el fichero pesa 20 KB en vez de 566 KB, las figuras se han ido.
+
+Y un detalle de presentacion: los emoji **no se dibujan** en las ilustraciones generadas --
+la fuente es Arial y no los tiene, asi que salian como cuadros vacios. `generar_capturas_app.py`
+los filtra al dibujar. En pantalla un cuadrito no es nada; en un manual que va a la
+interventoria parece un documento roto.

@@ -70,8 +70,8 @@ que puedan llamarse v3.4 y salir a campo:
 2. ~~Incrementar el `versionCode`.~~ **HECHO el 22-ago-2026.** `build.gradle` esta en
    `versionCode 34` / `versionName "3.4"` y el APK se **recompilo**, asi que ahora se declara
    de verdad como 3.4 y Android si ofrece la actualizacion sobre una v3.3 instalada.
-   (El APK bajo de 6.066.074 a 3.869.517 B: mismas 695 entradas y mismo contenido
-   descomprimido, solo mejor comprimido. No se perdio nada.)
+   (El tamano del APK varia entre compilaciones sin que cambie el contenido: es solo
+   compresion. Comparar el contenido, no el tamano.)
 3. **Hay que probar la pareja junta contra una senal real**, como se hizo con la v3.3. El
    firmware nuevo y la App nueva no se han validado juntos en campo.
 

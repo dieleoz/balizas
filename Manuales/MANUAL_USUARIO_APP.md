@@ -4,16 +4,19 @@
 ---
 
 ## 📑 Tabla de Contenidos
+
 1. [Introducción y Propósito](#1-introducción-y-propósito)
 2. [Arquitectura de la Interfaz Responsiva](#2-arquitectura-de-la-interfaz-responsiva)
 3. [Guía de Conexión Bluetooth](#3-guía-de-conexión-bluetooth)
-4. [Programación del Horario de la Placa (Horario Escolar Oficial)](#4-programación-en-1-toque-horario-escolar-oficial)
-5. [Asignación de Nombre / Ubicación por el Aire (OTA)](#5-asignación-de-nombre--ubicación-por-el-aire-ota)
-6. [Motor de Autodiagnóstico y Dictamen en Campo](#6-motor-de-autodiagnóstico-y-dictamen-en-campo)
-7. [Mantenimiento, Inspección y Acta](#7-checklist-de-mantenimiento-preventivo-y-trazabilidad)
-8. [Prueba Física de Foco (Mando Directo)](#8-prueba-física-de-foco-mando-directo)
-9. [Exportación del Certificado de Auditoría para WhatsApp](#9-exportación-del-certificado-de-auditoría-para-whatsapp)
-10. [Referencias Cruzadas del Proyecto](#10-referencias-cruzadas-del-proyecto)
+4. [Programación del Horario de la Placa](#4-programación-del-horario-de-la-placa)
+5. [Receso Escolar (Vacaciones)](#5-receso-escolar-vacaciones)
+6. [¿«Grabar Horario de Placa» o «Programación Manual de Franja»?](#6-grabar-horario-de-placa-o-programación-manual-de-franja)
+7. [Asignación de Nombre / Ubicación por el Aire (OTA)](#7-asignación-de-nombre-ubicación-por-el-aire-ota)
+8. [Motor de Autodiagnóstico y Dictamen en Campo](#8-motor-de-autodiagnóstico-y-dictamen-en-campo)
+9. [Prueba Física de Foco (Mando Directo)](#9-prueba-física-de-foco-mando-directo)
+10. [Mantenimiento, Inspección y Acta](#10-mantenimiento-inspección-y-acta)
+11. [Cómo saber qué versión lleva la baliza](#11-cómo-saber-qué-versión-lleva-la-baliza)
+12. [Referencias Cruzadas del Proyecto](#12-referencias-cruzadas-del-proyecto)
 
 ---
 
@@ -112,7 +115,7 @@ La interfaz ha sido diseñada bajo directivas ergonómicas para uso rudo en call
 
 ---
 
-## 4bis. Receso Escolar (Vacaciones)
+## 5. Receso Escolar (Vacaciones)
 
 Durante las vacaciones **no hay escolares y el límite de 30 km/h no rige**. Una señal que
 destella semanas enteras sin alumnos acostumbra a los conductores a ignorarla, y le resta
@@ -131,7 +134,7 @@ pantalla es el de la placa**: es el que se restaurará al reanudar.
 
 ---
 
-## 4ter. ¿«Grabar Horario de Placa» vs «Programación Manual de Franja»?
+## 6. ¿«Grabar Horario de Placa» o «Programación Manual de Franja»?
 
 Una duda común entre técnicos es la diferencia entre estos dos métodos:
 
@@ -153,7 +156,7 @@ No es necesario hacer scroll hacia arriba: al pulsar este botón, la trama de la
 
 ---
 
-## 5. Asignación de Nombre / Ubicación por el Aire (OTA)
+## 7. Asignación de Nombre / Ubicación por el Aire (OTA)
 
 Para identificar cada baliza en un corredor vial con múltiples señales:
 1. En la tarjeta **`NOMBRE / UBICACIÓN DE LA SEÑAL`**, escriba el nombre o punto kilométrico (ej. `Col. San José - Km 4+200`).
@@ -162,7 +165,7 @@ Para identificar cada baliza en un corredor vial con múltiples señales:
 
 ---
 
-## 6. Motor de Autodiagnóstico y Dictamen en Campo
+## 8. Motor de Autodiagnóstico y Dictamen en Campo
 
 ![Figura 18: Menús desplegables de alarma, horas, minutos y días.](img/paso7_dropdowns_combinados.png)
 
@@ -178,7 +181,7 @@ flowchart LR
 
 ---
 
-## 7. Prueba Física de Foco (Mando Directo)
+## 9. Prueba Física de Foco (Mando Directo)
 
 ![Figura 18: Tarjeta de diagnóstico y prueba de luz.](img/paso8_detalle_diagnostico_luz.png)
 
@@ -188,18 +191,18 @@ flowchart LR
 
 ---
 
-## 8. Mantenimiento, Inspección y Acta
+## 10. Mantenimiento, Inspección y Acta
 
-### 8.1 Primero: quién y cómo
+### 10.1 Primero: quién y cómo
 
 En la tarjeta **MANTENIMIENTO E INSPECCIÓN**, escriba su nombre y cuadrilla en el campo
 **Técnico / cuadrilla**. Se escribe **una sola vez al empezar la jornada**: la aplicación lo
 guarda en el teléfono y aparecerá ya puesto en todas las señales de la ruta.
 
 > Este dato se guarda **en el teléfono**, no en la baliza. Es distinto del nombre del colegio
-> (apartado 5), que sí se graba en la memoria del equipo y viaja con el poste.
+> (apartado 7), que sí se graba en la memoria del equipo y viaja con el poste.
 
-### 8.2 Elija el tipo de inspección — y elíjalo bien
+### 10.2 Elija el tipo de inspección — y elíjalo bien
 
 Es lo primero que se toca, y **cambia lo que se puede marcar debajo**.
 
@@ -224,7 +227,7 @@ Es lo primero que se toca, y **cambia lo que se puede marcar debajo**.
 > **Si cambia de «en altura» a «a nivel de suelo», los siete puntos de altura se desmarcan
 > solos.** Es intencionado: esa visita ya no los verificó.
 
-### 8.3 Los 16 puntos
+### 10.3 Los 16 puntos
 
 **Desde el suelo (9)** — el estado físico va primero, porque es lo que mira una interventoría
 antes que nada:
@@ -254,7 +257,7 @@ antes que nada:
 > destella perfectamente detrás de una rama. Solo lo ve una persona mirando la señal desde donde
 > la mira un conductor.
 
-### 8.4 El acta dice también lo que NO se comprobó
+### 10.4 El acta dice también lo que NO se comprobó
 
 Al pulsar **COMPARTIR ACTA DE INSPECCIÓN** se abre el menú de compartir de Android — WhatsApp,
 correo, Drive, lo que tenga instalado.
@@ -284,7 +287,7 @@ INSPECCION REALIZADA POR: Cuadrilla 01 - D. Zuniga
 
 ---
 
-## 9. Cómo saber qué versión lleva la baliza
+## 11. Cómo saber qué versión lleva la baliza
 
 Al pulsar **LEER**, la primera línea del volcado indica la versión del firmware que corre en
 ese equipo:
@@ -298,7 +301,7 @@ si no aparece la línea, la baliza lleva un firmware antiguo y conviene reportar
 
 ---
 
-## 10. Referencias Cruzadas del Proyecto
+## 12. Referencias Cruzadas del Proyecto
 
 ![Figura 19: Canales oficiales de soporte técnico IT VIAL S.A.S.](img/portada_it_vial_creditos.png)
 
